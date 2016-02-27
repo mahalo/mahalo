@@ -27,6 +27,7 @@ export function deleteCallback(obj, keyPath?, callback?) {
 	
 }
 
+// @todo: Notify all underlying paths
 export function notify(obj, path, oldValue) {
 	var paths = callbacks.get(obj);
 	

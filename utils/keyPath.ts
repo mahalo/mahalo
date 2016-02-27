@@ -1,3 +1,5 @@
+import isObject from './isObject';
+
 export function toKeys(str) {
 	var keys = [],
 		buffer = '',
@@ -73,7 +75,7 @@ export default function keyPath(obj, kPath, val?) {
 
         obj = obj[key];
 
-        if (!Object.isObject(obj)) {
+        if (!isObject(obj)) {
             return;
         }
     }

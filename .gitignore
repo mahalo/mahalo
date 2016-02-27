@@ -5,3 +5,4 @@ node_modules
 test/watcher/watch.test.js
 !Gruntfile.js
 !karma.conf.js
+/nbproject/private/

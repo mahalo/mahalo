@@ -8,6 +8,7 @@ import {observe, unobserve} from '../observer/observe';
 import {observeComputed, unobserveComputed} from '../observer/update';
 import {default as keyPath, toKeyPath, toKeys} from '../utils/keyPath';
 import {addCallback, deleteCallback, notify} from './callbacks';
+import isObject from '../utils/isObject';
 
 var interceptors = new WeakMap(),
 	observedKeys = new WeakMap();
@@ -22,7 +23,6 @@ export function watch(obj, path, callback?) {
     typeof callback === 'function' && addCallback(obj, path, callback);
 }
 
-// @todo Remove computed interceptors
 export function unwatch(obj, path, callback) {
 	unwatchKeys(obj, toKeys(path), getInterceptor(obj, path));
 	
@@ -67,13 +67,9 @@ function interceptor(path, changes) {
 		}
 	}
 	
-	// @todo: Check if next key in remaining was changed
-	
 	var callback = interceptors.get(this).get(path),
 		pathRemaining = updatePath(this, toKeys(path), obj, before, callback),
 		oldValue = pathRemaining === '' ? before : pathRemaining && keyPath(before, pathRemaining);
-	
-	// console.log(oldValue);
 	
 	notify(this, path, oldValue);
 }
@@ -137,8 +133,4 @@ function unwatchKeys(obj, keys, callback) {
 	
 	unobserve(obj, callback);
 	unobserveKey(obj, key, callback);
-}
-
-function isObject(obj) {
-	return (typeof obj === 'object' || typeof obj === 'function') && obj !== null;
 }
