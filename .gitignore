@@ -1,4 +1,5 @@
 node_modules
+*.log
 *.js
 !test/**/*.js
 test/watcher/watch.test.js
