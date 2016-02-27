@@ -1,0 +1,25 @@
+{
+  "name": "access-core",
+  "description": "Access.js core package",
+  "version": "0.6.0",
+  "author": "Markus Schmidt",
+  "devDependencies": {
+    "access-babel": "^0.6.0",
+    "access-loader": "^0.6.0",
+    "babel-runtime": "^5.8.20",
+    "grunt": "^0.4.5",
+    "grunt-babel": "^5.0.1",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-karma": "^0.12.0",
+    "grunt-newer": "^1.1.1",
+    "jasmine-core": "^2.3.4",
+    "karma": "^0.13.9",
+    "karma-chrome-launcher": "^0.2.0",
+    "karma-jasmine": "^0.3.6",
+    "karma-webpack": "^1.7.0",
+    "load-grunt-tasks": "^3.2.0",
+    "time-grunt": "^1.2.1",
+    "webpack": "^1.11.0"
+  },
+  "main": "access.js"
+}
