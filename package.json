@@ -1,6 +1,6 @@
 {
   "name": "access-core",
-  "description": "Access.js core package",
+  "description": "Access JS core package",
   "version": "0.6.0",
   "author": "Markus Schmidt",
   "devDependencies": {
