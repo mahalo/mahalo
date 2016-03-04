@@ -7,10 +7,8 @@ module.exports = function (grunt) {
 			'bootstrap.ts',
 			'app/**/*.ts',
 			'expression/**/*.ts',
-			'observer/**/*.ts',
 			'change-detection/**/*.ts',
-			'utils/**/*.ts',
-			'watcher/**/*.ts'
+			'utils/**/*.ts'
 		];
 	
     grunt.initConfig({
