@@ -1,6 +1,6 @@
 import Template from './template';
 import Component from './component';
-import Expression from '../expression/parser'
+import Expression from '../expression/parser';
 
 export default class ComponentNode {
 	attributes: Object;
@@ -15,7 +15,7 @@ export default class ComponentNode {
 	
 	scope: Object;
 	
-	constructor(node: Element, desc) {
+	constructor(node: Element, desc: {Component?: Component, template?: Template}) {
 		this.node = node;
 		this.attributes = {};
 		
@@ -35,38 +35,36 @@ export default class ComponentNode {
 		
 		var node = this.node.cloneNode(),
 			attributes = this.compileAttributes(Component, node, scope),
-			components = Component.components(node, scope, attributes);
+			elementList = Component.components(node, scope, attributes),
+			link = document.createTextNode('');
 		
-		components.forEach(function(element) {
-			var node = element.node,
-				component = element.component;
-			
-			this.template.compile(node, component, element);
-			
-			element.compileChildren(this.children);
-			
-			parentElement.children.push(element);
-			parentNode.appendChild(node);
-			
-			typeof component.ready === 'function' && component.ready();
-		}, this);
+		elementList.template = this.template;
+		elementList.children = this.children;
+		elementList.parentElement = parentElement;
+		elementList.link = link;
+		
+		parentNode.appendChild(link);
+		
+		elementList.update();
 	}
 	
 	compileAttributes(Component, node, scope) {
-		if (typeof Component.attributes !== 'function') {
+		if (!Array.isArray(Component.attributes)) {
 			return;
 		}
 		
 		var compiledAttributes = {},
-			attributes = Component.attributes(),
+			attributes = Component.attributes,
 			attribute = attributes[0],
 			i = 0,
 			value;
 		
 		while (attribute) {
-			value = node.getAttribute(attribute.toUpperCase());
-			
-			compiledAttributes[attribute] = new Expression(value).compile(scope);
+			if (typeof attribute === 'string') {
+				value = node.getAttribute(attribute.toUpperCase());
+				
+				compiledAttributes[attribute] = new Expression(value).compile(scope);
+			}
 			
 			attribute = attributes[++i];
 		}

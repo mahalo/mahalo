@@ -13,12 +13,12 @@ import {createChange} from './changes';
 
 export var observe, unobserve, set, del;
 
-if (Object.hasOwnProperty('observe')) {
-	observe = Object.observe;
-	unobserve = Object.unobserve;
-} else {
+// if (Object.hasOwnProperty('observe')) {
+// 	observe = Object.observe;
+// 	unobserve = Object.unobserve;
+// } else {
 	observePolyfill(Array);
-}
+// }
 
 function observePolyfill(Array) {
 	var defineProperty = Object.defineProperty,

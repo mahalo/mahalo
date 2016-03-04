@@ -50,7 +50,7 @@ export function observeComputed(obj, key, callback) {
 	addObservedKey(obj, key);
 }
 
-export function unobserveComputed(obj, key, callback) {
+export function unobserveComputed(obj, key?, callback?) {
 	deleteCallback(obj, callback);
 	deleteObservedKey(obj, key);
 }

@@ -10,10 +10,9 @@ import {default as keyPath, toKeyPath, toKeys} from '../utils/keyPath';
 import {addCallback, deleteCallback, notify} from './callbacks';
 import isObject from '../utils/isObject';
 
-var interceptors = new WeakMap(),
-	observedKeys = new WeakMap();
+var interceptors = new WeakMap();
 
-export function watch(obj, path, callback?) {
+export function watch(obj, path, callback) {
     if (!path) {
         return;
     }
@@ -23,10 +22,10 @@ export function watch(obj, path, callback?) {
     typeof callback === 'function' && addCallback(obj, path, callback);
 }
 
-export function unwatch(obj, path, callback) {
-	unwatchKeys(obj, toKeys(path), getInterceptor(obj, path));
+export function unwatch(obj, path?, callback?) {
+	typeof path === 'string' && unwatchKeys(obj, toKeys(path), getInterceptor(obj, path));	
 	
-    deleteCallback(obj, path, callback);
+	deleteCallback(obj, path, callback);
 }
 
 function getInterceptor(obj, keyPath) {

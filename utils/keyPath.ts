@@ -2,60 +2,52 @@ import isObject from './isObject';
 
 export function toKeys(str) {
 	var keys = [],
-		buffer = '',
+		key = '',
 		char = str[0],
-		prev = '',
 		i = 0,
 		esc = false;
 
 	while (char) {
-		if (char === '.') {
-			if (prev === '.' && !esc) {
-				buffer += char;
-				esc = true;
-			} else {
-				esc = false;
-			}
+		if (char === '^' && !esc) {
+			esc = true;
+		} else if (char === '.' && !esc) {
+			keys.push(key);
+			key = '';
+			esc = false;
 		} else {
-			if (prev === '.' && !esc) {
-				keys.push(buffer);
-				buffer = char;
-			} else {
-				buffer += char;
-			}
+			key += char;
 			esc = false;
 		}
-
-		prev = char;
+		
 		char = str[++i];
 	}
 
-	keys.push(buffer);
+	keys.push(key);
 
 	return keys;
 }
 
 export function toKeyPath(keys) {
-	var path = '',
-		i = 0,
-		str;
+	var i;
 	
 	if (typeof keys === 'string') {
 		keys = [keys];
 	}
 	
-	str = keys[0];
+	i = keys.length;
 	
-	while (str) {
-		path += (i ? '.' : '') + str.replace('.', '..');
-		
-		str = keys[++i];
+	while (i--) {
+		keys[i] = keys[i].replace('^', '^^').replace('.', '^.');
 	}
 	
-	return path;
+	return keys.join('.');
 }
 
 export default function keyPath(obj, kPath, val?) {
+	if (!isObject(obj)) {
+		return;
+	}
+	
     var keys = toKeys(kPath),
         key = keys[0],
         len = keys.length - 1,

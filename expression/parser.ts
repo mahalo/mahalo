@@ -2,7 +2,7 @@ import * as symbols from './symbols';
 import * as types from './types';
 import {Symbol, nextSymbol} from './lexer';
 import compileBranch from './compiler';
-import {watch} from '../watcher/watch';
+import {watch, unwatch} from '../change-detection/watch';
 
 var expressions = {};
 
@@ -255,14 +255,24 @@ export default class Expression {
 		this.paths.add(path + '.' + prop.name);
 	}
 	
-	compile(ctx, callback?) {
+	watch(scope, callback) {
 		if (typeof callback === 'function') {
 			
 			this.paths.forEach(function (path) {
-				watch(ctx, path, callback);
-			}, this);
+				watch(scope, path, callback);
+			});
 		}
 		
-		return compileBranch(this.ast, ctx);
+		return this.compile(scope);
+	}
+	
+	unwatch(scope, callback?) {
+		this.paths.forEach(function (path) {
+			unwatch(scope, path, callback);
+		});
+	}
+	
+	compile(scope) {
+		return compileBranch(this.ast, scope);
 	}
 }

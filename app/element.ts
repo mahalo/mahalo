@@ -1,8 +1,24 @@
-export default class Element {
-	node: Node
+// import Component from './component';
+import Scope from './scope';
+import {unwatch} from '../change-detection/watch';
+
+export default class XSElement {
+	node: Element
 	
 	component: Component
+	
+	scope: Scope
+	
+	children: Array<Element>
 		
+	compiled: boolean
+	
+	position: number
+	
+	isEntering: boolean
+	
+	isLeaving: boolean
+	
 	constructor(node, component, scope) {
 		this.node = node;
 		this.component = component;
@@ -10,24 +26,15 @@ export default class Element {
 		this.children = [];
 	}
 	
-	compileChildren(children) {
-		var element = this.node.querySelector('children');
+	remove() {
+		var component = this.component;
 		
-		if (!element) {
-			return;
-		}
+		unwatch(component);
 		
-		var parent = element.parentNode,
-			fragment = document.createDocumentFragment(),
-			child = children[0],
-			i = 0;
+		typeof component.$remove === 'function' && component.$remove();
 		
-		while (child) {
-			child.compile(fragment, this.scope, this);
-			
-			child = children[++i];
-		}
-		
-		parent.replaceChild(fragment, element);
+		this.children.forEach(function(element) {
+			element.remove();
+		});
 	}
 }

@@ -20,7 +20,7 @@ module.exports = function (config) {
 			resolve: {
 				root: ['node_modules', '..']
 			},
-			devtool: 'inline-source-map'
+			devtool: 'eval'
         }
     });
 };

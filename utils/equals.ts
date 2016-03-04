@@ -22,6 +22,11 @@ export default function equals(x, y) {
 		if (!(x instanceof Object) || !(y instanceof Object)) {
 			return false;
 		}
+		
+		// They must have the exact same prototype
+		if (Object.getPrototypeOf(x) !== Object.getPrototypeOf(y)) {
+			return false;
+		}
 
 		for (p in x) {
 			// Allows comparing x[p] and y[p] when set to undefined

@@ -11,7 +11,7 @@ export function addCallback(obj, callback) {
 	callbackList.add(callback);
 }
 
-export function deleteCallback(obj, callback) {
+export function deleteCallback(obj, callback?) {
 	var callbackList = callbacks.get(obj);
 	
 	if (!callbackList) {

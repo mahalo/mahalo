@@ -7,7 +7,8 @@ module.exports = function (grunt) {
 			'bootstrap.ts',
 			'app/**/*.ts',
 			'expression/**/*.ts',
-			'observer/**/*ts',
+			'observer/**/*.ts',
+			'change-detection/**/*.ts',
 			'utils/**/*.ts',
 			'watcher/**/*.ts'
 		];
@@ -25,11 +26,13 @@ module.exports = function (grunt) {
             },
             test: {
                 files: {
-                    'test/utils/watch.test.js': 'test/utils/watch.test.ts'
+                    
                 },
 				options: {
 					plugins: [
-						'access-babel'
+						'access-babel',
+						'transform-flow-strip-types',
+						'transform-runtime'
 					]
 				}
             }

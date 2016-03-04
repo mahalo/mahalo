@@ -1,4 +1,6 @@
 import Expression from '../expression/parser';
+import TextElement from './textElement';
+import Component from './component';
 
 export default class TextNode {
 	node: Node
@@ -41,34 +43,22 @@ export default class TextNode {
 		this.parts = parts;
 	}
 	
-	// @todo: add to parent element
-	compile(node, scope, element) {
+	compile(parentNode, scope, parentElement) {
 		var textNode = this.node,
 			parts = this.parts,
 			part = parts[0],
 			i = 0;
 		
 		while (part) {
-			if (part instanceof Expression) {
-				node.appendChild(this.compileExpression(part, scope));
-			} else {
-				textNode = textNode.cloneNode();
-				textNode.textContent = part;
-				node.appendChild(textNode);
-			}
+			textNode = textNode.cloneNode();
+			
+			parentNode.appendChild(textNode);
+			parentElement.children.push(
+				new TextElement(textNode, new Component(), scope, part)
+			);
 			
 			part = parts[++i];
 		}
-	}
-	
-	compileExpression(exp, scope) {
-		var textNode = this.node.cloneNode();
-		
-		textNode.textContent = exp.compile(scope, function () {
-			textNode.textContent = exp.compile(scope) || '';
-		}) || '';
-		
-		return textNode;
 	}
 }
 

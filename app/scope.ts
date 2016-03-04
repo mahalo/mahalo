@@ -1,44 +1,92 @@
-import {watch, unwatch} from '../watcher/watch';
-import update from '../observer/update';
+import {assign, observe, unobserve} from '../change-detection/property';
+
+var scopes = new WeakMap(),
+	localScopes = new WeakMap(),
+	callbacksByKey = new WeakMap();
 
 export default class Scope {
-	constructor(component, localComponent, properties) {
-		var property = properties[0],
+	constructor(scope, localScope, properties) {
+		var obj = Object.create(Object.getPrototypeOf(scope)),
+			property = properties[0],
 			i = 0,
 			value;
 		
+		scopes.set(obj, scope);
+		localScopes.set(obj, localScope);
+		callbacksByKey.set(obj, {});
+		
 		while (property) {
-			createProperty(this, property, localComponent);
+			createProperty(obj, property, localScope);
 			
 			property = properties[++i];
 		}
 		
-		for (property in component) {
-			if (typeof component[property] !== 'function') {
-				createProperty(this, property, component);
+		for (property in scope) {
+			if (scope.hasOwnProperty(property)) {
+				createProperty(obj, property, scope);
 			}
 		}
+		
+		return obj;
 	}
 }
 
-function createProperty(scope, property, component) {
-	if (scope.hasOwnProperty(property)) {
+export function remove(obj) {
+	var scope = scopes.get(obj),
+		localScope = localScopes.get(obj),
+		property;
+	
+	for (property in scope) {
+		if (typeof scope[property] !== 'function') {
+			removeProperty(obj, property, scope);
+		}
+	}
+	
+	for (property in obj) {
+		if (obj.hasOwnProperty(property)) {
+			removeProperty(obj, property, localScope);
+		}
+	}
+	
+	scopes.delete(obj);
+	localScopes.delete(obj);
+	callbacksByKey.delete(obj);
+}
+
+function createProperty(obj, key, scope) {
+	if (obj.hasOwnProperty(key)) {
 		return;
 	}
 	
-	scope[property] = component[property];
+	var desc = Object.getOwnPropertyDescriptor(scope, key),
+		callbacks = callbacksByKey.get(obj)[key] = {
+			scope: callback.bind(scope),
+			obj: null
+		};
 	
-	watch(component, property, function(value) {
-		update(scope[property], scope, property, scope[property] = value);
-	});
+	obj[key] = scope[key];
 	
-	var desc = Object.getOwnPropertyDescriptor(component, property);
+	observe(scope, key, callbacks.scope);
 	
 	if (desc && desc.get && !desc.set) {
 		return;
 	}
 	
-	watch(scope, property, function(value) {
-		update(component[property], component, property, component[property] = value);
-	});
+	callbacks.obj = callback.bind(obj);
+	
+	observe(obj, key, callbacks.obj);
+}
+
+function removeProperty(obj, key, scope) {
+	var callbacks = callbacksByKey.get(obj)[key];
+	
+	unobserve(scope, key, callbacks.scope);
+	
+	callbacks.obj && unobserve(obj, key, callbacks.obj);
+	
+	delete obj[key];
+}
+
+function callback(obj, key) {
+	assign(this, key, obj[key]);
 }
