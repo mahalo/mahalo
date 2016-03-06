@@ -1,4 +1,4 @@
-var Expression = require('access-core/expression/parser')['default'];
+var Expression = require('../../expression/parser')['default'];
 
 describe('Expression', function() {
     it('should be able to access members', function() {

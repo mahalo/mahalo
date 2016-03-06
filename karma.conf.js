@@ -11,14 +11,25 @@ module.exports = function (config) {
         webpack: {
             module: {
                 loaders: [
-                    {
-                        test: /\.html$/,
-                        loader: 'access'
-                    }
+					{
+						test: /\.ts$/,
+						loader: 'babel',
+						query: {
+							presets: [
+								'es2015',
+								'stage-1'
+							],
+							plugins: [
+								'transform-flow-strip-types',
+								'transform-runtime'
+							]
+						}
+					}
                 ]
             },
 			resolve: {
-				root: ['node_modules', '..']
+				// root: ['node_modules', '..'],
+				extensions: ['', '.js', '.ts']
 			},
 			devtool: 'eval'
         }

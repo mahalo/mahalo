@@ -1,4 +1,4 @@
-var keyPath = require('access-core/utils/keyPath'),
+var keyPath = require('../../utils/key-path'),
 	toKeys = keyPath.toKeys,
 	toKeyPath = keyPath.toKeyPath;
 

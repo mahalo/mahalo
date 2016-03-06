@@ -7,15 +7,15 @@ import {watch, unwatch} from '../change-detection/watch';
 var expressions = {};
 
 export default class Expression {
-	exp: string
+	exp: string;
 	
-	i: number
+	i: number;
 	
-	paths: Set<string>
+	paths: Set<string>;
 	
-	ast: Object
+	ast: ExpressionBranch;
 	
-	symbol: Symbol
+	symbol: Symbol;
 	
 	constructor(exp: string) {
 		if (expressions[exp]) {
@@ -28,7 +28,7 @@ export default class Expression {
 		this.ast = this.expression();
 		
 		this.nextSymbol();
-		this.expect('END');
+		this.expect(symbols.END);
 		
 		expressions[exp] = this;
 	}
@@ -132,7 +132,7 @@ export default class Expression {
 		return this.operand();
 	}
 	
-	operand() : Object {
+	operand() {
 		if (this.accept(symbols.LITERAL)) {
 			return {
 				type: types.LITERAL,
@@ -221,13 +221,13 @@ export default class Expression {
 		};
 	}
 	
-	expect(type) {
+	expect(type: number) {
 		if (this.symbol.type !== type) {
 			throw Error('Unexpected symbol in column ' + this.symbol.start);
 		}
 	}
 	
-	accept(type) {
+	accept(type: number) {
 		this.nextSymbol();
 		
 		if (this.symbol.type === type) {
@@ -243,7 +243,7 @@ export default class Expression {
 		nextSymbol.call(this);
 	}
 	
-	addPath(branch, path?) {
+	addPath(branch: ExpressionBranch, path?: string) {
 		path = (path ? path + '.' : '') + branch.obj.name;
 		
 		var prop = branch.prop;
@@ -255,7 +255,7 @@ export default class Expression {
 		this.paths.add(path + '.' + prop.name);
 	}
 	
-	watch(scope, callback) {
+	watch(scope: Object, callback: Function) {
 		if (typeof callback === 'function') {
 			
 			this.paths.forEach(function (path) {
@@ -266,13 +266,13 @@ export default class Expression {
 		return this.compile(scope);
 	}
 	
-	unwatch(scope, callback?) {
+	unwatch(scope: Object, callback?: Function) {
 		this.paths.forEach(function (path) {
 			unwatch(scope, path, callback);
 		});
 	}
 	
-	compile(scope) {
+	compile(scope: Object) {
 		return compileBranch(this.ast, scope);
 	}
 }

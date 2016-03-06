@@ -1,4 +1,4 @@
-var property = require('access-core/change-detection/property'),
+var property = require('../../change-detection/property'),
 	assign = property.assign,
 	observe = property.observe,
 	unobserve = property.unobserve;

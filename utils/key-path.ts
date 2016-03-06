@@ -1,6 +1,6 @@
-import isObject from './isObject';
+import isObject from './is-object';
 
-export function toKeys(str) {
+export function toKeys(str: string) {
 	var keys = [],
 		key = '',
 		char = str[0],
@@ -27,28 +27,23 @@ export function toKeys(str) {
 	return keys;
 }
 
-export function toKeyPath(keys) {
-	var i;
-	
-	if (typeof keys === 'string') {
-		keys = [keys];
-	}
-	
-	i = keys.length;
+export function toKeyPath(keys: Array<string>|string) {
+	var _keys = typeof keys === 'string' ? [keys] : keys,
+		i = _keys.length;
 	
 	while (i--) {
-		keys[i] = keys[i].replace('^', '^^').replace('.', '^.');
+		_keys[i] = _keys[i].replace('^', '^^').replace('.', '^.');
 	}
 	
-	return keys.join('.');
+	return _keys.join('.');
 }
 
-export default function keyPath(obj, kPath, val?) {
+export default function keyPath(obj: Object, path: string, val?) {
 	if (!isObject(obj)) {
 		return;
 	}
 	
-    var keys = toKeys(kPath),
+    var keys = toKeys(path),
         key = keys[0],
         len = keys.length - 1,
         i = 0,

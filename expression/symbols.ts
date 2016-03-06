@@ -13,4 +13,5 @@ export var
 	RPAREN = 11,
 	LBRACKET = 12,
 	RBRACKET = 13,
-	FILTER = 14;
+	FILTER = 14,
+	END = 15;

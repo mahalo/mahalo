@@ -5,46 +5,55 @@ var scopes = new WeakMap(),
 	callbacksByKey = new WeakMap();
 
 export default class Scope {
-	constructor(scope, localScope, properties) {
+	constructor(scope, localScope, keys) {
 		var obj = Object.create(Object.getPrototypeOf(scope)),
-			property = properties[0],
-			i = 0,
-			value;
+			key;
 		
-		scopes.set(obj, scope);
-		localScopes.set(obj, localScope);
 		callbacksByKey.set(obj, {});
 		
-		while (property) {
-			createProperty(obj, property, localScope);
-			
-			property = properties[++i];
-		}
-		
-		for (property in scope) {
-			if (scope.hasOwnProperty(property)) {
-				createProperty(obj, property, scope);
+		for (key in keys) {
+			if (keys.hasOwnProperty(key)) {
+				createKey(obj, key, localScope);
 			}
 		}
 		
+		for (key in scope) {
+			if (scope.hasOwnProperty(key)) {
+				createKey(obj, key, scope);
+			}
+		}
+		
+		scopes.set(obj, scope);
+		localScopes.set(obj, localScope);
+		
 		return obj;
 	}
+	
+	enter() {}
+	
+	leave() {}
+	
+	remove() {}
 }
 
 export function remove(obj) {
 	var scope = scopes.get(obj),
 		localScope = localScopes.get(obj),
-		property;
+		key;
 	
-	for (property in scope) {
-		if (typeof scope[property] !== 'function') {
-			removeProperty(obj, property, scope);
+	// if (!scope) {
+	// 	return;
+	// }
+	
+	for (key in scope) {
+		if (scope.hasOwnProperty(key)) {
+			removeKey(obj, key, scope);
 		}
 	}
 	
-	for (property in obj) {
-		if (obj.hasOwnProperty(property)) {
-			removeProperty(obj, property, localScope);
+	for (key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			removeKey(obj, key, localScope);
 		}
 	}
 	
@@ -53,14 +62,14 @@ export function remove(obj) {
 	callbacksByKey.delete(obj);
 }
 
-function createProperty(obj, key, scope) {
+function createKey(obj, key, scope) {
 	if (obj.hasOwnProperty(key)) {
 		return;
 	}
 	
 	var desc = Object.getOwnPropertyDescriptor(scope, key),
 		callbacks = callbacksByKey.get(obj)[key] = {
-			scope: callback.bind(scope),
+			scope: callback.bind(obj),
 			obj: null
 		};
 	
@@ -72,12 +81,12 @@ function createProperty(obj, key, scope) {
 		return;
 	}
 	
-	callbacks.obj = callback.bind(obj);
+	callbacks.obj = callback.bind(scope);
 	
 	observe(obj, key, callbacks.obj);
 }
 
-function removeProperty(obj, key, scope) {
+function removeKey(obj, key, scope) {
 	var callbacks = callbacksByKey.get(obj)[key];
 	
 	unobserve(scope, key, callbacks.scope);

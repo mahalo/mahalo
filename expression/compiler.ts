@@ -1,6 +1,7 @@
 import * as types from './types';
+import isObject from '../utils/is-object';
 
-export default function compileBranch(branch, ctx) {
+export default function compileBranch(branch: ExpressionBranch, ctx: Object) {
 	switch (branch.type) {
 		case types.FILTER:
 			return compileFilter(branch, ctx);
@@ -34,11 +35,11 @@ export default function compileBranch(branch, ctx) {
 	}
 }
 
-function compileFilter(branch, ctx) {
+function compileFilter(branch: ExpressionBranch, ctx: Object) {
 	return compileBranch(branch.arg, ctx);
 }
 
-function compileComparison(branch, ctx) {
+function compileComparison(branch: ExpressionBranch, ctx: Object) {
 	var left = compileBranch(branch.left, ctx),
 		right = compileBranch(branch.right, ctx);
 		
@@ -54,10 +55,16 @@ function compileComparison(branch, ctx) {
 			
 		case '<>':
 			return left != right;
+			
+		case '<':
+			return left < right;
+			
+		case '>':
+			return left > right;
 	}
 }
 
-function compileSum(branch, ctx) {
+function compileSum(branch: ExpressionBranch, ctx: Object) {
 	var left = compileBranch(branch.left, ctx),
 		right = compileBranch(branch.right, ctx);
 	
@@ -68,7 +75,7 @@ function compileSum(branch, ctx) {
 	return left - right;
 }
 
-function compileMultiply(branch, ctx): number {
+function compileMultiply(branch: ExpressionBranch, ctx: Object): number {
 	var op = branch.op,
 		left = compileBranch(branch.left, ctx),
 		right = compileBranch(branch.right, ctx);
@@ -84,7 +91,7 @@ function compileMultiply(branch, ctx): number {
 	return left % right;
 }
 
-function compileUnary(branch, ctx): any {
+function compileUnary(branch: ExpressionBranch, ctx: Object): any {
 	var op = branch.op,
 		arg = compileBranch(branch.arg, ctx);
 	
@@ -99,7 +106,7 @@ function compileUnary(branch, ctx): any {
 	return +arg;
 }
 
-function compileMember(branch, ctx) {
+function compileMember(branch: ExpressionBranch, ctx: Object) {
 	if (!isObject(ctx)) {
 		return;
 	}
@@ -117,8 +124,4 @@ function compileMember(branch, ctx) {
 	}
 	
 	return obj[prop.name];
-}
-
-function isObject(obj) {
-	return (typeof obj === 'object' || typeof obj === 'function') && obj !== null;
 }

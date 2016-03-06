@@ -1,9 +1,9 @@
-import Element from './app/element';
+import ComponentController from './app/component-controller';
 
-export default function bootstrap(app, node, scope) {
-	var element = new Element(node, scope, scope);
+export default function bootstrap(template, node, scope) {
+	var controller = new ComponentController(node, scope, scope);
 	
-	console.log(element);
+	console.log(controller);
 	
-	app.compile(node, scope, element);
+	template.compile(node, scope, controller);
 }

@@ -1,6 +1,6 @@
-import ComponentNode from './componentNode';
-import TextNode from './textNode';
-import EmptyNode from './emptyNode';
+import ComponentGenerator from './component-generator';
+import TextGenerator from './text-generator';
+import ChildrenGenerator from './children-generator';
 
 var TEXT_NODE = Node.TEXT_NODE,
 	parser = new DOMParser(),
@@ -8,31 +8,30 @@ var TEXT_NODE = Node.TEXT_NODE,
 
 fragment.appendChild(document.createElement('children'))
 
-export default class Template {	
-	components: Object
+export default class Template {
+	components: Object;
 	
-	attributes: Object
+	attributes: Object;
 	
-	children: Array<EmptyNode>
+	children: Array<Generator>;
 	
-	constructor(html?, components?, attributes?) {
-		var childNodes = parseHTML(html || '<children/>');
-		
+	constructor(html?: string, components?: Object, attributes?: Object) {
 		this.components = components || {};
+		
 		this.attributes = attributes || {};
 		
-		this.children = this.parseChildNodes(childNodes);
+		this.children = this.parseChildNodes(parseHTML(html));
 	}
 	
-	parseChildNodes(childNodes) {
+	parseChildNodes(childNodes: NodeList) {
 		var children = [],
 			child = childNodes[0],
 			i = 0,
-			node;
+			generator;
 			
 		while (child) {
-			node = this.checkNode(child);
-			node && children.push(node);
+			generator = this.checkNode(child);
+			generator && children.push(generator);
 			
 			child = childNodes[++i];
 		}
@@ -40,27 +39,27 @@ export default class Template {
 		return children;
 	}
 	
-	checkNode(node) : EmptyNode {
+	checkNode(node: Element): Generator {
 		if (node.nodeType === TEXT_NODE) {
 			return this.checkText(node);
 		}
 		
 		if (node.tagName === 'CHILDREN') {
-			return new EmptyNode(node.cloneNode());
+			return new ChildrenGenerator(node.cloneNode());
 		}
 		
 		return this.checkComponent(node);
 	}
 	
-	checkText(textNode) {
+	checkText(textNode: Node): TextGenerator {
 		if (!textNode.textContent.trim()) {
 			return null;
 		}
 		
-		return new TextNode(textNode.cloneNode());
+		return new TextGenerator(textNode.cloneNode());
 	}
 	
-	checkComponent(element) {
+	checkComponent(element: Element): ComponentGenerator {
 		var components = this.components,
 			component;
 		
@@ -71,25 +70,25 @@ export default class Template {
 		return this.checkAttributes(element, component);
 	}
 	
-	checkAttributes(element, component) {
-		var node = new ComponentNode(element, component),
+	checkAttributes(element: Element, component): ComponentGenerator {
+		var generator = new ComponentGenerator(element, component),
 			childNodes = element.childNodes,
 			attributes = element.attributes,
 			attribute = attributes[0],
 			i = 0;
 		
 		while (attribute) {
-			this.checkAttribute(component, attribute, node);
+			this.checkAttribute(component, attribute, generator);
 			
 			attribute = attributes[++i];
 		}
 		
-		node.children = childNodes.length ? this.parseChildNodes(childNodes) : [];
+		generator.children = childNodes.length ? this.parseChildNodes(childNodes) : [];
 		
-		return node;
+		return generator;
 	}
 	
-	checkAttribute(component, attribute, node) {
+	checkAttribute(component, attribute, generator) {
 		var attributes = this.attributes,
 			name = attribute.name;
 		
@@ -99,19 +98,19 @@ export default class Template {
 		
 		// @todo: Check for require
 		
-		node.attributes[name] = {
+		generator.attributes[name] = {
 			attribute: attributes[name],
 			value: attribute.value
 		}
 	}
 	
-	compile(node, scope, element) {
+	compile(node: Element, scope: Component, controller: ComponentController) {
 		var children = this.children,
 			child = children[0],
 			i = 0;
 		
 		while (child) {
-			child.compile(node, scope, element);
+			child.compile(node, scope, controller);
 			
 			child = children[++i];
 		}

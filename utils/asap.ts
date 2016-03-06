@@ -10,7 +10,7 @@
  * @author Markus Schmidt
  */
 
-var queue = [],
+var queue: Array<Function> = [],
 	asap;
 
 if (postMessageSupport()) {
@@ -24,7 +24,7 @@ if (postMessageSupport()) {
 		event.stopImmediatePropagation();
 	});
 
-	asap = function asap(callback) {
+	asap = function asap(callback: Function) {
 		queue.push(callback);
 		queue.length === 1 && window.postMessage('access-core/utils/asap', '*');
 	};
@@ -35,7 +35,7 @@ if (postMessageSupport()) {
 		runQueue();
 	};
 
-	asap = function asap(callback) {
+	asap = function asap(callback: Function) {
 		queue.push(callback);
 		queue.length === 1 && channel.port2.postMessage('*');
 	};
@@ -61,7 +61,7 @@ function runQueue() {
         i = 0;
     
     while (callback) {
-        callback.call();
+        callback();
         callback = queue[++i];
     }
     

@@ -46,7 +46,7 @@ export function nextSymbol() {
 	
 	if (!char) {
 		
-		type = 'END';
+		type = symbols.END;
 		str = '';
 		
 	} else if (COMPARISON.test(char)) {

@@ -1,21 +1,21 @@
 import Template from './template';
-import Component from './component';
+import Component from '../app/component';
 import Expression from '../expression/parser';
 
-export default class ComponentNode {
+export default class ComponentGenerator implements Generator {
+	node: Node;
+	
 	attributes: Object;
 	
 	template: Template;
 	
-	Component: Component;
+	Component: typeof Component;
 	
-	children: Array<any>;
-	
-	node: Node;
+	children: Array<Generator>;
 	
 	scope: Object;
 	
-	constructor(node: Element, desc: {Component?: Component, template?: Template}) {
+	constructor(node: Element, desc: {Component?: typeof Component, template?: Template}) {
 		this.node = node;
 		this.attributes = {};
 		
@@ -26,16 +26,16 @@ export default class ComponentNode {
 		this.Component = desc.Component || Component;
 	}
 	
-	compile(parentNode, scope, parentElement) {
+	compile(parentNode: DocumentFragment, scope: Component, parentElement: ComponentController) {
 		var Component = this.Component;
 		
-		if (typeof Component.components !== 'function') {
+		if (typeof Component.render !== 'function') {
 			throw Error('The static method components must be of type function');
 		}
 		
 		var node = this.node.cloneNode(),
 			attributes = this.compileAttributes(Component, node, scope),
-			elementList = Component.components(node, scope, attributes),
+			elementList = Component.render(node, scope, attributes),
 			link = document.createTextNode('');
 		
 		elementList.template = this.template;

@@ -1,12 +1,12 @@
-import {default as keyPath, toKeys, toKeyPath} from '../utils/keyPath';
+import {default as keyPath, toKeys, toKeyPath} from '../utils/key-path';
 import {observe, unobserve} from './property';
-import isObject from '../utils/isObject';
+import isObject from '../utils/is-object';
 import equals from '../utils/equals';
 
 var callbacks = new WeakMap(),
 	interceptors = new WeakMap();
 
-export function watch(obj, path, callback) {
+export function watch(obj: Object, path: string, callback: Function) {
 	var paths = callbacks.get(obj),
 		callbacksForPath;
 	
@@ -27,7 +27,7 @@ export function watch(obj, path, callback) {
 	callbacksForPath.add(callback);
 }
 
-export function unwatch(obj, path?, callback?) {
+export function unwatch(obj: Object, path?: string, callback?: Function) {
 	var paths = callbacks.get(obj),
 		callbacksForPath,
 		keys;
@@ -65,7 +65,7 @@ export function unwatch(obj, path?, callback?) {
 	}
 }
 
-function watchKeys(obj, pathTo, keys) {
+function watchKeys(obj: Object, pathTo: string, keys: Array<string>) {
 	var key = keys.shift() || '',
 		value = !pathTo ? obj : keyPath(obj, pathTo),
 		interceptor;
@@ -85,7 +85,7 @@ function watchKeys(obj, pathTo, keys) {
 	watchKeys(obj, pathTo, keys);
 }
 
-function unwatchKeys(obj, pathTo, keys, value) {
+function unwatchKeys(obj: Object, pathTo: string, keys: Array<string>, value) {
 	var key = keys.shift() || '',
 		interceptor;
 	
@@ -104,7 +104,7 @@ function unwatchKeys(obj, pathTo, keys, value) {
 	unwatchKeys(obj, pathTo, keys, value[key]);
 }
 
-function getInterceptor(obj, pathTo, pathFrom) {
+function getInterceptor(obj: Object, pathTo: string, pathFrom: string) {
 	var paths = interceptors.get(obj),
 		interceptorsByPath,
 		interceptorForPath;
@@ -118,7 +118,7 @@ function getInterceptor(obj, pathTo, pathFrom) {
 	return paths.hasOwnProperty(pathFrom) ? paths[pathFrom] : paths[pathFrom] = interceptor.bind(obj, pathTo, pathFrom);
 }
 
-function interceptor(pathTo, pathFrom, obj, key, value) {
+function interceptor(pathTo: string, pathFrom: string, obj: Object, key: string, value) {
 	var oldValue = !pathFrom ? value : keyPath(value, pathFrom.substr(key.length)),
 		keys = toKeys(pathFrom);
 	
@@ -128,7 +128,7 @@ function interceptor(pathTo, pathFrom, obj, key, value) {
 	executeCallbacks(this, pathTo + (pathFrom ? '.' + pathFrom : ''), oldValue);
 }
 
-function executeCallbacks(obj, path, oldValue) {
+function executeCallbacks(obj: Object, path: string, oldValue) {
 	var newValue = keyPath(obj, path);
 	
 	if (equals(newValue, oldValue)) {

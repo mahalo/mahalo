@@ -1,7 +1,7 @@
 var requestAnimationFrame = window.requestAnimationFrame || setTimeout,
-	queue = new Set();
+	queue: Set<Function> = new Set();
 
-export default function nextFrame(callback, thisArg?) {
+export default function nextFrame(callback: Function, thisArg?) {
 	if (!queue.size) {
 		executeCallbacks();
 	}

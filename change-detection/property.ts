@@ -1,6 +1,4 @@
 import asap from '../utils/asap';
-import isObject from '../utils/isObject';
-import equals from '../utils/equals';
 
 var callbacksByKeys = new WeakMap(),
 	computedKeys = new Map(),
@@ -27,7 +25,7 @@ for (name in methods) {
 Object.defineProperty = defineProperty;
 Object.defineProperties = defineProperties;
 
-export function assign(obj, key, val?) {
+export function assign(obj: Object, key: string|number, val?) {
 	switch (arguments.length) {
 		case 2:
 			memberAssignment(obj, key);
@@ -40,7 +38,7 @@ export function assign(obj, key, val?) {
 	scheduleCheck();
 }
 
-export function observe(obj, key, callback) {
+export function observe(obj: Object, key: string|number, callback: Function) {
 	var keys = callbacksByKeys.get(obj),
 		callbacks;
 	
@@ -61,7 +59,7 @@ export function observe(obj, key, callback) {
 	callbacks.add(callback);
 }
 
-export function unobserve(obj, key, callback) {
+export function unobserve(obj: Object, key: string|number, callback: Function) {
 	var keys = callbacksByKeys.get(obj),
 		callbacks;
 	
@@ -80,13 +78,13 @@ export function unobserve(obj, key, callback) {
 	key && !callbacks.size && isComputed(obj, key) && unobserveComputed(obj, key);
 }
 
-function isComputed(obj, key) {
+function isComputed(obj: Object, key: string|number) {
 	var desc = Object.getOwnPropertyDescriptor(obj, key);
 	
 	return desc && desc.get;
 }
 
-function observeComputed(obj, key) {
+function observeComputed(obj: Object, key: string|number) {
 	var keys = computedKeys.get(obj);
 	
 	if (!keys) {
@@ -97,7 +95,7 @@ function observeComputed(obj, key) {
 	keys[key] = obj[key];
 }
 
-function unobserveComputed(obj, key) {
+function unobserveComputed(obj: Object, key: string|number) {
 	var keys = computedKeys.get(obj);
 	
 	if (!keys) {
@@ -111,7 +109,7 @@ function unobserveComputed(obj, key) {
 	}
 }
 
-function memberAssignment(obj, key, value?) {
+function memberAssignment(obj: Object, key: string|number, value?) {
 	var oldValue = obj[key],
 		oldObj = clone(obj);
 	
@@ -121,7 +119,7 @@ function memberAssignment(obj, key, value?) {
 		obj[key] = value;
 	}
 	
-	if (!hasCallbacks(obj)) {
+	if (!callbacksByKeys.has(obj)) {
 		return;
 	}
 	
@@ -129,13 +127,7 @@ function memberAssignment(obj, key, value?) {
 	executeCallbacks(obj, '', oldObj);
 }
 
-function hasCallbacks(obj) {
-	var keys = callbacksByKeys.get(obj);
-	
-	return !!keys;
-}
-
-function executeCallbacks(obj, key, oldValue) {
+function executeCallbacks(obj: Object, key: string|number, oldValue) {
 	var keys = callbacksByKeys.get(obj),
 		newValue = obj[key];
 	
@@ -189,13 +181,13 @@ function checkComputed() {
 	}
 }
 
-function wrapMethod(name, method) {
+function wrapMethod(name: string, method: Function) {
 	_defineProperty(arrayPrototype, name, {
 		value: function() {
 			var result,
 				before;
 
-			if (hasCallbacks(this)) {
+			if (callbacksByKeys.has(this)) {
 				before = this.slice();
 				result = method.apply(this, arguments);
 				arrayChanges(this, before);
@@ -208,12 +200,12 @@ function wrapMethod(name, method) {
 	});
 }
 
-function defineProperty(obj, key, desc) {
+function defineProperty(obj: Object, key: string|number, desc: PropertyDescriptor) {
 	var oldValue = obj[key],
 		oldObj = clone(obj),
 		result = _defineProperty(obj, key, desc);
 	
-	if (hasCallbacks) {
+	if (callbacksByKeys.has(obj)) {
 		executeCallbacks(obj, key, oldValue);
 		executeCallbacks(obj, '', oldObj);
 	}
@@ -221,12 +213,12 @@ function defineProperty(obj, key, desc) {
 	return result;
 }
 
-function defineProperties(obj, keys) {
+function defineProperties(obj: Object, keys: PropertyDescriptorMap) {
 	var oldObj = clone(obj),
 		result = _defineProperties(obj, keys),
 		key;
 	
-	if (hasCallbacks(obj)) {
+	if (callbacksByKeys.has(obj)) {
 		for (key in keys) {
 			if (keys.hasOwnProperty(key) && obj[key] !== keys[key].value) {
 				executeCallbacks(obj, key, oldObj[key]);
@@ -239,7 +231,7 @@ function defineProperties(obj, keys) {
 	return result;
 }
 
-function arrayChanges(arr, oldArr) {
+function arrayChanges(arr: Array<any>, oldArr: Array<any>) {
 	var val = arr[0],
 		i = 0,
 		len = oldArr.length;
@@ -266,10 +258,19 @@ function arrayChanges(arr, oldArr) {
 	executeCallbacks(arr, '', oldArr);
 }
 
-function clone(obj) {
+function clone(obj: Object) {
 	if (Array.isArray(obj)) {
 		return obj.slice();
 	}
 	
-	return Object.assign(Object.create(Object.getPrototypeOf(obj)), obj);
+	var copy = Object.create(Object.getPrototypeOf(obj)),
+		key;
+	
+	for (key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			copy[key] = obj[key];
+		}
+	}
+	
+	return copy;
 }

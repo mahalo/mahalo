@@ -1,5 +1,5 @@
-var assign = require('access-core/change-detection/property').assign,
-	watcher = require('access-core/change-detection/watch'),
+var assign = require('../../change-detection/property').assign,
+	watcher = require('../../change-detection/watch'),
 	watch = watcher.watch,
 	unwatch = watcher.unwatch;
 

@@ -1,19 +1,19 @@
 import Expression from '../expression/parser';
-import TextElement from './textElement';
-import Component from './component';
+import TextController from '../app/text-controller';
+import Component from '../app/component';
 
-export default class TextNode {
-	node: Node
+export default class TextGenerator implements Generator {
+	node: Node;
 	
-	parts: Array<any>
+	parts: Array<string|Expression>;
 	
-	constructor(textNode) {
+	constructor(textNode: Node) {
 		this.node = textNode;
 		
 		this.parseText(textNode.textContent);
 	}
 	
-	parseText(text) {
+	parseText(text: string) {
 		var parts = [],
 			char = text[0],
 			i = 0,
@@ -43,7 +43,7 @@ export default class TextNode {
 		this.parts = parts;
 	}
 	
-	compile(parentNode, scope, parentElement) {
+	compile(parentNode: DocumentFragment, scope: Component, parent: ComponentController) {
 		var textNode = this.node,
 			parts = this.parts,
 			part = parts[0],
@@ -53,12 +53,11 @@ export default class TextNode {
 			textNode = textNode.cloneNode();
 			
 			parentNode.appendChild(textNode);
-			parentElement.children.push(
-				new TextElement(textNode, new Component(), scope, part)
+			parent.children.add(
+				new TextController(textNode, scope, parent, part)
 			);
 			
 			part = parts[++i];
 		}
 	}
 }
-
