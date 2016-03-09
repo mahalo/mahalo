@@ -28,7 +28,6 @@ module.exports = function (config) {
                 ]
             },
 			resolve: {
-				// root: ['node_modules', '..'],
 				extensions: ['', '.js', '.ts']
 			},
 			devtool: 'eval'

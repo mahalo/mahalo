@@ -1,5 +1,4 @@
 import * as types from './types';
-import isObject from '../utils/is-object';
 
 export default function compileBranch(branch: ExpressionBranch, ctx: Object) {
 	switch (branch.type) {
@@ -31,7 +30,7 @@ export default function compileBranch(branch: ExpressionBranch, ctx: Object) {
 			return parseFloat(branch.num);
 		
 		case types.IDENT:
-			return isObject(ctx) && typeof ctx[branch.name] !== 'undefined' ? ctx[branch.name] : '';
+			return ctx instanceof Object && typeof ctx[branch.name] !== 'undefined' ? ctx[branch.name] : '';
 	}
 }
 
@@ -107,13 +106,13 @@ function compileUnary(branch: ExpressionBranch, ctx: Object): any {
 }
 
 function compileMember(branch: ExpressionBranch, ctx: Object) {
-	if (!isObject(ctx)) {
+	if (!(ctx instanceof Object)) {
 		return;
 	}
 	
 	var obj = ctx[branch.obj.name];
 	
-	if (!isObject(obj)) {
+	if (!(obj instanceof Object)) {
 		return;
 	}
 	

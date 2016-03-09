@@ -1,4 +1,5 @@
-import Expression from '../expression/parser';
+import Expression from '../expression/expression';
+import Parser from '../expression/parser';
 
 export default class TextController implements Controller {
 	node: Node;
@@ -9,31 +10,32 @@ export default class TextController implements Controller {
 	
 	expression: Expression;
 	
-	constructor(node: Node, scope: Component, parent: ComponentController, text: string|Expression) {
-		var exp = text instanceof Expression ? text : null,
+	update: Function;
+	
+	constructor(node: Node, scope: Component, parent: ComponentController, text: string|Parser) {
+		var parser = text instanceof Parser ? text : null,
 			_text = typeof text === 'string' ? text : '';
 		
 		this.node = node;
-		this.scope = scope;
 		this.parent = parent;
-		this.update = this.update.bind(this);
+		this.update = update.bind(this);
 		
-		if (exp) {
-			this.expression = exp;
+		if (parser) {
+			this.expression = new Expression(parser, scope);
 			
-			_text = exp.watch(scope, this.update) || '';
+			_text = this.expression.watch(this.update) || '';
 		}
 		
 		node.textContent = _text;
 	}
 	
-	update() {
-		this.node.textContent = this.expression.compile(this.scope) || '';
-	}
-	
 	remove() {
 		this.parent.children.delete(this);
 		
-		this.expression && this.expression.unwatch(this.scope, this.update);
+		this.expression && this.expression.unwatch(this.update);
 	}
+}
+
+function update(newValue) {
+	this.node.textContent = newValue || '';
 }

@@ -1,6 +1,6 @@
 import Template from './template';
-import Component from '../app/component';
-import Expression from '../expression/parser';
+import {default as Component, setDependency} from '../app/component';
+import Parser from '../expression/parser';
 
 export default class ComponentGenerator implements Generator {
 	node: Node;
@@ -35,17 +35,21 @@ export default class ComponentGenerator implements Generator {
 		
 		var node = this.node.cloneNode(),
 			attributes = this.compileAttributes(Component, node, scope),
-			elementList = Component.render(node, scope, attributes),
-			link = document.createTextNode('');
+			link = document.createTextNode(''),
+			container;
 		
-		elementList.template = this.template;
-		elementList.children = this.children;
-		elementList.parentElement = parentElement;
-		elementList.link = link;
+		setDependency(Element, node);
+		
+		container = Component.render(node, scope, attributes);
+		
+		container.template = this.template;
+		container.children = this.children;
+		container.parentElement = parentElement;
+		container.link = link;
 		
 		parentNode.appendChild(link);
 		
-		elementList.update();
+		container.update();
 	}
 	
 	compileAttributes(Component, node, scope) {
@@ -63,7 +67,7 @@ export default class ComponentGenerator implements Generator {
 			if (typeof attribute === 'string') {
 				value = node.getAttribute(attribute.toUpperCase());
 				
-				compiledAttributes[attribute] = new Expression(value).compile(scope);
+				compiledAttributes[attribute] = new Parser(value).compile(scope);
 			}
 			
 			attribute = attributes[++i];

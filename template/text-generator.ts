@@ -1,11 +1,11 @@
-import Expression from '../expression/parser';
+import Parser from '../expression/parser';
 import TextController from '../app/text-controller';
 import Component from '../app/component';
 
 export default class TextGenerator implements Generator {
 	node: Node;
 	
-	parts: Array<string|Expression>;
+	parts: Array<string|Parser>;
 	
 	constructor(textNode: Node) {
 		this.node = textNode;
@@ -28,7 +28,7 @@ export default class TextGenerator implements Generator {
 				i++;
 			} else if (char === '}' && exp) {
 				str = str.trim();
-				str && parts.push(new Expression(str));
+				str && parts.push(new Parser(str));
 				str = '';
 				exp = false;
 			} else {

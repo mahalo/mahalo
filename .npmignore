@@ -1,11 +1,7 @@
-node_modules
+.vscode/
+test/
 *.log
-.vscode
-test
-*.ts
-.babelrc
 .gitignore
-es6.d.ts
 Gruntfile.js
 karma.conf.js
 tsconfig.json

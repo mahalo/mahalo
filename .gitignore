@@ -1,8 +1,2 @@
 node_modules
 *.log
-*.js
-!test/**/*.js
-test/watcher/watch.test.js
-!Gruntfile.js
-!karma.conf.js
-/nbproject/private/

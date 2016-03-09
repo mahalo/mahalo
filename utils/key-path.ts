@@ -1,5 +1,3 @@
-import isObject from './is-object';
-
 export function toKeys(str: string) {
 	var keys = [],
 		key = '',
@@ -39,7 +37,7 @@ export function toKeyPath(keys: Array<string>|string) {
 }
 
 export default function keyPath(obj: Object, path: string, val?) {
-	if (!isObject(obj)) {
+	if (!(obj instanceof Object)) {
 		return;
 	}
 	
@@ -62,7 +60,7 @@ export default function keyPath(obj: Object, path: string, val?) {
 
         obj = obj[key];
 
-        if (!isObject(obj)) {
+        if (!(obj instanceof Object)) {
             return;
         }
     }

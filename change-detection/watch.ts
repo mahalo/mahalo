@@ -1,6 +1,5 @@
 import {default as keyPath, toKeys, toKeyPath} from '../utils/key-path';
 import {observe, unobserve} from './property';
-import isObject from '../utils/is-object';
 import equals from '../utils/equals';
 
 var callbacks = new WeakMap(),
@@ -70,7 +69,7 @@ function watchKeys(obj: Object, pathTo: string, keys: Array<string>) {
 		value = !pathTo ? obj : keyPath(obj, pathTo),
 		interceptor;
 	
-	if (!isObject(value)) {
+	if (!(value instanceof Object)) {
 		return;
 	}
 	
@@ -89,7 +88,7 @@ function unwatchKeys(obj: Object, pathTo: string, keys: Array<string>, value) {
 	var key = keys.shift() || '',
 		interceptor;
 	
-	if (!isObject(value)) {
+	if (!(value instanceof Object)) {
 		return;
 	}
 	

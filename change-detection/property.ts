@@ -1,4 +1,5 @@
 import asap from '../utils/asap';
+import clone from '../utils/clone';
 
 var callbacksByKeys = new WeakMap(),
 	computedKeys = new Map(),
@@ -256,21 +257,4 @@ function arrayChanges(arr: Array<any>, oldArr: Array<any>) {
 	}
 	
 	executeCallbacks(arr, '', oldArr);
-}
-
-function clone(obj: Object) {
-	if (Array.isArray(obj)) {
-		return obj.slice();
-	}
-	
-	var copy = Object.create(Object.getPrototypeOf(obj)),
-		key;
-	
-	for (key in obj) {
-		if (obj.hasOwnProperty(key)) {
-			copy[key] = obj[key];
-		}
-	}
-	
-	return copy;
 }

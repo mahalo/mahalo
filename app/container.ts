@@ -22,6 +22,58 @@ export default class Container {
 		this.entering = new Set();
 	}
 	
+	create(node, scope, Constructor, ...args) {
+		var component = new (Function.prototype.bind.apply(Constructor, [null].concat(args))),
+			controller = new ComponentController(node, scope, component);
+		
+		this.add(controller);
+		
+		return controller;
+	}
+	
+	add(controller) {
+		this.controllers.push(controller);
+		
+		this.change();
+	}
+	
+	delete(controller) {
+		this.leave(controller);
+		
+		this.change();
+	}
+	
+	change() {
+		if (this.hasChanged) {
+			return;
+		}
+		
+		var leaving = this.leaving,
+			entering = this.entering;
+		
+		leaving.forEach(function(controller) {
+			var node = controller.node;
+			
+			node.parentNode.removeChild(node);
+			controller.isLeaving = false;
+		});
+		
+		leaving.clear();
+		
+		entering.forEach(function(controller) {
+			controller.node.classList.remove('xs-enter');
+			controller.isEntering = false;
+		});
+		
+		entering.clear();
+		
+		this.hasChanged = true;
+		
+		nextFrame(function() {
+			nextFrame(this.update, this);
+		}, this);
+	}
+	
 	set(controllers: Array<ComponentController>) {
 		var leaving = this.leaving,
 			entering = this.entering;
@@ -117,6 +169,8 @@ export default class Container {
 			
 			parentNode.insertBefore(controller.node, link);
 		}, this);
+		
+		this.hasChanged = false;
 	}
 	
 	enter(controller: ComponentController) {

@@ -4,9 +4,9 @@ import {Symbol, nextSymbol} from './lexer';
 import compileBranch from './compiler';
 import {watch, unwatch} from '../change-detection/watch';
 
-var expressions = {};
+var parsers = {};
 
-export default class Expression {
+export default class Parser {
 	exp: string;
 	
 	i: number;
@@ -18,8 +18,8 @@ export default class Expression {
 	symbol: Symbol;
 	
 	constructor(exp: string) {
-		if (expressions[exp]) {
-			return expressions[exp];
+		if (parsers.hasOwnProperty(exp)) {
+			return parsers[exp];
 		}
 		
 		this.exp = exp;
@@ -30,7 +30,7 @@ export default class Expression {
 		this.nextSymbol();
 		this.expect(symbols.END);
 		
-		expressions[exp] = this;
+		parsers[exp] = this;
 	}
 	
 	expression() {
@@ -253,23 +253,6 @@ export default class Expression {
 		}
 		
 		this.paths.add(path + '.' + prop.name);
-	}
-	
-	watch(scope: Object, callback: Function) {
-		if (typeof callback === 'function') {
-			
-			this.paths.forEach(function (path) {
-				watch(scope, path, callback);
-			});
-		}
-		
-		return this.compile(scope);
-	}
-	
-	unwatch(scope: Object, callback?: Function) {
-		this.paths.forEach(function (path) {
-			unwatch(scope, path, callback);
-		});
 	}
 	
 	compile(scope: Object) {

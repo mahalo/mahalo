@@ -1,5 +1,5 @@
 /**
- * xs.js - asap
+ * Mahalo - asap
  * 
  * This function executes a callback after the current event loop.
  * If window.postMessage is available it will take precedence
@@ -15,7 +15,7 @@ var queue: Array<Function> = [],
 
 if (postMessageSupport()) {
 	window.addEventListener('message', function(event) {
-		if (event.source !== window || event.data !== 'access-core/utils/asap') {
+		if (event.source !== window || event.data !== 'mahalo/utils/asap') {
 			return;
 		}
 		
@@ -26,7 +26,7 @@ if (postMessageSupport()) {
 
 	asap = function asap(callback: Function) {
 		queue.push(callback);
-		queue.length === 1 && window.postMessage('access-core/utils/asap', '*');
+		queue.length === 1 && window.postMessage('mahalo/utils/asap', '*');
 	};
 } else {
 	var channel = new MessageChannel();
