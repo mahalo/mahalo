@@ -1,4 +1,5 @@
 import {assign, observe, unobserve} from '../change-detection/property';
+import {create} from '../utils/clone';
 
 var scopes = new WeakMap(),
 	localScopes = new WeakMap(),
@@ -6,7 +7,7 @@ var scopes = new WeakMap(),
 
 export default class Scope {
 	constructor(scope, localScope, keys) {
-		var obj = Object.create(Object.getPrototypeOf(scope)),
+		var obj = create(Object.getPrototypeOf(scope)),
 			key;
 		
 		callbacksByKey.set(obj, {});
@@ -41,9 +42,9 @@ export function remove(obj) {
 		localScope = localScopes.get(obj),
 		key;
 	
-	// if (!scope) {
-	// 	return;
-	// }
+	if (!scope) {
+		return;
+	}
 	
 	for (key in scope) {
 		if (scope.hasOwnProperty(key)) {

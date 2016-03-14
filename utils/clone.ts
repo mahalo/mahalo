@@ -6,52 +6,65 @@ export default function clone(x) {
 		return x;
 	}
 	
+	// DOM Element
+	if (x instanceof Node) {
+		return x.cloneNode(true);
+	}
+	
+	// Date
+	if (x instanceof Date) {
+		copy = new Date(x.getTime());
+	}
+	
+	// RegExp
+	if (x instanceof RegExp) {
+		return new RegExp(x);
+	}
+	
 	var copy;
 	
-	if (x instanceof Node) {
-		// DOM Elements
-		copy = x.cloneNode(true);
-	} else if (x instanceof Date) {
-		// Date
-		copy = new Date(x.getTime());
-	} else if (x instanceof RegExp) {
-		// RegExp
-		copy = new RegExp(x);
-	} else if (Array.isArray(x)) {
-		copy = x.slice(0, 0);
+	// Array
+	if (Array.isArray(x)) {
+		copy = [];
 		
 		x.forEach(function(value) {
 			copy.push(value === x ? copy : value);
 		});
-	} else {
-		var copy,
-			key;
 		
-		if (x instanceof Function) {
-			key = (key = FN_NAME.exec(x)) ? key[1] : '';
-			copy = Function('fn', 'return function ' + key + '() {\n\treturn fn.apply(this, arguments);\n}')(x);
-			copy.prototype = x.prototype;
-		} else {
-			copy = create(Object.getPrototypeOf(x));
-		}
+		return copy;
+	}
+	
+	var key;
+	
+	// Function
+	if (x instanceof Function) {
+		key = (key = FN_NAME.exec(x)) ? key[1] : '';
+		copy = Function('fn', 'return function ' + key + '() {\n\treturn fn.apply(this, arguments);\n}')(x);
+		copy.prototype = x.prototype;
 		
-		for (key in x) {
-			if (x.hasOwnProperty(key)) {
-				copy[key] = x[key] === x ? copy : x[key];
-			}
+		return copy;
+	}
+	
+	// Every other object
+	copy = create(Object.getPrototypeOf(x));
+	
+	for (key in x) {
+		if (x.hasOwnProperty(key)) {
+			copy[key] = x[key] === x ? copy : x[key];
 		}
 	}
 	
 	return copy;
 }
 
-function create(prototype) {
+export function create(prototype) {
 	var Object,
         name;
 	
 	if (prototype.constructor instanceof Function) {
         name = (name = FN_NAME.exec(prototype.constructor)) ? name[1] : '';
-		Object = Function('return function ' + name + '() {}')();
+		
+		Object = Function('name', 'return function ' + name + '() {}')(name);
 	} else {
 		Object = function() {};
 	}

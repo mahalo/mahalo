@@ -17,30 +17,30 @@ export default class TextGenerator implements Generator {
 		var parts = [],
 			char = text[0],
 			i = 0,
-			str = '',
+			part = '',
 			exp;
+		
+		this.parts = parts;
 			
 		while (char) {
 			if (text[++i] === '{' && char === '$') {
-				str && parts.push(str);
-				str = '';
+				part && parts.push(part);
+				part = '';
 				exp = true;
 				i++;
 			} else if (char === '}' && exp) {
-				str = str.trim();
-				str && parts.push(new Parser(str));
-				str = '';
+				part = part.trim();
+				part && parts.push(new Parser(part));
+				part = '';
 				exp = false;
 			} else {
-				str += char;
+				part += char;
 			}
 			
 			char = text[i];
 		}
 		
-		str && parts.push(str);
-		
-		this.parts = parts;
+		part && parts.push(part);
 	}
 	
 	compile(parentNode: DocumentFragment, scope: Component, parent: ComponentController) {

@@ -21,11 +21,11 @@ export default class Expression {
 		this.scope = scope;
 		this.callbacks = new Set();
 		this.interceptor = interceptor.bind(this);
-		this.value = parser.compile(this.scope);
+		this.value = this.compile();
 	}
 	
 	watch(callback: Function) {
-		var value = this.parser.compile(this.scope);
+		var value = this.compile();
 		
 		this.callbacks.size || this.parser.paths.forEach(function (path) {
 			watch(this.scope, path, this.interceptor);
@@ -57,7 +57,7 @@ export default class Expression {
 
 function interceptor() {
 	var oldValue = this.value,
-		newValue = this.parser.compile(this.scope);
+		newValue = this.compile();
 	
 	if (equals(newValue, oldValue)) {
 		return;
