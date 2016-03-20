@@ -1,5 +1,5 @@
 /**
- * xs.js - utils/equals
+ * mahalo/utils/equals
  * 
  * @since 0.5
  * @author Markus Schmidt

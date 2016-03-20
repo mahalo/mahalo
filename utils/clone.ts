@@ -64,7 +64,7 @@ export function create(prototype) {
 	if (prototype.constructor instanceof Function) {
         name = (name = FN_NAME.exec(prototype.constructor)) ? name[1] : '';
 		
-		Object = Function('name', 'return function ' + name + '() {}')(name);
+		Object = Function('return function ' + name + '() {}')();
 	} else {
 		Object = function() {};
 	}

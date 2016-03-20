@@ -2,9 +2,10 @@ import * as symbols from './symbols';
 import * as types from './types';
 import {Symbol, nextSymbol} from './lexer';
 import compileBranch from './compiler';
-import {watch, unwatch} from '../change-detection/watch';
+import {toKeyPath} from '../utils/key-path';
 
-var parsers = {};
+var RESERVED = ['true', 'false', 'null'],
+	parsers = {};
 
 export default class Parser {
 	exp: string;
@@ -25,38 +26,12 @@ export default class Parser {
 		this.exp = exp;
 		this.i = -1;
 		this.paths = new Set();
-		this.ast = this.expression();
+		this.ast = this.comparison();
 		
 		this.nextSymbol();
 		this.expect(symbols.END);
 		
 		parsers[exp] = this;
-	}
-	
-	expression() {
-		if (this.accept(symbols.LPAREN)) {
-			this.i = this.symbol.start - 1;
-			return this.paren();
-		}
-		
-		return this.comparison();
-	}
-	
-	filter() {
-		var arg = this.comparison();
-		
-		if (this.accept(symbols.FILTER)) {
-			this.nextSymbol();
-			this.expect(symbols.IDENT);
-			
-			return {
-				type: types.FILTER,
-				arg: arg,
-				filter: this.symbol.str
-			}
-		}
-		
-		return arg;
 	}
 	
 	comparison() {
@@ -90,7 +65,7 @@ export default class Parser {
 	}
 	
 	multiply() {
-		var left = this.unary();
+		var left = this.filter();
 		
 		if (this.accept(symbols.MULTIPLY)) {
 			return {
@@ -102,6 +77,36 @@ export default class Parser {
 		}
 		
 		return left;
+	}
+	
+	filter() {
+		var arg = this.unary();
+		
+		if (!this.accept(symbols.FILTER)) {
+			return arg;
+		}
+		
+		var args = [],
+			branch: ExpressionBranch = {
+				type: types.FILTER,
+				arg: arg,
+				args: args
+			};
+		
+		this.nextSymbol();
+		this.expect(symbols.IDENT);
+		
+		branch.filter = this.symbol.str;
+		
+		if (this.accept(symbols.COLON)) {
+			args.push(this.comparison());
+			
+			while(this.accept(symbols.COMMA)) {
+				args.push(this.comparison());
+			}
+		}
+		
+		return branch;
 	}
 	
 	unary() {
@@ -147,68 +152,162 @@ export default class Parser {
 			};
 		}
 		
-		var member = this.member();
+		return this.member();
+	}
+	
+	member() {
+		var member;
 		
-		if (member.type === types.MEMBER) {
-			this.addPath(member);
+		if (this.accept(symbols.LBRACE)) {
+			
+			member = {
+				type: types.OBJECT,
+				keys: this.object()
+			}
+			
+		} else if (this.accept(symbols.LBRACKET)) {
+			
+			member = {
+				type: types.ARRAY,
+				items: this.array()
+			}
+			
+		} else if (this.accept(symbols.MEMBER)) {
+			
+			this.nextSymbol();
+			this.expect(symbols.LBRACKET);
+			
+			member = this.bracketIdentifier();
+			
 		} else {
-			this.paths.add(member.name);
+			
+			member = this.identifier();
+			
 		}
+		
+		member = this.memberOrIdentifier(member);
+		
+		if (member.type === types.IDENT && RESERVED.indexOf(member.name) > -1) {
+			return {
+				type: types.RESERVED,
+				str: member.name
+			}
+		}
+		
+		// if (member.type !== types.OBJECT && member.type !== types.ARRAY && this.accept(symbols.LPAREN)) {
+		// 	return this.call(member);
+		// }
+		
+		this.addPath(member);
 		
 		return member;
 	}
 	
-	member() {
-		var ident;
+	object() {
+		var keys = {},
+			next = true,
+			desc = this.key();
+		
+		while (desc) {
+			keys[desc.key] = desc.value;
+			
+			if (this.accept(symbols.COMMA)) {
+				desc = this.key();
+				desc || this.expect(symbols.RBRACE);
+			} else {
+				desc = null;
+			}
+		}
+		
+		this.nextSymbol();
+		this.expect(symbols.RBRACE);
+		
+		return keys;
+	}
+	
+	key() {
+		if (this.accept(symbols.LITERAL) || this.accept(symbols.NUMBER) || this.accept(symbols.IDENT)) {
+			return {
+				key: this.symbol.str,
+				value: this.nextSymbol() || this.expect(symbols.COLON) || this.comparison()
+			};
+		}
+	}
+	
+	array() {
+		if (this.accept(symbols.RBRACKET)) {
+			return [];
+		}
+		
+		var items = [this.comparison()];
+		
+		while (this.accept(symbols.COMMA)) {
+			items.push(this.comparison());
+		}
+		
+		this.nextSymbol();
+		this.expect(symbols.RBRACKET);
+		
+		return items;
+	}
+	
+	memberOrIdentifier(ident) {
+		if (ident.type !== types.OBJECT && ident.type !== types.ARRAY && this.accept(symbols.LPAREN)) {
+			ident = this.call(ident);
+		}
 		
 		if (this.accept(symbols.LBRACKET)) {
-			ident = this.bracket();
-		} else {
-			ident = this.identifier();
+			return {
+				type: types.MEMBER,
+				obj: ident,
+				prop: this.memberOrIdentifier(this.bracketIdentifier())
+			}
 		}
 		
 		if (this.accept(symbols.MEMBER)) {
-			if (this.accept(symbols.LBRACKET)) {
-				throw Error('Unexpected symbol in column ' + this.symbol.start);
-			}
-			
 			return {
 				type: types.MEMBER,
 				obj: ident,
-				prop: this.member()
+				prop: this.memberOrIdentifier(this.identifier())
 			};
-		}
-		
-		if (this.accept(symbols.LBRACKET)) {
-			this.i--;
-			
-			return {
-				type: types.MEMBER,
-				obj: ident,
-				prop: this.member()
-			}
 		}
 		
 		return ident;
 	}
 	
-	bracket() {
-		var ident;
+	call(member) {
+		var args = [];
 		
-		if (!this.accept(symbols.LITERAL)) {
+		this.paths = null;
+		
+		if (!this.accept(symbols.RPAREN)) {
+			args.push(this.comparison());
+			
+			while (this.accept(symbols.COMMA)) {
+				args.push(this.comparison());
+			}
+			
 			this.nextSymbol();
-			this.expect(symbols.NUMBER);
+			this.expect(symbols.RPAREN);
 		}
 		
-		ident = {
-			type: types.IDENT,
-			name: this.symbol.str
-		};
+		return {
+			type: types.CALL,
+			prop: member,
+			args: args
+		}
+	}
+	
+	bracketIdentifier() {
+		var prop = this.comparison();
 		
 		this.nextSymbol();
 		this.expect(symbols.RBRACKET);
 		
-		return ident;
+		return {
+			type: types.BRACKET_IDENT,
+			prop: prop
+		};
 	}
 	
 	identifier() {
@@ -244,18 +343,44 @@ export default class Parser {
 	}
 	
 	addPath(branch: ExpressionBranch, path?: string) {
-		path = (path ? path + '.' : '') + branch.obj.name;
-		
-		var prop = branch.prop;
-		
-		if (prop.type === types.MEMBER) {
-			return this.addPath(prop, path);
+		if (!this.paths) {
+			return;
 		}
 		
-		this.paths.add(path + '.' + prop.name);
+		path = path ? path + '.' : '';
+		
+		if (branch.type === types.MEMBER) {
+			path = this.resolvePath(branch.obj, path);
+			path && this.addPath(branch.prop, path);
+			
+			return;
+		}
+		
+		path = this.resolvePath(branch, path);
+		path && this.paths.add(path);
+	}
+	
+	resolvePath(branch, path) {
+		if (branch.type === types.IDENT) {
+			return path + branch.name;
+		}
+		
+		if (isBracketIdentifier(branch)) {
+			var prop = branch.prop;
+			
+			return path + toKeyPath(prop.str || prop.num);
+		}
+		
+		if (branch.type === types.BRACKET_IDENT) {
+			this.paths = null;
+		}
 	}
 	
 	compile(scope: Object) {
 		return compileBranch(this.ast, scope);
 	}
+}
+
+function isBracketIdentifier(branch) {
+	return branch.type === types.BRACKET_IDENT && (branch.prop.type === types.LITERAL || branch.prop.type === types.NUMBER);
 }

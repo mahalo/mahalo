@@ -1,5 +1,4 @@
 import ComponentController from './component-controller';
-import Container from './container';
 import Scope from './scope';
 
 var dependencies = new WeakMap();
@@ -9,18 +8,18 @@ export default class Component {
 	
 	static inject: Object;
 	
-	static render(node: Element, scope: Component, attributes: Object) {
+	static render(container: Container, node: Element, scope: Component, attributes: Object) {
 		var component = new this();
 		
-		if (this.hasOwnProperty('locals')) {
+		if (this.locals) {
 			scope = new Scope(scope, component, this.locals);
 		}
 		
-		return new Container([new ComponentController(node, scope, component)]);
+		container.create(node, scope, component);
 	}
 	
 	constructor() {
-		if (!this.constructor.hasOwnProperty('inject')) {
+		if (!this.constructor.inject) {
 			return;
 		}
 		

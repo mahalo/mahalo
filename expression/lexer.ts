@@ -14,6 +14,10 @@ var WHITESPACE = /\s/,
 	RPAREN = ')',
 	LBRACKET = '[',
 	RBRACKET = ']',
+	LBRACE = '{',
+	RBRACE = '}',
+	COLON = ':',
+	COMMA = ',',
 	FILTER = '|';
 
 export class Symbol {
@@ -111,7 +115,7 @@ export function nextSymbol() {
 		}
 		
 		this.i--;
-		
+	
 	} else if (char === FILTER) {
 		
 		type = symbols.FILTER;
@@ -142,11 +146,48 @@ export function nextSymbol() {
 	
 	} else if (char === LBRACKET) {
 		
-		type = symbols.LBRACKET;
+		// if (exp[this.i - 1] === MEMBER) {
+			
+		// 	char = exp[++this.i];
+		// 	str = '';
+			
+		// 	while (char && char !== RBRACKET) {
+		// 		if (char === '\\' && exp[this.i - 1] !== '\\' && exp[this.i + 1] === RBRACKET) {
+		// 			char = exp[++this.i];
+		// 		}
+				
+		// 		str += char;
+				
+		// 		char = exp[++this.i];
+		// 	}
+			
+		// 	type = symbols.IDENT;
+			
+		// } else {
+			
+			type = symbols.LBRACKET;
+			
+		// }
 	
 	} else if (char === RBRACKET) {
 		
 		type = symbols.RBRACKET;
+	
+	} else if (char === LBRACE) {
+		
+		type = symbols.LBRACE;
+	
+	} else if (char === RBRACE) {
+		
+		type = symbols.RBRACE;
+	
+	} else if (char === COLON) {
+		
+		type = symbols.COLON;
+		
+	} else if (char === COMMA) {
+		
+		type = symbols.COMMA;
 	
 	}
 	

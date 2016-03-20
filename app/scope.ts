@@ -7,7 +7,7 @@ var scopes = new WeakMap(),
 
 export default class Scope {
 	constructor(scope, localScope, keys) {
-		var obj = create(Object.getPrototypeOf(scope)),
+		var obj: Component = create(Object.getPrototypeOf(scope)),
 			key;
 		
 		callbacksByKey.set(obj, {});

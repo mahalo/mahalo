@@ -1,6 +1,7 @@
 import Template from './template';
 import {default as Component, setDependency} from '../app/component';
 import Parser from '../expression/parser';
+import Container from '../app/container';
 
 export default class ComponentGenerator implements Generator {
 	node: Node;
@@ -40,16 +41,11 @@ export default class ComponentGenerator implements Generator {
 		
 		setDependency(Element, node);
 		
-		container = Component.render(node, scope, attributes);
-		
-		container.template = this.template;
-		container.children = this.children;
-		container.parentElement = parentElement;
-		container.link = link;
-		
 		parentNode.appendChild(link);
 		
-		container.update();
+		container = new Container(this.template, this.children, parentElement, link);
+		
+		Component.render(container, node, scope, attributes);
 	}
 	
 	compileAttributes(Component, node, scope) {

@@ -18,6 +18,7 @@ export default class TextGenerator implements Generator {
 			char = text[0],
 			i = 0,
 			part = '',
+			nested = 0,
 			exp;
 		
 		this.parts = parts;
@@ -28,16 +29,26 @@ export default class TextGenerator implements Generator {
 				part = '';
 				exp = true;
 				i++;
+			} else if (char === '{' && exp) {
+				nested++;
 			} else if (char === '}' && exp) {
-				part = part.trim();
-				part && parts.push(new Parser(part));
-				part = '';
-				exp = false;
+				if (nested) {
+					nested--;
+				} else {
+					part = part.trim();
+					part && parts.push(new Parser(part));
+					part = '';
+					exp = false;
+				}
 			} else {
 				part += char;
 			}
 			
 			char = text[i];
+		}
+		
+		if (nested) {
+			throw Error('Unclosed object literal in expression');
 		}
 		
 		part && parts.push(part);

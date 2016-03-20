@@ -1,5 +1,5 @@
-/**
- * Mahalo - asap
+/*
+ * mahalo/utils/asap
  * 
  * This function executes a callback after the current event loop.
  * If window.postMessage is available it will take precedence
@@ -24,8 +24,8 @@ if (postMessageSupport()) {
 		event.stopImmediatePropagation();
 	});
 
-	asap = function asap(callback: Function) {
-		queue.push(callback);
+	asap = function asap(callback: Function, thisArg) {
+		queue.push(callback.bind(thisArg));
 		queue.length === 1 && window.postMessage('mahalo/utils/asap', '*');
 	};
 } else {
@@ -35,8 +35,8 @@ if (postMessageSupport()) {
 		runQueue();
 	};
 
-	asap = function asap(callback: Function) {
-		queue.push(callback);
+	asap = function asap(callback: Function, thisArg) {
+		queue.push(callback.bind(thisArg));
 		queue.length === 1 && channel.port2.postMessage('*');
 	};
 }

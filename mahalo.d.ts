@@ -56,7 +56,7 @@ interface ComponentController {
 	// remove();
 }
 
-// interface Container {
+interface Container {
 // 	elements: Array<ComponentController>;
 	
 // 	template: Template;
@@ -70,7 +70,9 @@ interface ComponentController {
 // 	leaving: Set<ComponentController>;
 	
 // 	entering: Set<ComponentController>;
-// }
+
+	create(node: Element, scope: Component, component: Component);
+}
 
 interface Expression {
 	
@@ -146,4 +148,10 @@ interface ExpressionBranch {
 	content?: ExpressionBranch;
 	
 	num?: string;
+	
+	keys?: Object;
+	
+	items?: Array<any>;
+	
+	args?: Array<ExpressionBranch>;
 }

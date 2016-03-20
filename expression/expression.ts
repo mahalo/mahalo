@@ -20,16 +20,35 @@ export default class Expression {
 		this.parser = parser;
 		this.scope = scope;
 		this.callbacks = new Set();
-		this.interceptor = interceptor.bind(this);
+		this.interceptor = parser.paths ? interceptor.bind(this) : computedInterceptor.bind(this);
 		this.value = this.compile();
 	}
 	
 	watch(callback: Function) {
 		var value = this.compile();
 		
-		this.callbacks.size || this.parser.paths.forEach(function (path) {
-			watch(this.scope, path, this.interceptor);
-		}, this);
+		if (!this.callbacks.size) {
+			
+			if (this.parser.paths)  {
+				
+				this.parser.paths.forEach(
+					path => watch(this.scope, path, this.interceptor)
+				);
+				
+			} else {
+				
+				Object.defineProperty(this, 'computed', {
+					enumerable: true,
+					get() {
+						return this.compile();
+					}
+				});
+				
+				watch(this, 'computed', this.interceptor);
+				
+			}
+			
+		}
 		
 		this.callbacks.add(callback);
 		
@@ -45,9 +64,17 @@ export default class Expression {
 			this.callbacks.clear();
 		}
 		
-		this.callbacks.size || this.parser.paths.forEach(function (path) {
-			unwatch(this.scope, path, this.interceptor);
-		}, this);
+		if (this.callbacks.size) {
+			return;
+		}
+		
+		if (!this.parser.paths) {
+			return unwatch(this, 'computed', this.interceptor);
+		}
+		
+		this.parser.paths.forEach(
+			path => unwatch(this.scope, path, this.interceptor)
+		);
 	}
 	
 	compile() {
@@ -65,7 +92,17 @@ function interceptor() {
 	
 	this.value = clone(newValue);
 	
-	this.callbacks.forEach(function(callback) {
-		callback(newValue, oldValue);
-	});
+	this.callbacks.forEach(
+		callback => callback(newValue, oldValue)
+	);
+}
+
+function computedInterceptor(newValue) {
+	var oldValue = this.value;
+	
+	this.value = newValue;
+	
+	this.callbacks.forEach(
+		callback => callback(newValue, oldValue)
+	);
 }

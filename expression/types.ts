@@ -8,4 +8,9 @@ export var
 	MEMBER = 6,
 	LITERAL = 7,
 	NUMBER = 8,
-	IDENT = 9;
+	IDENT = 9,
+	OBJECT = 10,
+	ARRAY = 11,
+	BRACKET_IDENT = 12,
+	CALL = 13,
+	RESERVED = 14;
