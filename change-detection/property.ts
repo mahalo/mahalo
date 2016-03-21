@@ -23,14 +23,15 @@ Object.defineProperties = defineProperties;
 export function assign(obj: Object, key: string|number, val?) {
 	switch (arguments.length) {
 		case 2:
-			memberAssignment(obj, key);
-			break;
+			return memberAssignment(obj, key);
 			
 		case 3:
-			memberAssignment(obj, key, val);
+			return memberAssignment(obj, key, val);
 	}
 	
 	scheduleCheck();
+	
+	return obj;
 }
 
 /**
@@ -129,11 +130,13 @@ function memberAssignment(obj: Object, key: string|number, value?) {
 	}
 	
 	if (!callbacksByKeys.has(obj)) {
-		return;
+		return value;
 	}
 	
 	executeCallbacks(obj, key, oldValue);
 	executeCallbacks(obj, '', oldObj);
+	
+	return value;
 }
 
 /**

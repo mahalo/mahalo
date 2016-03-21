@@ -1,19 +1,17 @@
 interface Controller {
 	node: Node;
 	
-	scope: Component;
-	
 	parent: ComponentController;
 	
 	remove();
 }
 
 interface Template {
-	// components: Object;
+	components: Object;
 	
-	// attributes: Object;
+	attributes: Object;
 	
-	// children: Array<Generator>;
+	children: Array<Generator>;
 	
 	// constructor(html?: string, components?: Object, attributes?: Object);
 	
@@ -29,91 +27,49 @@ interface Template {
 	
 	// checkAttribute(component, attribute, node): void;
 	
-	compile(node: Element, scope: Object, controller: ComponentController): void;
+	compile(node: Element|DocumentFragment, scope: Object, controller: ComponentController): void;
 }
 
-interface ComponentController {
-	// node: Element;
+interface ComponentController extends Controller {
+	node: Element|DocumentFragment;
 	
-	// scope: Component;
+	scope: Component;
 	
-	// parent: ComponentController;
-	
-	// component: Component;
+	component: Component;
 	
 	children: Set<Controller>;
 	
-	// compiled: boolean;
+	compiled: boolean;
 	
-	// position: number;
+	position: number;
 	
-	// isEntering: boolean;
+	isEntering: boolean;
 	
-	// isLeaving: boolean;
+	isLeaving: boolean;
 	
-	// compileChildren(children: Array<Generator>);
+	init(parentNode: Element|DocumentFragment, template: Template, children: Array<Generator>);
 	
-	// remove();
-}
-
-interface Container {
-// 	elements: Array<ComponentController>;
-	
-// 	template: Template;
-	
-// 	children: Array<ComponentController>;
-	
-// 	parentController: ComponentController;
-	
-// 	link: Node;
-	
-// 	leaving: Set<ComponentController>;
-	
-// 	entering: Set<ComponentController>;
-
-	create(node: Element, scope: Component, component: Component);
-}
-
-interface Expression {
-	
+	compileChildren(children: Array<Generator>);
 }
 
 interface Generator {
-	// node: Node;
+	node: Node;
 	
 	compile(parentNode: DocumentFragment, scope: Component, controller: ComponentController): void;
 }
 
-// interface TextGenerator {
-// 	node: Node;
-	
-// 	parts: Array<string|Expression>;
-	
-// 	constructor(node: Node);
-	
-// 	parseText(text: string): void;
-	
-// 	compile(parentNode: DocumentFragment, scope: Component, parentController: Controller): void;
-// }
-
-// interface ComponentGenerator {
-// 	node: Node;
-	
-// 	attributes: Object;
-	
+// interface ComponentGenerator extends Generator {	
 // 	template: Template;
 	
-// 	Component: Component;
+// 	Component: ComponentConstructor;
 	
-// 	children: Array<any>;
+// 	children: Array<Generator>;
+// }
+
+// interface TextGenerator {
+// 	parts: Array<string|Parser>;
 	
-// 	scope: Object;
-	
-// 	constructor(node: Element, desc: {Component?: Component, template?: Template});
-	
-// 	compile(parentNode: DocumentFragment, scope: Component, parentController: Controller): void;
-	
-// 	compileAttributes(Component: Function, node: Element, scope: Component): Object;
+// 	parseText(text: string): void;
 // }
 
 interface Component {
@@ -122,6 +78,16 @@ interface Component {
 	leave();
 	
 	remove();
+}
+
+interface ComponentConstructor {
+	locals: Object;
+	
+	inject: Object;
+	
+	attributes: Object;
+	
+	bindings: Object;
 }
 
 interface ExpressionBranch {

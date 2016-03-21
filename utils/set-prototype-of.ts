@@ -7,7 +7,7 @@ if (typeof Object.setPrototypeOf === 'undefined' && typeof Object.getOwnProperty
 		}
 	}
 
-	function bindProperty(subClass, key, superDesc) {
+	function bindProperty(subClass, key, superDesc?) {
 		if (!superDesc) {
 			var defaultValue = subClass.__proto__[key];
 			
