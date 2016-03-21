@@ -39,16 +39,18 @@ export default class Template {
 		return children;
 	}
 	
-	checkNode(node: Element): Generator {
+	checkNode(node: Node): Generator {
 		if (node.nodeType === TEXT_NODE) {
 			return this.checkText(node);
 		}
 		
-		if (node.tagName === 'CHILDREN') {
-			return new ChildrenGenerator(node.cloneNode());
+		var element = node instanceof Element && node;
+		
+		if (element.tagName === 'CHILDREN') {
+			return new ChildrenGenerator(element.cloneNode());
 		}
 		
-		return this.checkComponent(node);
+		return this.checkComponent(element);
 	}
 	
 	checkText(textNode: Node): TextGenerator {
@@ -104,7 +106,7 @@ export default class Template {
 		}
 	}
 	
-	compile(node: Element, scope: Component, controller: ComponentController) {
+	compile(node: Element|DocumentFragment, scope: Component, controller: ComponentController) {
 		var children = this.children,
 			child = children[0],
 			i = 0;
@@ -118,9 +120,5 @@ export default class Template {
 }
 
 function parseHTML(html) {
-	if (html) {
-		return parser.parseFromString(html, 'text/html').querySelector('body').childNodes;
-	}
-	
-	return fragment.cloneNode(true).childNodes;
+	return parser.parseFromString(html || '', 'text/html').querySelector('body').childNodes;
 }

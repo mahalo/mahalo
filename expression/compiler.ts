@@ -213,7 +213,7 @@ function compileArray(branch: ExpressionBranch, ctx: Object) {
 	return arr;
 }
 
-function compileCall(branch: ExpressionBranch, ctx: Object, obj: Object) {
+function compileCall(branch: ExpressionBranch, ctx: Object, obj?: Object) {
 	var method = compileBranch(branch.prop, ctx);
 	
 	if (typeof method !== 'function') {
@@ -230,7 +230,7 @@ function compileCall(branch: ExpressionBranch, ctx: Object, obj: Object) {
 		item = items[++i];
 	}
 	
-	return method.apply(obj, args);
+	return method.apply(obj || ctx, args);
 }
 
 function compileReserved(branch: ExpressionBranch, ctx: Object) {

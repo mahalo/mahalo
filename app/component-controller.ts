@@ -1,9 +1,15 @@
 import {unwatch} from '../change-detection/watch';
+import {default as Scope, remove} from './scope';
+import {enter, leave} from './animate';
+import asap from '../utils/asap';
+import {setDependency} from './component';
 
 export default class ComponentController implements Controller {
-	node: Element;
+	node: Element|DocumentFragment;
 	
 	scope: Component;
+	
+	localScope: Component;
 	
 	parent: ComponentController;
 	
@@ -19,14 +25,43 @@ export default class ComponentController implements Controller {
 	
 	isLeaving: boolean;
 	
-	constructor(node: Element, scope: Component, component: Component) {
+	constructor(Component, node: Element|DocumentFragment, scope: Component, parent?: ComponentController, locals?: Object) {
 		this.node = node;
-		this.scope = scope;
-		this.component = component;
+		this.parent = parent;
 		this.children = new Set();
+		this.scope = scope;
+		this.position = 1;
+		
+		// Set dependencies
+		setDependency(Element, node);
+		setDependency(Scope, scope);
+		setDependency(ComponentController, this);
+		
+		this.component = new Component();
+		this.localScope = locals ? new Scope(scope, this.component, locals) : scope;	
 	}
 	
-	compileChildren(children: Array<Generator>) {
+	init(parentNode: Element|DocumentFragment, template: Template, children: Array<Generator>, animate?: boolean) {
+		template.compile(this.node, this.component, this);
+		
+		this.compileChildren(children);
+		
+		this.parent.children.add(this);
+		
+		this.append(parentNode, animate);
+	}
+	
+	append(parentNode, animate) {
+		if (animate && this.node instanceof Element) {
+			return enter(this, parentNode);
+		}
+		
+		this.compiled = true;
+		
+		parentNode.appendChild(this.node);
+	}
+	
+	compileChildren(children) {
 		var element = this.node.querySelector('children');
 		
 		if (!element) {
@@ -38,8 +73,9 @@ export default class ComponentController implements Controller {
 			child = children[0],
 			i = 0;
 		
+		
 		while (child) {
-			child.compile(fragment, this.scope, this);
+			child.compile(fragment, this.localScope, this);
 			
 			child = children[++i];
 		}
@@ -47,15 +83,28 @@ export default class ComponentController implements Controller {
 		parent.replaceChild(fragment, element);
 	}
 	
+	detach(animate?: boolean) {
+		if (!animate || !(this.node instanceof Element)) {
+			return this.remove();
+		}
+		
+		leave(this);
+	}
+	
 	remove() {
-		var component = this.component;
+		var component = this.component,
+			node = this.node;
 		
 		unwatch(component);
 		
+		this.localScope !== this.scope && remove(this.localScope);
+		
 		typeof component.remove === 'function' && component.remove();
 		
-		this.children.forEach(function(controller) {
-			controller.remove();
-		});
+		this.children.forEach(controller => controller.remove());
+		
+		this.parent.children.delete(this);
+		
+		node.parentNode.removeChild(node);
 	}
 }

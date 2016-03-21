@@ -1,4 +1,4 @@
-/// <reference path="es6.d.ts" />
+// <reference path="es6.d.ts" />
 /// <reference path="mahalo.d.ts" />
 
 export {default as App} from './app/app';

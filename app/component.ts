@@ -1,5 +1,8 @@
 import ComponentController from './component-controller';
 import Scope from './scope';
+import Expression from '../expression/expression';
+import {watch} from '../change-detection/watch';
+import {assign} from '../change-detection/property';
 
 var dependencies = new WeakMap();
 
@@ -8,29 +11,16 @@ export default class Component {
 	
 	static inject: Object;
 	
-	static render(container: Container, node: Element, scope: Component, attributes: Object) {
-		var component = new this();
-		
-		if (this.locals) {
-			scope = new Scope(scope, component, this.locals);
-		}
-		
-		container.create(node, scope, component);
-	}
+	static attributes: Object;
+	
+	static bindings: Object;
 	
 	constructor() {
-		if (!this.constructor.inject) {
-			return;
-		}
+		var Constructor = this.constructor;
 		
-		var dependencies = this.constructor.inject,
-			key;
-		
-		for (key in dependencies) {
-			if (dependencies.hasOwnProperty(key)) {
-				inject(this, key, dependencies[key]);
-			}
-		}
+		injectDependencies(this, Constructor);
+		injectAttributes(this, Constructor);
+		createBindings(this, Constructor);
 	}
 	
 	enter() {}
@@ -44,10 +34,69 @@ export function setDependency(Constructor, dependency) {
 	dependencies.set(Constructor, dependency);
 }
 
-function inject(obj, key, Constructor) {
+function inject(obj, key, Constructor: typeof Component) {
 	var dependency = dependencies.get(Constructor);
 	
 	dependency || dependencies.set(Constructor, dependency = new Constructor());
 	
 	obj[key] = dependency;
+}
+
+function injectDependencies(component: Component, Constructor) {
+	if (!Constructor.inject) {
+		return;
+	}
+	
+	var dependencies = Constructor.inject,
+		key;
+	
+	for (key in dependencies) {
+		if (dependencies.hasOwnProperty(key)) {
+			inject(component, key, dependencies[key]);
+		}
+	}
+}
+
+function injectAttributes(component: Component, Constructor) {
+	var constructor
+	
+	if (!(Constructor.attributes instanceof Object)) {
+		return;
+	}
+	
+	var element = dependencies.get(Element),
+		scope = dependencies.get(Scope),
+		compiledAttributes = {},
+		attributes = Constructor.attributes,
+		attribute,
+		value;
+	
+	Object.keys(attributes).forEach(
+		attribute => {
+			value = attributes[attribute];
+			
+			if (value[0] === '.') {
+				value = value.substr(1);
+				
+				component[attribute] = new Expression(element.getAttribute(value || attribute), scope).watch(
+					newValue => assign(component, attribute, newValue)
+				);
+			} else {
+				component[attribute] = element.getAttribute(value || attribute);
+			}
+		}
+	);
+}
+
+function createBindings(component: Component, Constructor) {
+	var bindings = Constructor.bindings,
+		key;
+	
+	if (!(bindings instanceof Object)) {
+		return;
+	}
+	
+	for (key in bindings) {
+		watch(component, key, component[bindings[key]].bind(component));
+	}
 }
