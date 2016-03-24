@@ -17,10 +17,12 @@ methods.forEach(method => wrapMethod(method, arrayPrototype[method]));
 Object.defineProperty = defineProperty;
 Object.defineProperties = defineProperties;
 
+window.onresize = assign;
+
 /**
  * 
  */
-export function assign(obj: Object, key: string|number, val?) {
+export function assign(obj?: Object, key?: string|number, val?) {
 	switch (arguments.length) {
 		case 2:
 			return memberAssignment(obj, key);
@@ -80,9 +82,13 @@ export function unobserve(obj: Object, key: string|number, callback: Function) {
  * 
  */
 function isComputed(obj: Object, key: string|number) {
+	while (obj instanceof Object && !obj.hasOwnProperty(key)) {
+		obj = Object.getPrototypeOf(obj);
+	}
+	
 	var desc = Object.getOwnPropertyDescriptor(obj, key);
 	
-	return desc && desc.get;
+	return desc && desc.get ? true : false;
 }
 
 /**
@@ -186,7 +192,8 @@ function checkComputed() {
 			
 			if (keys.hasOwnProperty(key) && newValue !== oldValue) {
 				keys[key] = newValue;
-				executeCallbacks(obj, key, oldObj[key] = oldValue);
+				Object.defineProperty(oldObj, key, {value: oldValue});
+				executeCallbacks(obj, key, oldValue);
 			}
 		}
 		

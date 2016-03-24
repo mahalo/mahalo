@@ -2,11 +2,7 @@ import ComponentGenerator from './component-generator';
 import TextGenerator from './text-generator';
 import ChildrenGenerator from './children-generator';
 
-var TEXT_NODE = Node.TEXT_NODE,
-	parser = new DOMParser(),
-	fragment = document.createDocumentFragment();
-
-fragment.appendChild(document.createElement('children'))
+var TEXT_NODE = Node.TEXT_NODE;
 
 export default class Template {
 	components: Object;
@@ -73,8 +69,8 @@ export default class Template {
 	}
 	
 	checkAttributes(element: Element, component): ComponentGenerator {
-		var generator = new ComponentGenerator(element, component),
-			childNodes = element.childNodes,
+		var childNodes = element.childNodes,
+			generator = new ComponentGenerator(element, component),
 			attributes = element.attributes,
 			attribute = attributes[0],
 			i = 0;
@@ -119,6 +115,10 @@ export default class Template {
 	}
 }
 
-function parseHTML(html) {
-	return parser.parseFromString(html || '', 'text/html').querySelector('body').childNodes;
+function parseHTML(html: string) {
+	var container = document.createElement('div');
+	
+	container.innerHTML = html || '';
+	
+	return container.childNodes;
 }

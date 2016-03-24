@@ -15,7 +15,7 @@ interface Template {
 	
 	// constructor(html?: string, components?: Object, attributes?: Object);
 	
-	// parseChildNodes(childNodes: NodeList): Array<Generator>;
+	// parseChildNodes(childNodes: Array<Node>): Array<Generator>;
 	
 	// checkNode(node: Node): Generator;
 	
@@ -46,6 +46,10 @@ interface ComponentController extends Controller {
 	isEntering: boolean;
 	
 	isLeaving: boolean;
+	
+	start: EventListener;
+	
+	end: EventListener;
 	
 	init(parentNode: Element|DocumentFragment, template: Template, children: Array<Generator>);
 	
@@ -78,16 +82,6 @@ interface Component {
 	leave();
 	
 	remove();
-}
-
-interface ComponentConstructor {
-	locals: Object;
-	
-	inject: Object;
-	
-	attributes: Object;
-	
-	bindings: Object;
 }
 
 interface ExpressionBranch {

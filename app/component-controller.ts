@@ -1,8 +1,8 @@
 import {unwatch} from '../change-detection/watch';
 import {default as Scope, remove} from './scope';
-import {enter, leave} from './animate';
-import asap from '../utils/asap';
 import {setDependency} from './component';
+import enter from '../animation/enter';
+import leave from '../animation/leave';
 
 export default class ComponentController implements Controller {
 	node: Element|DocumentFragment;
@@ -24,6 +24,10 @@ export default class ComponentController implements Controller {
 	isEntering: boolean;
 	
 	isLeaving: boolean;
+	
+	start: EventListener;
+	
+	end: EventListener;
 	
 	constructor(Component, node: Element|DocumentFragment, scope: Component, parent?: ComponentController, locals?: Object) {
 		this.node = node;
@@ -84,11 +88,11 @@ export default class ComponentController implements Controller {
 	}
 	
 	detach(animate?: boolean) {
-		if (!animate || !(this.node instanceof Element)) {
-			return this.remove();
+		if (animate && (this.node instanceof Element)) {
+			return leave(this);
 		}
 		
-		leave(this);
+		this.remove();
 	}
 	
 	remove() {

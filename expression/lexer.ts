@@ -145,29 +145,8 @@ export function nextSymbol() {
 		type = symbols.RPAREN;
 	
 	} else if (char === LBRACKET) {
-		
-		// if (exp[this.i - 1] === MEMBER) {
 			
-		// 	char = exp[++this.i];
-		// 	str = '';
-			
-		// 	while (char && char !== RBRACKET) {
-		// 		if (char === '\\' && exp[this.i - 1] !== '\\' && exp[this.i + 1] === RBRACKET) {
-		// 			char = exp[++this.i];
-		// 		}
-				
-		// 		str += char;
-				
-		// 		char = exp[++this.i];
-		// 	}
-			
-		// 	type = symbols.IDENT;
-			
-		// } else {
-			
-			type = symbols.LBRACKET;
-			
-		// }
+		type = symbols.LBRACKET;
 	
 	} else if (char === RBRACKET) {
 		

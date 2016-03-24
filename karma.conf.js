@@ -20,8 +20,9 @@ module.exports = function (config) {
 								'stage-1'
 							],
 							plugins: [
+								'external-helpers',
 								'transform-flow-strip-types',
-								'transform-runtime'
+								// 'transform-runtime'
 							]
 						}
 					}
