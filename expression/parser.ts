@@ -194,10 +194,6 @@ export default class Parser {
 			}
 		}
 		
-		// if (member.type !== types.OBJECT && member.type !== types.ARRAY && this.accept(symbols.LPAREN)) {
-		// 	return this.call(member);
-		// }
-		
 		this.addPath(member);
 		
 		return member;

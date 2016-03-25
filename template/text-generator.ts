@@ -54,7 +54,7 @@ export default class TextGenerator implements Generator {
 		part && parts.push(part);
 	}
 	
-	compile(parentNode: DocumentFragment, scope: Component, parent: ComponentController) {
+	compile(parentNode: DocumentFragment, scope: Scope|Component, parent: ComponentController) {
 		var textNode = this.node,
 			parts = this.parts,
 			part = parts[0],

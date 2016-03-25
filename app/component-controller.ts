@@ -7,9 +7,9 @@ import leave from '../animation/leave';
 export default class ComponentController implements Controller {
 	node: Element|DocumentFragment;
 	
-	scope: Component;
+	scope: Scope|Component;
 	
-	localScope: Component;
+	localScope: Scope|Component;
 	
 	parent: ComponentController;
 	
@@ -25,11 +25,7 @@ export default class ComponentController implements Controller {
 	
 	isLeaving: boolean;
 	
-	start: EventListener;
-	
-	end: EventListener;
-	
-	constructor(Component, node: Element|DocumentFragment, scope: Component, parent?: ComponentController, locals?: Object) {
+	constructor(Component, node: Element|DocumentFragment, scope: Scope|Component, parent?: ComponentController, locals?: Object) {
 		this.node = node;
 		this.parent = parent;
 		this.children = new Set();

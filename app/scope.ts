@@ -1,102 +1,50 @@
-import {assign, observe, unobserve} from '../change-detection/property';
-import {create} from '../utils/clone';
-
 var scopes = new WeakMap(),
-	localScopes = new WeakMap(),
-	callbacksByKey = new WeakMap();
+	components = new WeakMap(),
+	localKeys = new WeakMap();
 
 export default class Scope {
-	constructor(scope, localScope, keys) {
-		var obj: Component = create(Object.getPrototypeOf(scope)),
-			key;
-		
-		callbacksByKey.set(obj, {});
+	constructor(scope: Scope|Component, component: Component, keys: Object) {
+		var key;
 		
 		for (key in keys) {
 			if (keys.hasOwnProperty(key)) {
-				createKey(obj, key, localScope);
+				createKey(this, component, key);
 			}
 		}
 		
 		for (key in scope) {
-			if (scope.hasOwnProperty(key)) {
-				createKey(obj, key, scope);
+			if (scope.hasOwnProperty(key) && !this.hasOwnProperty(key)) {
+				createKey(this, scope, key);
 			}
 		}
 		
-		scopes.set(obj, scope);
-		localScopes.set(obj, localScope);
-		
-		return obj;
+		scopes.set(this, scope);
+		components.set(this, component);
+		localKeys.set(this, keys);
 	}
-	
-	enter() {}
-	
-	leave() {}
-	
-	remove() {}
 }
 
-export function remove(obj) {
-	var scope = scopes.get(obj),
-		localScope = localScopes.get(obj),
-		key;
+export function getComponent(key: string|number): Component {
+	var scope = scopes.get(this);
 	
-	if (!scope) {
-		return;
+	if (localKeys.get(this).hasOwnProperty(key)) {
+		return components.get(this);
 	}
 	
-	for (key in scope) {
-		if (scope.hasOwnProperty(key)) {
-			removeKey(obj, key, scope);
+	return scope instanceof Scope ? getComponent.call(scope, key) : scope;
+}
+
+export function remove(scope: Scope) {
+	
+}
+
+function createKey(scope: Scope, component: Component|Scope, key: string) {
+	component = component instanceof Scope ? getComponent.call(component, key) : component;
+	
+	Object.defineProperty(scope, key, {
+		enumerable: true,
+		get: function() {;
+			return component[key];
 		}
-	}
-	
-	for (key in obj) {
-		if (obj.hasOwnProperty(key)) {
-			removeKey(obj, key, localScope);
-		}
-	}
-	
-	scopes.delete(obj);
-	localScopes.delete(obj);
-	callbacksByKey.delete(obj);
-}
-
-function createKey(obj, key, scope) {
-	if (obj.hasOwnProperty(key)) {
-		return;
-	}
-	
-	var desc = Object.getOwnPropertyDescriptor(scope, key),
-		callbacks = callbacksByKey.get(obj)[key] = {
-			scope: callback.bind(obj),
-			obj: null
-		};
-	
-	obj[key] = scope[key];
-	
-	observe(scope, key, callbacks.scope);
-	
-	if (desc && desc.get && !desc.set) {
-		return;
-	}
-	
-	callbacks.obj = callback.bind(scope);
-	
-	observe(obj, key, callbacks.obj);
-}
-
-function removeKey(obj, key, scope) {
-	var callbacks = callbacksByKey.get(obj)[key];
-	
-	unobserve(scope, key, callbacks.scope);
-	
-	callbacks.obj && unobserve(obj, key, callbacks.obj);
-	
-	delete obj[key];
-}
-
-function callback(obj, key) {
-	assign(this, key, obj[key]);
+	});
 }

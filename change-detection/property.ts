@@ -1,5 +1,6 @@
 import asap from '../utils/asap';
 import clone from '../utils/clone';
+import {default as Scope, getComponent} from '../app/scope';
 
 var callbacksByKeys = new WeakMap(),
 	computedKeys = new Map(),
@@ -39,7 +40,9 @@ export function assign(obj?: Object, key?: string|number, val?) {
 /**
  * 
  */
-export function observe(obj: Object, key: string|number, callback: Function) {
+export function observe(obj: Object|Scope, key: string|number, callback: Function) {
+	obj = obj instanceof Scope ? getComponent.call(obj, key) : obj;
+	
 	var keys = callbacksByKeys.get(obj),
 		callbacks;
 	
@@ -64,6 +67,8 @@ export function observe(obj: Object, key: string|number, callback: Function) {
  * 
  */
 export function unobserve(obj: Object, key: string|number, callback: Function) {
+	obj = obj instanceof Scope ? getComponent.call(obj, key) : obj;
+	
 	var keys = callbacksByKeys.get(obj),
 		callbacks;
 	
@@ -126,6 +131,8 @@ function unobserveComputed(obj: Object, key: string|number) {
  * 
  */
 function memberAssignment(obj: Object, key: string|number, value?) {
+	obj = obj instanceof Scope ? getComponent.call(obj, key) : obj;
+	
 	var oldValue = obj[key],
 		oldObj = clone(obj);
 	

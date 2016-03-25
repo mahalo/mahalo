@@ -30,10 +30,18 @@ interface Template {
 	compile(node: Element|DocumentFragment, scope: Object, controller: ComponentController): void;
 }
 
+interface Scope {
+	
+}
+
 interface ComponentController extends Controller {
 	node: Element|DocumentFragment;
 	
-	scope: Component;
+	scope: Scope|Component;
+	
+	localScope: Scope|Component;
+	
+	parent: ComponentController;
 	
 	component: Component;
 	
@@ -47,19 +55,21 @@ interface ComponentController extends Controller {
 	
 	isLeaving: boolean;
 	
-	start: EventListener;
+	init(parentNode: Element|DocumentFragment, template: Template, children: Array<Generator>, animate?: boolean);
 	
-	end: EventListener;
+	append(parentNode, animate);
 	
-	init(parentNode: Element|DocumentFragment, template: Template, children: Array<Generator>);
+	// compileChildren(children);
 	
-	compileChildren(children: Array<Generator>);
+	detach(animate?: boolean);
+	
+	remove();
 }
 
 interface Generator {
 	node: Node;
 	
-	compile(parentNode: DocumentFragment, scope: Component, controller: ComponentController): void;
+	compile(parentNode: DocumentFragment, scope: Scope|Component, controller: ComponentController): void;
 }
 
 // interface ComponentGenerator extends Generator {	

@@ -21,7 +21,7 @@ export default class ComponentGenerator implements Generator {
 		this.Component = desc.Component || Component;
 	}
 	
-	compile(parentNode: Element|DocumentFragment, scope: Component, parent: ComponentController) {
+	compile(parentNode: Element|DocumentFragment, scope: Scope|Component, parent: ComponentController) {
 		var Component = this.Component,
 			node = this.node.cloneNode(),
 			element = node instanceof Element && node,

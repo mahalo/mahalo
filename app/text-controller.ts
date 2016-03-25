@@ -10,7 +10,7 @@ export default class TextController implements Controller {
 	
 	update: Function;
 	
-	constructor(node: Node, scope: Component, parent: ComponentController, text: string|Parser) {
+	constructor(node: Node, scope: Scope|Component, parent: ComponentController, text: string|Parser) {
 		var _text = typeof text === 'string' && text;
 		
 		this.node = node;
