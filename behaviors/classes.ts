@@ -12,7 +12,7 @@ export default class Classes extends Behavior {
 		if (!(classes instanceof Object)) {
 			return;
 		}
-		debugger;
+		
 		var element = this.element,
 			name;
 		
