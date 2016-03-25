@@ -15,14 +15,12 @@ module.exports = function (config) {
 						test: /\.ts$/,
 						loader: 'babel',
 						query: {
-							presets: [
-								'es2015',
-								'stage-1'
-							],
+							presets: ['es2015'],
 							plugins: [
-								'external-helpers',
+								'transform-class-properties',
+								['transform-es2015-classes', {loose: true}],
 								'transform-flow-strip-types',
-								// 'transform-runtime'
+								'transform-runtime'
 							]
 						}
 					}
@@ -31,7 +29,7 @@ module.exports = function (config) {
 			resolve: {
 				extensions: ['', '.js', '.ts']
 			},
-			devtool: 'eval'
+			devtool: 'source-map'
         }
     });
 };

@@ -1,4 +1,6 @@
 import hasAnimation from './has-animation';
+import addClass from './add-class';
+import removeClass from './remove-class';
 import asap from '../utils/asap';
 
 var ENTER_CLASS = 'mh-enter',
@@ -11,11 +13,11 @@ export default function leave(controller: ComponentController) {
 		siblings = parentNode.childNodes,
 		nextSibling = siblings[siblings.length - controller.position];
 	
-	controller.isEntering && element.classList.remove(ENTER_CLASS);
+	controller.isEntering && removeClass(controller, ENTER_CLASS);
 	
 	parentNode.insertBefore(element, nextSibling);
 	
-	if (hasAnimation(element, LEAVE_CLASS)) {
+	if (hasAnimation(controller, LEAVE_CLASS)) {
 		return startAnimation(controller, element);
 	}
 	
@@ -28,7 +30,7 @@ function startAnimation(controller: ComponentController, element: Element) {
 	element.addEventListener('animationend', end);
 	element.addEventListener('webkitAnimationEnd', end);
 	
-	element.classList.add(LEAVE_CLASS);
+	addClass(controller, LEAVE_CLASS);
 	
 	function end(event: Event) {
 		controller.isLeaving = false;
@@ -36,7 +38,7 @@ function startAnimation(controller: ComponentController, element: Element) {
 		element.removeEventListener('animationend', end);
 		element.removeEventListener('webkitAnimationEnd', end);
 		
-		element.classList.remove(LEAVE_CLASS);
+		removeClass(controller, LEAVE_CLASS);
 		
 		controller.remove();
 		

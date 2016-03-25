@@ -213,7 +213,6 @@ function checkComputed() {
 		}
 	} else {
 		counter = 0;
-		// console.log('Mahalo Debug: ' + counter + ' update cycles run');
 	}
 }
 

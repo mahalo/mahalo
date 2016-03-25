@@ -1,4 +1,6 @@
 import hasAnimation from './has-animation';
+import addClass from './add-class';
+import removeClass from './remove-class';
 import asap from '../utils/asap';
 
 var ENTER_CLASS = 'mh-enter';
@@ -9,7 +11,7 @@ export default function enter(controller: ComponentController, parentNode: Eleme
 	
 	parentNode.appendChild(element);
 	
-	controller.isEntering && element.classList.remove(ENTER_CLASS);
+	controller.isEntering && removeClass(controller, ENTER_CLASS);
 	
 	if (controller.compiled) {
 		return;
@@ -17,7 +19,7 @@ export default function enter(controller: ComponentController, parentNode: Eleme
 	
 	controller.compiled = true;
 	
-	hasAnimation(element, ENTER_CLASS) && startAnimation(controller, element);
+	hasAnimation(controller, ENTER_CLASS) && startAnimation(controller, element);
 }
 
 function startAnimation(controller: ComponentController, element: Element) {
@@ -26,7 +28,7 @@ function startAnimation(controller: ComponentController, element: Element) {
 	element.addEventListener('animationend', end);
 	element.addEventListener('webkitAnimationEnd', end);
 	
-	element.classList.add(ENTER_CLASS);
+	addClass(controller, ENTER_CLASS);
 	
 	function end(event: Event) {
 		controller.isEntering = false;
@@ -34,7 +36,7 @@ function startAnimation(controller: ComponentController, element: Element) {
 		element.removeEventListener('animationend', end);
 		element.removeEventListener('webkitAnimationEnd', end);
 		
-		element.classList.remove(ENTER_CLASS);
+		removeClass(controller, ENTER_CLASS);
 		
 		event.stopPropagation();
 	}

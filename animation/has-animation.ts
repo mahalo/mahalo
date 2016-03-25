@@ -1,14 +1,18 @@
+import addClass from './add-class';
+import removeClass from './remove-class';
 import equals from '../utils/equals';
 
-export default function hasAnimation(element: Element, className: string) {
-	var oldAnimations = getAnimations(element),
+export default function hasAnimation(controller: ComponentController, className: string) {
+	var node = controller.node,
+		element = node instanceof Element && node,
+		oldAnimations = getAnimations(element),
 		newAnimations;
 	
-	element.classList.add(className);
+	addClass(controller, className);
 	
 	newAnimations = getAnimations(element);
 	
-	element.classList.remove(className);
+	removeClass(controller, className);
 	
 	return !equals(oldAnimations, newAnimations);
 }

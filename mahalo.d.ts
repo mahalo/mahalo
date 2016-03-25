@@ -59,7 +59,7 @@ interface ComponentController extends Controller {
 	
 	append(parentNode, animate);
 	
-	// compileChildren(children);
+	compileChildren(children);
 	
 	detach(animate?: boolean);
 	
