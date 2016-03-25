@@ -35,14 +35,14 @@ export class Symbol {
 }
 
 export function nextSymbol() {
-	var exp = this.exp,
-		char = exp[++this.i],
+	var expression = this.expression,
+		char = expression[++this.i],
 		type,
 		str,
 		start;
 	
 	while (char && WHITESPACE.test(char)) {
-		char = exp[++this.i];
+		char = expression[++this.i];
 	}
 	
 	str = char;
@@ -56,7 +56,7 @@ export function nextSymbol() {
 	} else if (COMPARISON.test(char)) {
 		
 		type = symbols.COMPARISON;
-		char = exp[this.i + 1];
+		char = expression[this.i + 1];
 		
 		if (COMPARISON.test(char)) {
 			if (str == '=') {
@@ -74,31 +74,31 @@ export function nextSymbol() {
 	
 		type = symbols.LITERAL;
 		str = '';
-		char = exp[++this.i];
+		char = expression[++this.i];
 		
 		while (char && (char !== mark || esc)) {
 			esc = char === '\\' && !esc;
 			str += char;
-			char = exp[++this.i];
+			char = expression[++this.i];
 		}
 		
 	} else if (NUMBER.test(char)) {
 		
 		type = symbols.NUMBER;
-		char = exp[++this.i];
+		char = expression[++this.i];
 		
 		while (char && NUMBER.test(char)) {
 			str += char;
-			char = exp[++this.i];
+			char = expression[++this.i];
 		}
 		
 		if (char === '.') {
 			str += char;
-			char = exp[++this.i];
+			char = expression[++this.i];
 			
 			while (char && NUMBER.test(char)) {
 				str += char;
-				char = exp[++this.i];
+				char = expression[++this.i];
 			}
 		}
 		
@@ -107,11 +107,11 @@ export function nextSymbol() {
 	} else if (IDENT_START.test(char)) {
 		
 		type = symbols.IDENT;
-		char = exp[++this.i];
+		char = expression[++this.i];
 		
 		while (char && IDENT.test(char)) {
 			str += char;
-			char = exp[++this.i];
+			char = expression[++this.i];
 		}
 		
 		this.i--;

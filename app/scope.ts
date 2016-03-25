@@ -34,10 +34,6 @@ export function getComponent(key: string|number): Component {
 	return scope instanceof Scope ? getComponent.call(scope, key) : scope;
 }
 
-export function remove(scope: Scope) {
-	
-}
-
 function createKey(scope: Scope, component: Component|Scope, key: string) {
 	component = component instanceof Scope ? getComponent.call(component, key) : component;
 	

@@ -8,7 +8,7 @@ var RESERVED = ['true', 'false', 'null'],
 	parsers = {};
 
 export default class Parser {
-	exp: string;
+	expression: string;
 	
 	i: number;
 	
@@ -18,12 +18,12 @@ export default class Parser {
 	
 	symbol: Symbol;
 	
-	constructor(exp: string) {
-		if (parsers.hasOwnProperty(exp)) {
-			return parsers[exp];
+	constructor(expression: string) {
+		if (parsers.hasOwnProperty(expression)) {
+			return parsers[expression];
 		}
 		
-		this.exp = exp;
+		this.expression = expression;
 		this.i = -1;
 		this.paths = new Set();
 		this.ast = this.comparison();
@@ -31,7 +31,7 @@ export default class Parser {
 		this.nextSymbol();
 		this.expect(symbols.END);
 		
-		parsers[exp] = this;
+		parsers[expression] = this;
 	}
 	
 	comparison() {

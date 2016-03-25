@@ -3,8 +3,7 @@ import Scope from './scope';
 import Expression from '../expression/expression';
 import {watch} from '../change-detection/watch';
 import {assign} from '../change-detection/property';
-
-var dependencies = new WeakMap();
+import {injectDependencies, getDependency} from './injector';
 
 export default class Component {
 	static locals: Object;
@@ -30,33 +29,6 @@ export default class Component {
 	remove() {}
 }
 
-export function setDependency(Constructor, dependency) {
-	dependencies.set(Constructor, dependency);
-}
-
-function inject(obj, key, Constructor: typeof Component) {
-	var dependency = dependencies.get(Constructor);
-	
-	dependency || dependencies.set(Constructor, dependency = new Constructor());
-	
-	obj[key] = dependency;
-}
-
-function injectDependencies(component: Component, Constructor) {
-	if (!Constructor.inject) {
-		return;
-	}
-	
-	var dependencies = Constructor.inject,
-		key;
-	
-	for (key in dependencies) {
-		if (dependencies.hasOwnProperty(key)) {
-			inject(component, key, dependencies[key]);
-		}
-	}
-}
-
 function injectAttributes(component: Component, Constructor) {
 	var constructor
 	
@@ -64,23 +36,23 @@ function injectAttributes(component: Component, Constructor) {
 		return;
 	}
 	
-	var element = dependencies.get(Element),
-		scope = dependencies.get(Scope),
+	var element = getDependency(Element),
+		scope = getDependency(Scope),
 		compiledAttributes = {},
-		attributes = Constructor.attributes,
-		attribute,
-		value;
+		attributes = Constructor.attributes;
 	
 	Object.keys(attributes).forEach(
 		attribute => {
-			value = attributes[attribute];
+			var value = attributes[attribute],
+				expression;
 			
 			if (value[0] === '.') {
 				value = value.substr(1);
 				
-				component[attribute] = new Expression(element.getAttribute(value || attribute), scope).watch(
-					newValue => assign(component, attribute, newValue)
-				);
+				expression = new Expression(element.getAttribute(value || attribute), scope);
+				expression.watch(newValue => assign(component, attribute, newValue));
+				
+				component[attribute] = expression.compile();
 			} else {
 				component[attribute] = element.getAttribute(value || attribute);
 			}

@@ -19,7 +19,7 @@ export default class TextGenerator implements Generator {
 			i = 0,
 			part = '',
 			nested = 0,
-			exp;
+			expression;
 		
 		this.parts = parts;
 			
@@ -27,18 +27,18 @@ export default class TextGenerator implements Generator {
 			if (text[++i] === '{' && char === '$') {
 				part && parts.push(part);
 				part = '';
-				exp = true;
+				expression = true;
 				i++;
-			} else if (char === '{' && exp) {
+			} else if (char === '{' && expression) {
 				nested++;
-			} else if (char === '}' && exp) {
+			} else if (char === '}' && expression) {
 				if (nested) {
 					nested--;
 				} else {
 					part = part.trim();
 					part && parts.push(new Parser(part));
 					part = '';
-					exp = false;
+					expression = false;
 				}
 			} else {
 				part += char;

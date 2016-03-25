@@ -14,19 +14,16 @@ export default class Expression {
 	
 	value;
 	
-	constructor(exp: string|Parser, scope: Object) {
-		var parser = typeof exp === 'string' ? new Parser(exp) : exp;
+	constructor(expression: string|Parser, scope: Object) {
+		var parser = typeof expression === 'string' ? new Parser(expression) : expression;
 		
 		this.parser = parser;
 		this.scope = scope;
 		this.callbacks = new Set();
 		this.interceptor = parser.paths ? interceptor.bind(this) : computedInterceptor.bind(this);
-		this.value = this.compile();
 	}
 	
 	watch(callback: Function) {
-		var value = this.compile();
-		
 		if (!this.callbacks.size) {
 			
 			if (this.parser.paths)  {
@@ -51,10 +48,6 @@ export default class Expression {
 		}
 		
 		this.callbacks.add(callback);
-		
-		this.value = clone(value);
-		
-		return value;
 	}
 	
 	unwatch(callback?: Function) {
@@ -100,7 +93,7 @@ function interceptor() {
 function computedInterceptor(newValue) {
 	var oldValue = this.value;
 	
-	this.value = newValue;
+	this.value = clone(newValue);
 	
 	this.callbacks.forEach(
 		callback => callback(newValue, oldValue)

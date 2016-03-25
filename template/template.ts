@@ -1,20 +1,25 @@
 import ComponentGenerator from './component-generator';
 import TextGenerator from './text-generator';
 import ChildrenGenerator from './children-generator';
+import EventBehavior from '../behaviors/event-behavior';
+import AttributeBehavior from '../behaviors/attribute-behavior';
+import Classes from '../behaviors/classes';
+import Styles from '../behaviors/styles';
+import Content from '../behaviors/content';
 
 var TEXT_NODE = Node.TEXT_NODE;
 
 export default class Template {
 	components: Object;
 	
-	attributes: Object;
+	behaviors: Object;
 	
 	children: Array<Generator>;
 	
-	constructor(html?: string, components?: Object, attributes?: Object) {
+	constructor(html?: string, components?: Object, behaviors?: Object) {
 		this.components = components || {};
 		
-		this.attributes = attributes || {};
+		this.behaviors = behaviors || {};
 		
 		this.children = this.parseChildNodes(parseHTML(html));
 	}
@@ -65,10 +70,10 @@ export default class Template {
 			component = components[element.tagName];
 		}
 		
-		return this.checkAttributes(element, component);
+		return this.checkBehaviors(element, component);
 	}
 	
-	checkAttributes(element: Element, component): ComponentGenerator {
+	checkBehaviors(element: Element, component): ComponentGenerator {
 		var childNodes = element.childNodes,
 			generator = new ComponentGenerator(element, component),
 			attributes = element.attributes,
@@ -76,7 +81,7 @@ export default class Template {
 			i = 0;
 		
 		while (attribute) {
-			this.checkAttribute(component, attribute, generator);
+			this.checkBehavior(attribute, generator);
 			
 			attribute = attributes[++i];
 		}
@@ -86,18 +91,32 @@ export default class Template {
 		return generator;
 	}
 	
-	checkAttribute(component, attribute, generator) {
-		var attributes = this.attributes,
-			name = attribute.name;
+	checkBehavior(attribute, generator) {
+		var behaviors = this.behaviors,
+			name = attribute.name,
+			Behavior;
 		
-		if (!attributes.hasOwnProperty(name)) {
+		if (/^@/.test(name)) {
+			Behavior = EventBehavior;
+		} else if (/^#/.test(name)) {
+			Behavior = AttributeBehavior;
+		} else if (behaviors.hasOwnProperty(name)) {
+			// @todo: Check for require
+			Behavior = behaviors[name];
+		} else if (name === 'classes') {
+			Behavior = Classes;
+		} else if (name === 'styles') {
+			Behavior = Styles;
+		} else if (name === 'content') {
+			Behavior = Content;
+		}
+		
+		if (!Behavior) {
 			return;
 		}
 		
-		// @todo: Check for require
-		
-		generator.attributes[name] = {
-			attribute: attributes[name],
+		generator.behaviors[name] = {
+			Behavior: Behavior,
 			value: attribute.value
 		}
 	}

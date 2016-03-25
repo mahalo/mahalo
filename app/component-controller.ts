@@ -1,8 +1,9 @@
 import {unwatch} from '../change-detection/watch';
 import {default as Scope, remove} from './scope';
-import {setDependency} from './component';
+import {setDependency} from './injector';
 import enter from '../animation/enter';
 import leave from '../animation/leave';
+import Component from './component';
 
 export default class ComponentController implements Controller {
 	node: Element|DocumentFragment;
@@ -15,6 +16,8 @@ export default class ComponentController implements Controller {
 	
 	component: Component;
 	
+	behaviors: Set<Behavior>;
+	
 	children: Set<Controller>;
 	
 	compiled: boolean;
@@ -25,7 +28,7 @@ export default class ComponentController implements Controller {
 	
 	isLeaving: boolean;
 	
-	constructor(Component, node: Element|DocumentFragment, scope: Scope|Component, parent?: ComponentController, locals?: Object) {
+	constructor(Constructor, node: Element|DocumentFragment, scope: Scope|Component, parent?: ComponentController, locals?: Object) {
 		this.node = node;
 		this.parent = parent;
 		this.children = new Set();
@@ -37,28 +40,27 @@ export default class ComponentController implements Controller {
 		setDependency(Scope, scope);
 		setDependency(ComponentController, this);
 		
-		this.component = new Component();
+		this.component = new Constructor();
+		this.behaviors = new Set();
 		this.localScope = locals ? new Scope(scope, this.component, locals) : scope;	
 	}
 	
-	init(parentNode: Element|DocumentFragment, template: Template, children: Array<Generator>, animate?: boolean) {
+	init(parentNode: Element|DocumentFragment, template: Template, children: Array<Generator>, behaviors: Object) {
 		template.compile(this.node, this.component, this);
 		
 		this.compileChildren(children);
 		
 		this.parent.children.add(this);
 		
-		this.append(parentNode, animate);
-	}
-	
-	append(parentNode, animate) {
-		if (animate && this.node instanceof Element) {
-			return enter(this, parentNode);
-		}
+		this.append(parentNode);
 		
-		this.compiled = true;
+		// Set dependencies
+		setDependency(Element, this.node);
+		setDependency(Scope, this.scope);
+		setDependency(ComponentController, this);
+		setDependency(Component, this.component);
 		
-		parentNode.appendChild(this.node);
+		this.initBehaviors(behaviors);
 	}
 	
 	compileChildren(children) {
@@ -83,8 +85,33 @@ export default class ComponentController implements Controller {
 		parent.replaceChild(fragment, element);
 	}
 	
-	detach(animate?: boolean) {
-		if (animate && (this.node instanceof Element)) {
+	append(parentNode) {
+		if (this.node instanceof Element) {
+			return enter(this, parentNode);
+		}
+		
+		this.compiled = true;
+		
+		parentNode.appendChild(this.node);
+	}
+	
+	initBehaviors(behaviors) {
+		var Behavior,
+			name,
+			desc;
+		
+		for (name in behaviors) {
+			if (behaviors.hasOwnProperty(name)) {
+				desc = behaviors[name],
+				Behavior = desc.Behavior;
+				
+				this.behaviors.add(new Behavior(desc.value, name));
+			}
+		}
+	}
+	
+	detach() {
+		if (this.node instanceof Element) {
 			return leave(this);
 		}
 		
@@ -97,8 +124,6 @@ export default class ComponentController implements Controller {
 		
 		unwatch(component);
 		
-		this.localScope !== this.scope && remove(this.localScope);
-		
 		typeof component.remove === 'function' && component.remove();
 		
 		this.children.forEach(controller => controller.remove());
@@ -106,5 +131,7 @@ export default class ComponentController implements Controller {
 		this.parent.children.delete(this);
 		
 		node.parentNode.removeChild(node);
+		
+		this.behaviors.forEach(behavior => behavior.remove());
 	}
 }

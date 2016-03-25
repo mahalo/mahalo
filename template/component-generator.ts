@@ -1,5 +1,6 @@
 import Template from './template';
-import {default as Component, setDependency} from '../app/component';
+import Component from '../app/component';
+import {setDependency} from '../app/injector';
 import ComponentController from '../app/component-controller';
 
 export default class ComponentGenerator implements Generator {
@@ -9,6 +10,8 @@ export default class ComponentGenerator implements Generator {
 	
 	Component: typeof Component;
 	
+	behaviors: Object;
+	
 	children: Array<Generator>;
 	
 	constructor(node: Element, desc: {Component?: typeof Component, template?: Template}) {
@@ -17,8 +20,8 @@ export default class ComponentGenerator implements Generator {
 		desc = desc || {};
 		
 		this.template = desc.template || new Template('<children></children>');
-		
 		this.Component = desc.Component || Component;
+		this.behaviors = {};
 	}
 	
 	compile(parentNode: Element|DocumentFragment, scope: Scope|Component, parent: ComponentController) {
@@ -30,6 +33,6 @@ export default class ComponentGenerator implements Generator {
 		setDependency(ComponentGenerator, this);
 		
 		controller = new ComponentController(Component, element, scope, parent, Component.locals);
-		controller.init(parentNode, this.template, this.children);
+		controller.init(parentNode, this.template, this.children, this.behaviors);
 	}
 }

@@ -9,7 +9,7 @@ interface Controller {
 interface Template {
 	components: Object;
 	
-	attributes: Object;
+	behaviors: Object;
 	
 	children: Array<Generator>;
 	
@@ -34,6 +34,10 @@ interface Scope {
 	
 }
 
+interface Behavior {
+	remove();
+}
+
 interface ComponentController extends Controller {
 	node: Element|DocumentFragment;
 	
@@ -44,6 +48,8 @@ interface ComponentController extends Controller {
 	parent: ComponentController;
 	
 	component: Component;
+	
+	behaviors: Set<Behavior>;
 	
 	children: Set<Controller>;
 	
@@ -57,9 +63,11 @@ interface ComponentController extends Controller {
 	
 	init(parentNode: Element|DocumentFragment, template: Template, children: Array<Generator>, animate?: boolean);
 	
+	compileChildren(children);
+	
 	append(parentNode, animate);
 	
-	compileChildren(children);
+	initBehaviors(behaviors: Object);
 	
 	detach(animate?: boolean);
 	

@@ -1,5 +1,4 @@
-import addClass from './add-class';
-import removeClass from './remove-class';
+import {addClass, removeClass} from '../utils/element-classes';
 import equals from '../utils/equals';
 
 export default function hasAnimation(controller: ComponentController, className: string) {
@@ -8,11 +7,11 @@ export default function hasAnimation(controller: ComponentController, className:
 		oldAnimations = getAnimations(element),
 		newAnimations;
 	
-	addClass(controller, className);
+	addClass(element, className);
 	
 	newAnimations = getAnimations(element);
 	
-	removeClass(controller, className);
+	removeClass(element, className);
 	
 	return !equals(oldAnimations, newAnimations);
 }

@@ -149,6 +149,8 @@ function memberAssignment(obj: Object, key: string|number, value?) {
 	executeCallbacks(obj, key, oldValue);
 	executeCallbacks(obj, '', oldObj);
 	
+	scheduleCheck();
+	
 	return value;
 }
 
@@ -213,6 +215,7 @@ function checkComputed() {
 		}
 	} else {
 		counter = 0;
+		// console.log('Mahalo Debug: ' + counter + ' update cycles run');
 	}
 }
 
