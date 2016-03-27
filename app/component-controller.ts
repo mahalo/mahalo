@@ -1,9 +1,10 @@
 import {unwatch} from '../change-detection/watch';
-import {default as Scope, remove} from './scope';
+import Scope from './scope';
 import {setDependency} from './injector';
 import enter from '../animation/enter';
 import leave from '../animation/leave';
 import Component from './component';
+import Template from '../template/template';
 
 export default class ComponentController implements Controller {
 	node: Element|DocumentFragment;
@@ -45,7 +46,9 @@ export default class ComponentController implements Controller {
 		this.localScope = locals ? new Scope(scope, this.component, locals) : scope;	
 	}
 	
-	init(parentNode: Element|DocumentFragment, template: Template, children: Array<Generator>, behaviors: Object) {
+	init(parentNode: Element|DocumentFragment, children: Array<Generator>, behaviors: Object, template?: Template) {
+		template = template || new Template('<children></children>');
+		
 		template.compile(this.node, this.component, this);
 		
 		this.compileChildren(children);
@@ -77,6 +80,9 @@ export default class ComponentController implements Controller {
 		
 		
 		while (child) {
+			// Set dependency
+			setDependency(Component, this.component);
+			
 			child.compile(fragment, this.localScope, this);
 			
 			child = children[++i];

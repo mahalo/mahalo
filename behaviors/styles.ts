@@ -1,4 +1,4 @@
-import Behavior from './behavior';
+import Behavior from '../app/behavior';
 
 export default class Styles extends Behavior {
 	static inject = {element: Element};
@@ -12,8 +12,13 @@ export default class Styles extends Behavior {
 			return;
 		}
 		
-		var style = this.element.style,
+		var element = this.element,
+			style = 'style' in element && element.style,
 			name;
+		
+		if (!style) {
+			return;
+		}
 		
 		for (name in styles) {
 			if (styles.hasOwnProperty(name)) {

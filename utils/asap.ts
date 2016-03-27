@@ -10,12 +10,14 @@
  * @author Markus Schmidt
  */
 
-var queue: Array<Function> = [],
+var MESSAGE = 'mahalo/utils/asap',
+	queue: Array<Function> = [],
 	asap;
 
 if (postMessageSupport()) {
-	window.addEventListener('message', function(event) {
-		if (event.source !== window || event.data !== 'mahalo/utils/asap') {
+	
+	window.addEventListener('message', event => {
+		if (event.source !== window || event.data !== MESSAGE) {
 			return;
 		}
 		
@@ -24,36 +26,42 @@ if (postMessageSupport()) {
 		event.stopImmediatePropagation();
 	});
 
-	asap = function asap(callback: Function, thisArg) {
+	asap = function asap(callback: Function, thisArg?) {
 		queue.push(callback.bind(thisArg));
-		queue.length === 1 && window.postMessage('mahalo/utils/asap', '*');
+		queue.length === 1 && window.postMessage(MESSAGE, '*');
 	};
+	
 } else {
+	
 	var channel = new MessageChannel();
 	
-	channel.port1.onmessage = function() {
-		runQueue();
-	};
-
+	channel.port1.onmessage = () => runQueue();
+	
 	asap = function asap(callback: Function, thisArg) {
 		queue.push(callback.bind(thisArg));
 		queue.length === 1 && channel.port2.postMessage('*');
 	};
+	
 }
 
 export default asap;
 
+
+//////////
+
+
 function postMessageSupport() {
-	var support = true,
-		onMessage = function () {
-			support = false;
-		};
+	var support = true;
 	
-	window.addEventListener('message', onMessage);
-	window.postMessage('', '*');
-	window.removeEventListener('message', onMessage);
+	window.addEventListener('message', callback);
+	window.postMessage(MESSAGE, '*');
+	window.removeEventListener('message', callback);
 	
 	return support;
+	
+	function callback() {
+		support = false;
+	}
 }
 
 function runQueue() {

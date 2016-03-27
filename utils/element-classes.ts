@@ -23,6 +23,6 @@ export function removeClass(element: Element, className) {
 	}
 	
 	classNames.splice(i, 1);
-	console.log(classNames);
+	
 	element.className = classNames.join(' ');
 }

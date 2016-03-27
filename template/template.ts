@@ -1,6 +1,13 @@
+import config from '../config';
+
+import Show from '../components/show';
+import For from '../components/for';
+import Route from '../components/route';
+
 import ComponentGenerator from './component-generator';
 import TextGenerator from './text-generator';
 import ChildrenGenerator from './children-generator';
+
 import EventBehavior from '../behaviors/event-behavior';
 import AttributeBehavior from '../behaviors/attribute-behavior';
 import Classes from '../behaviors/classes';
@@ -25,7 +32,7 @@ export default class Template {
 	}
 	
 	parseChildNodes(childNodes: NodeList) {
-		var children = [],
+		var children: Array<Generator> = [],
 			child = childNodes[0],
 			i = 0,
 			generator;
@@ -54,26 +61,33 @@ export default class Template {
 		return this.checkComponent(element);
 	}
 	
-	checkText(textNode: Node): TextGenerator {
+	checkText(textNode: Node) {
 		if (!textNode.textContent.trim()) {
-			return null;
+			return;
 		}
 		
 		return new TextGenerator(textNode.cloneNode());
 	}
 	
-	checkComponent(element: Element): ComponentGenerator {
-		var components = this.components,
+	checkComponent(element: Element) {
+		var name = element.tagName,
+			components = this.components,
 			component;
 		
 		if (components.hasOwnProperty(element.tagName)) {
 			component = components[element.tagName];
+		} else if (name === config.FOR_TAG) {
+			component = {Component: For};
+		} else if (name === config.SHOW_TAG) {
+			component = {Component: Show};
+		} else if (name === config.ROUTE_TAG) {
+			component = {Component: Route};
 		}
 		
 		return this.checkBehaviors(element, component);
 	}
 	
-	checkBehaviors(element: Element, component): ComponentGenerator {
+	checkBehaviors(element: Element, component: Object) {
 		var childNodes = element.childNodes,
 			generator = new ComponentGenerator(element, component),
 			attributes = element.attributes,
@@ -91,7 +105,7 @@ export default class Template {
 		return generator;
 	}
 	
-	checkBehavior(attribute, generator) {
+	checkBehavior(attribute: Attr, generator: ComponentGenerator) {
 		var behaviors = this.behaviors,
 			name = attribute.name,
 			Behavior;
@@ -121,7 +135,7 @@ export default class Template {
 		}
 	}
 	
-	compile(node: Element|DocumentFragment, scope: Component, controller: ComponentController) {
+	compile(node: Element|DocumentFragment, scope: Scope|Component, controller: ComponentController) {
 		var children = this.children,
 			child = children[0],
 			i = 0;

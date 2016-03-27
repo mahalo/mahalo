@@ -20,20 +20,6 @@ var WHITESPACE = /\s/,
 	COMMA = ',',
 	FILTER = '|';
 
-export class Symbol {
-	type: number
-	
-	str: string
-	
-	start: number
-	
-	constructor(type, str, start) {
-		this.type = type;
-		this.str = str;
-		this.start = start;
-	}
-}
-
 export function nextSymbol() {
 	var expression = this.expression,
 		char = expression[++this.i],

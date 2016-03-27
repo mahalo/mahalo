@@ -1,6 +1,6 @@
 import * as symbols from './symbols';
 import * as types from './types';
-import {Symbol, nextSymbol} from './lexer';
+import {nextSymbol} from './lexer';
 import compileBranch from './compiler';
 import {toKeyPath} from '../utils/key-path';
 
@@ -16,7 +16,7 @@ export default class Parser {
 	
 	ast: ExpressionBranch;
 	
-	symbol: Symbol;
+	symbol: ExpressionSymbol;
 	
 	constructor(expression: string) {
 		if (parsers.hasOwnProperty(expression)) {
@@ -34,7 +34,7 @@ export default class Parser {
 		parsers[expression] = this;
 	}
 	
-	comparison() {
+	comparison(): ExpressionBranch {
 		var left = this.sum();
 		
 		if (this.accept(symbols.COMPARISON)) {
@@ -49,7 +49,7 @@ export default class Parser {
 		return left;
 	}
 	
-	sum() {
+	sum(): ExpressionBranch {
 		var left = this.multiply();
 		
 		if (this.accept(symbols.SUM)) {
@@ -64,7 +64,7 @@ export default class Parser {
 		return left;
 	}
 	
-	multiply() {
+	multiply(): ExpressionBranch {
 		var left = this.filter();
 		
 		if (this.accept(symbols.MULTIPLY)) {
@@ -79,7 +79,7 @@ export default class Parser {
 		return left;
 	}
 	
-	filter() {
+	filter(): ExpressionBranch {
 		var arg = this.unary();
 		
 		if (!this.accept(symbols.FILTER)) {
@@ -109,7 +109,7 @@ export default class Parser {
 		return branch;
 	}
 	
-	unary() {
+	unary(): ExpressionBranch {
 		if (this.accept(symbols.SUM) || this.accept(symbols.NEGATION)) {
 			return {
 				type: types.UNARY,
@@ -121,7 +121,7 @@ export default class Parser {
 		return this.paren();
 	}
 	
-	paren() {
+	paren(): ExpressionBranch {
 		if (this.accept(symbols.LPAREN)) {
 			var item = {
 					type: types.PAREN,
@@ -137,7 +137,7 @@ export default class Parser {
 		return this.operand();
 	}
 	
-	operand() {
+	operand(): ExpressionBranch {
 		if (this.accept(symbols.LITERAL)) {
 			return {
 				type: types.LITERAL,
@@ -155,7 +155,7 @@ export default class Parser {
 		return this.member();
 	}
 	
-	member() {
+	member(): ExpressionBranch {
 		var member;
 		
 		if (this.accept(symbols.LBRACE)) {
@@ -247,7 +247,7 @@ export default class Parser {
 		return items;
 	}
 	
-	memberOrIdentifier(ident) {
+	memberOrIdentifier(ident): ExpressionBranch {
 		if (ident.type !== types.OBJECT && ident.type !== types.ARRAY && this.accept(symbols.LPAREN)) {
 			ident = this.call(ident);
 		}
@@ -271,7 +271,7 @@ export default class Parser {
 		return ident;
 	}
 	
-	call(member) {
+	call(member): ExpressionBranch {
 		var args = [];
 		
 		this.paths = null;
@@ -294,7 +294,7 @@ export default class Parser {
 		}
 	}
 	
-	bracketIdentifier() {
+	bracketIdentifier(): ExpressionBranch {
 		var prop = this.comparison();
 		
 		this.nextSymbol();
@@ -306,7 +306,7 @@ export default class Parser {
 		};
 	}
 	
-	identifier() {
+	identifier(): ExpressionBranch {
 		this.nextSymbol();
 		this.expect(symbols.IDENT);
 		

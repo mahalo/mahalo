@@ -13,21 +13,19 @@ interface Template {
 	
 	children: Array<Generator>;
 	
-	// constructor(html?: string, components?: Object, attributes?: Object);
+	parseChildNodes(childNodes: NodeList): Array<Generator>;
 	
-	// parseChildNodes(childNodes: Array<Node>): Array<Generator>;
+	checkNode(node: Node): Generator;
 	
-	// checkNode(node: Node): Generator;
+	checkText(textNode: Node): TextGenerator;
 	
-	// checkText(textNode: Node): TextGenerator;
+	checkComponent(element: Element): ComponentGenerator;
 	
-	// checkComponent(element: Element): ComponentGenerator;
+	checkBehaviors(element: Element, component: Object): ComponentGenerator;
 	
-	// checkAttributes(element: Element, component: Object): ComponentGenerator;
+	checkBehavior(attribute: Attr, generator: ComponentGenerator): void;
 	
-	// checkAttribute(component, attribute, node): void;
-	
-	compile(node: Element|DocumentFragment, scope: Object, controller: ComponentController): void;
+	compile(node: Element|DocumentFragment, scope: Scope|Component, controller: ComponentController): void;
 }
 
 interface Scope {
@@ -61,7 +59,7 @@ interface ComponentController extends Controller {
 	
 	isLeaving: boolean;
 	
-	init(parentNode: Element|DocumentFragment, template: Template, children: Array<Generator>, animate?: boolean);
+	init(parentNode: Element|DocumentFragment, children: Array<Generator>, behaviors: Object, template?: Template);
 	
 	compileChildren(children);
 	
@@ -80,19 +78,89 @@ interface Generator {
 	compile(parentNode: DocumentFragment, scope: Scope|Component, controller: ComponentController): void;
 }
 
-// interface ComponentGenerator extends Generator {	
-// 	template: Template;
+interface ComponentGenerator extends Generator {	
+	template: Template;
 	
-// 	Component: ComponentConstructor;
+	Component: ComponentConstructor;
 	
-// 	children: Array<Generator>;
-// }
+	behaviors: Object;
+	
+	children: Array<Generator>;
+	
+	compile(parentNode: Element|DocumentFragment, scope: Scope|Component, parent: ComponentController);
+}
 
-// interface TextGenerator {
-// 	parts: Array<string|Parser>;
+interface TextGenerator extends Generator {
+	parts: Array<string|Parser>;
 	
-// 	parseText(text: string): void;
-// }
+	parseText(text: string): void;
+}
+
+interface Parser {
+	expression: string;
+	
+	i: number;
+	
+	paths: Set<string>;
+	
+	ast: ExpressionBranch;
+	
+	symbol: ExpressionSymbol;
+	
+	comparison(): ExpressionBranch;
+	
+	sum(): ExpressionBranch;
+	
+	multiply(): ExpressionBranch;
+	
+	filter(): ExpressionBranch;
+	
+	unary(): ExpressionBranch;
+	
+	paren(): ExpressionBranch;
+	
+	operand(): ExpressionBranch;
+	
+	member(): ExpressionBranch;
+	
+	object(): Object;
+	
+	key(): {key: string, value: ExpressionBranch};
+	
+	array(): Array<ExpressionBranch>;
+	
+	memberOrIdentifier(ident): ExpressionBranch;
+	
+	call(member): ExpressionBranch;
+	
+	bracketIdentifier(): ExpressionBranch;
+	
+	identifier(): ExpressionBranch;
+	
+	expect(type: number): void;
+	
+	accept(type: number): boolean;
+	
+	nextSymbol(): ExpressionBranch;
+	
+	addPath(branch: ExpressionBranch, path?: string);
+	
+	resolvePath(branch, path): void;
+	
+	compile(scope: Object);
+}
+
+interface ComponentConstructor {
+	locals: Object;
+	
+	inject: Object;
+	
+	attributes: Object;
+	
+	bindings: Object;
+	
+	template: string;
+}
 
 interface Component {
 	enter();
@@ -132,4 +200,12 @@ interface ExpressionBranch {
 	items?: Array<any>;
 	
 	args?: Array<ExpressionBranch>;
+}
+
+interface ExpressionSymbol {
+	type: number
+	
+	str: string
+	
+	start: number
 }

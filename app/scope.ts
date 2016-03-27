@@ -39,7 +39,7 @@ function createKey(scope: Scope, component: Component|Scope, key: string) {
 	
 	Object.defineProperty(scope, key, {
 		enumerable: true,
-		get: function() {;
+		get() {
 			return component[key];
 		}
 	});

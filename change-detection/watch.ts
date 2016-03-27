@@ -142,7 +142,7 @@ function executeCallbacks(obj: Object, path: string, oldValue) {
 	
 	var callbacksForPath = callbacksByPath[path];
 	
-	callbacksForPath && callbacksForPath.forEach(function(callback) {
-		callback(newValue, oldValue);
-	});
+	callbacksForPath && callbacksForPath.forEach(
+		callback => callback(newValue, oldValue)
+	);
 }

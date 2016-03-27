@@ -9,8 +9,15 @@ export default function leave(controller: ComponentController) {
 	var node = controller.node,
 		element = node instanceof Element && node,
 		parentNode = element.parentNode,
-		siblings = parentNode.childNodes,
-		nextSibling = siblings[siblings.length - controller.position];
+		siblings,
+		nextSibling;
+	
+	if (!parentNode) {
+		return;
+	}
+		
+	siblings = parentNode.childNodes,
+	nextSibling = siblings[siblings.length - controller.position];
 	
 	controller.isEntering && removeClass(element, ENTER_CLASS);
 	

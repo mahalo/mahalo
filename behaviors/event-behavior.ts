@@ -1,4 +1,4 @@
-import Behavior from './behavior';
+import Behavior from '../app/behavior';
 import Scope from '../app/scope';
 import Expression from '../expression/expression';
 

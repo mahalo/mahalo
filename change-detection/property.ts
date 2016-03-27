@@ -224,7 +224,7 @@ function checkComputed() {
  */
 function wrapMethod(name: string, method: Function) {
 	_defineProperty(arrayPrototype, name, {
-		value: function() {
+		value() {
 			var result,
 				before;
 

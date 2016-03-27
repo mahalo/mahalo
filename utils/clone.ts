@@ -27,9 +27,7 @@ export default function clone(x) {
 	if (Array.isArray(x)) {
 		copy = [];
 		
-		x.forEach(function(value) {
-			copy.push(value === x ? copy : value);
-		});
+		x.forEach(value => copy.push(value === x ? copy : value));
 		
 		return copy;
 	}

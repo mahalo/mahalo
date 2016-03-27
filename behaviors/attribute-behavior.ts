@@ -1,4 +1,4 @@
-import Behavior from './behavior';
+import Behavior from '../app/behavior';
 
 export default class AttributeBehavior extends Behavior {
 	static inject = {

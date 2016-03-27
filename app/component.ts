@@ -14,19 +14,25 @@ export default class Component {
 	
 	static bindings: Object;
 	
+	static template: string;
+	
 	constructor() {
 		var Constructor = this.constructor;
 		
-		injectDependencies(this, Constructor);
-		injectAttributes(this, Constructor);
-		createBindings(this, Constructor);
+		while (Constructor !== Component) {
+			injectDependencies(this, Constructor);
+			injectAttributes(this, Constructor);
+			createBindings(this, Constructor);
+			
+			Constructor = Object.getPrototypeOf(Constructor);
+		}
 	}
 	
-	enter() {}
+	enter() {};
 	
-	leave() {}
+	leave() {};
 	
-	remove() {}
+	remove() {};
 }
 
 function injectAttributes(component: Component, Constructor) {

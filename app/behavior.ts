@@ -1,6 +1,6 @@
-import {injectDependencies, getDependency} from '../app/injector';
+import {injectDependencies, getDependency} from './injector';
+import Scope from './scope';
 import Expression from '../expression/expression';
-import Scope from '../app/scope';
 import asap from '../utils/asap';
 
 export default class Behavior {
@@ -11,8 +11,13 @@ export default class Behavior {
 	constructor(value: string) {
 		var Constructor = this.constructor;
 		
-		injectDependencies(this, Constructor);
 		createBinding(this, value, Constructor);
+		
+		while (Constructor !== Behavior) {
+			injectDependencies(this, Constructor);
+			
+			Constructor = Object.getPrototypeOf(Constructor);
+		}
 	}
 	
 	remove() {}

@@ -1,4 +1,4 @@
-import Behavior from './behavior';
+import Behavior from '../app/behavior';
 
 export default class Content extends Behavior {
 	static inject = {element: Element};
