@@ -8,7 +8,7 @@ export default class Scope {
 		
 		for (key in keys) {
 			if (keys.hasOwnProperty(key)) {
-				createKey(this, component, key);
+				createKey(this, component, keys[key] || key);
 			}
 		}
 		

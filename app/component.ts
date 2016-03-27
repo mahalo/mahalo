@@ -50,13 +50,19 @@ function injectAttributes(component: Component, Constructor) {
 	Object.keys(attributes).forEach(
 		attribute => {
 			var value = attributes[attribute],
+				first = value[0],
+				binding,
 				expression;
 			
-			if (value[0] === '.') {
+			if (first === '.' || first === '!') {
+				binding = first === '.';
 				value = value.substr(1);
 				
 				expression = new Expression(element.getAttribute(value || attribute), scope);
-				expression.watch(newValue => assign(component, attribute, newValue));
+				
+				if (binding) {
+					expression.watch(newValue => assign(component, attribute, newValue));
+				}
 				
 				component[attribute] = expression.compile();
 			} else {
