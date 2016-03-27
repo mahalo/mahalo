@@ -1,3 +1,4 @@
+// @todo: Add more built-in filters
 export default {
 	lower: lower,
 	upper: upper,

@@ -23,6 +23,8 @@ export default function leave(controller: ComponentController) {
 	
 	parentNode.insertBefore(element, nextSibling);
 	
+	controller.component.leave();
+	
 	if (hasAnimation(controller, LEAVE_CLASS)) {
 		return startAnimation(controller, element);
 	}

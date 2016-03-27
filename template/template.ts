@@ -3,6 +3,7 @@ import config from '../config';
 import Show from '../components/show';
 import For from '../components/for';
 import Route from '../components/route';
+import Form from '../components/form';
 
 import ComponentGenerator from './component-generator';
 import TextGenerator from './text-generator';
@@ -13,6 +14,8 @@ import AttributeBehavior from '../behaviors/attribute-behavior';
 import Classes from '../behaviors/classes';
 import Styles from '../behaviors/styles';
 import Content from '../behaviors/content';
+import Model from '../behaviors/model';
+import RouteBehavior from '../behaviors/route';
 
 var TEXT_NODE = Node.TEXT_NODE;
 
@@ -82,6 +85,8 @@ export default class Template {
 			component = {Component: Show};
 		} else if (name === config.ROUTE_TAG) {
 			component = {Component: Route};
+		} else if (name === 'FORM') {
+			component = {Component: Form};
 		}
 		
 		return this.checkBehaviors(element, component);
@@ -115,7 +120,6 @@ export default class Template {
 		} else if (/^#/.test(name)) {
 			Behavior = AttributeBehavior;
 		} else if (behaviors.hasOwnProperty(name)) {
-			// @todo: Check for require
 			Behavior = behaviors[name];
 		} else if (name === 'classes') {
 			Behavior = Classes;
@@ -123,6 +127,10 @@ export default class Template {
 			Behavior = Styles;
 		} else if (name === 'content') {
 			Behavior = Content;
+		} else if (name === 'model') {
+			Behavior = Model;
+		} else if (name === 'route') {
+			Behavior = RouteBehavior;
 		}
 		
 		if (!Behavior) {

@@ -18,7 +18,11 @@ export default function enter(controller: ComponentController, parentNode: Eleme
 	
 	controller.compiled = true;
 	
-	hasAnimation(controller, ENTER_CLASS) && startAnimation(controller, element);
+	if (hasAnimation(controller, ENTER_CLASS)) {
+		return startAnimation(controller, element);
+	}
+	
+	controller.component.enter();
 }
 
 function startAnimation(controller: ComponentController, element: Element) {
@@ -36,6 +40,8 @@ function startAnimation(controller: ComponentController, element: Element) {
 		element.removeEventListener('webkitAnimationEnd', end);
 		
 		removeClass(element, ENTER_CLASS);
+		
+		controller.component.enter();
 		
 		event.stopPropagation();
 	}

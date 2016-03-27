@@ -8,7 +8,7 @@ export default class Scope {
 		
 		for (key in keys) {
 			if (keys.hasOwnProperty(key)) {
-				createKey(this, component, keys[key] || key);
+				createKey(this, component, key, keys[key]);
 			}
 		}
 		
@@ -34,10 +34,10 @@ export function getComponent(key: string|number): Component {
 	return scope instanceof Scope ? getComponent.call(scope, key) : scope;
 }
 
-function createKey(scope: Scope, component: Component|Scope, key: string) {
+function createKey(scope: Scope, component: Component|Scope, key: string, name: string) {
 	component = component instanceof Scope ? getComponent.call(component, key) : component;
 	
-	Object.defineProperty(scope, key, {
+	Object.defineProperty(scope, name || key, {
 		enumerable: true,
 		get() {
 			return component[key];

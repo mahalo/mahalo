@@ -1,3 +1,7 @@
+import ComponentController from './component-controller';
+import Component from './component';
+import Behavior from './behavior';
+
 var dependencies = new WeakMap();
 
 export function injectDependencies(component: Component|Behavior, Constructor) {
@@ -24,9 +28,24 @@ export function setDependency(Constructor, dependency) {
 }
 
 function inject(obj, key, Constructor) {
-	var dependency = dependencies.get(Constructor);
+	var dependency = dependencies.get(Constructor),
+		prototype;
 	
-	dependency || dependencies.set(Constructor, dependency = new Constructor());
+	if (!dependency) {
+		prototype = Constructor.prototype;
+		
+		if (prototype instanceof Component || prototype instanceof Behavior) {
+			dependency = getDependency(ComponentController).parent;
+			
+			while (dependency && !(dependency.component instanceof Constructor)) {
+				dependency = dependency.parent;
+			}
+			
+			dependency = dependency && dependency.component;
+		} else {
+			dependencies.set(Constructor, dependency = new Constructor());
+		}
+	}
 	
 	obj[key] = dependency;
 }

@@ -1,3 +1,6 @@
+import {default as Scope, getComponent} from '../app/scope';
+import {assign} from '../change-detection/property';
+
 export function toKeys(str: string) {
 	var keys = [],
 		key = '',
@@ -64,10 +67,16 @@ export default function keyPath(obj: Object, path: string, val?) {
             return;
         }
     }
+	
+	key = keys[i];
 
     if (args > 2) {
-        return obj[keys[i]] = val;
+		if (obj instanceof Scope) {
+			obj = getComponent.call(obj, key);
+		}
+		
+        return assign(obj, key, val);
     }
 
-    return obj[keys[i]];
+    return obj[key];
 }

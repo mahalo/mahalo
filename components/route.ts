@@ -37,8 +37,16 @@ export default class Route extends Component {
 		super();
 		
 		var path = this.path,
-			parent = this.controller.parent;
+			parent;
 		
+		routes.add(this);
+		
+		if (!path) {
+			return;
+		}
+		
+		parent = this.controller.parent;
+			
 		while (parent) {
 			var component = parent.component,
 				route = component instanceof Route && component;
@@ -52,7 +60,6 @@ export default class Route extends Component {
 		
 		this.resolvedPath = path.replace(/^\//, '').split('/');
 		
-		routes.add(this);
 	}
 	
 	match(path: Array<string>) {
@@ -79,6 +86,14 @@ export default class Route extends Component {
 			
 			part = routePath[++i];
 		}
+		
+		this.activate(routeParams);
+	}
+	
+	activate(routeParams?: Object) {
+		var part;
+		
+		routeParams = routeParams || {};
 		
 		for (part in routeParams) {
 			if (routeParams.hasOwnProperty(part)) {
@@ -136,6 +151,13 @@ export default class Route extends Component {
 	resolve() {};
 }
 
+// @todo: Fix changing of route
+export function setRoute(id) {
+	routes.forEach(
+		route => route.element.id === id ? route.activate() : route.detachController()
+	);
+}
+
 window.addEventListener('hashchange', resolve);
 
 asap(resolve);
@@ -155,6 +177,6 @@ function resolve() {
 	path = hash.substr(2).split('/');
 	
 	routes.forEach(
-		route => route.match(path)
+		route => typeof route.path === 'string' ? route.match(path) : route.detachController()
 	);
 }

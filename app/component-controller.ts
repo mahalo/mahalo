@@ -59,7 +59,7 @@ export default class ComponentController implements Controller {
 		
 		// Set dependencies
 		setDependency(Element, this.node);
-		setDependency(Scope, this.scope);
+		setDependency(Scope, this.localScope);
 		setDependency(ComponentController, this);
 		setDependency(Component, this.component);
 		

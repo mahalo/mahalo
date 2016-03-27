@@ -2,6 +2,7 @@ import {injectDependencies, getDependency} from './injector';
 import Scope from './scope';
 import Expression from '../expression/expression';
 import asap from '../utils/asap';
+import {watch} from '../change-detection/watch';
 
 export default class Behavior {
 	static bind: string;
@@ -15,6 +16,7 @@ export default class Behavior {
 		
 		while (Constructor !== Behavior) {
 			injectDependencies(this, Constructor);
+			createBindings(this, Constructor);
 			
 			Constructor = Object.getPrototypeOf(Constructor);
 		}
@@ -37,4 +39,17 @@ function createBinding(behavior: Behavior, value: string, Constructor) {
 	);
 	
 	asap(() => behavior[bind](expression.compile()));
+}
+
+function createBindings(behavior: Behavior, Constructor) {
+	var bindings = Constructor.bindings,
+		key;
+	
+	if (!(bindings instanceof Object)) {
+		return;
+	}
+	
+	for (key in bindings) {
+		watch(behavior, key, behavior[bindings[key]].bind(behavior));
+	}
 }
