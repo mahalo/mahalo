@@ -1,6 +1,8 @@
 import Component from '../app/component';
 import ComponentGenerator from '../template/component-generator';
 import ComponentController from '../app/component-controller';
+import enter from '../animation/enter';
+import asap from '../utils/asap';
 
 export default class Show extends Component {
 	static inject = {
@@ -28,7 +30,7 @@ export default class Show extends Component {
 	constructor() {
 		super();
 		
-		this.update(this.if);
+		asap(() => this.update(this.if));
 	}
 	
 	update(value) {
@@ -41,12 +43,14 @@ export default class Show extends Component {
 	}
 	
 	createController() {
-		var component = new Component(),
-			element = document.createElement('visible'),
-			controller = new ComponentController(Component, element, this.controller.scope, this.controller);
+		var controller = this.controller,
+			element = document.createDocumentFragment(),
+			childController = new ComponentController(Component, element, controller.scope, controller);
 		
-		controller.init(this.element, this.generator.children, {});
-
-		return this.child = controller;
+		enter(controller, controller.parent.node, true);
+		
+		childController.init(this.element, this.generator.children, {});
+		
+		return this.child = childController;
 	}
 }

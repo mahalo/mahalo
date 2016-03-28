@@ -3,6 +3,7 @@ import ComponentGenerator from '../template/component-generator';
 import ComponentController from '../app/component-controller';
 import {assign} from '../change-detection/property';
 import asap from '../utils/asap';
+import enter from '../animation/enter';
 
 var routes = new Set();
 
@@ -116,7 +117,11 @@ export default class Route extends Component {
 	}
 	
 	detachController() {
-		this.child && this.child.detach();
+		if (this.child) {
+			this.child.component = new Component();
+			this.child.detach();
+		}
+		
 		this.child = null;
 	}
 	
@@ -125,19 +130,24 @@ export default class Route extends Component {
 			return;
 		}
 		
-		var component = new Component(),
-			element = document.createElement('visible'),
-			controller = new ComponentController(Component, element, this.controller.scope, this.controller, {
+		var controller = this.controller,
+			element = document.createDocumentFragment(),
+			childController = new ComponentController(Component, element, controller.scope, controller, {
 				$params: '.'
-			});
+			}),
+			component = childController.component;
 		
-		controller.init(this.element, this.generator.children, {}, this.template);
-
-		this.child = controller;
+		enter(controller, controller.parent.node, true);
+		
+		childController.component = this;
+		
+		childController.init(this.element, this.generator.children, {}, this.template);
+		
+		this.child = childController;
 		
 		resolve();
 		
-		return controller;
+		return childController;
 	}
 	
 	remove() {

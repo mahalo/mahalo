@@ -11,6 +11,8 @@ export default class ComponentController implements Controller {
 	
 	scope: Scope|Component;
 	
+	locals: Object;
+	
 	localScope: Scope|Component;
 	
 	parent: ComponentController;
@@ -43,10 +45,12 @@ export default class ComponentController implements Controller {
 		
 		this.component = new Constructor();
 		this.behaviors = new Set();
-		this.localScope = locals ? new Scope(scope, this.component, locals) : scope;	
+		this.locals = locals;	
 	}
 	
 	init(parentNode: Element|DocumentFragment, children: Array<Generator>, behaviors: Object, template?: Template) {
+		this.localScope = this.locals ? new Scope(this.scope, this.component, this.locals) : this.scope;
+		
 		template = template || new Template('<children></children>');
 		
 		template.compile(this.node, this.component, this);
@@ -136,7 +140,7 @@ export default class ComponentController implements Controller {
 		
 		this.parent.children.delete(this);
 		
-		node.parentNode.removeChild(node);
+		node.parentNode && node.parentNode.removeChild(node);
 		
 		this.behaviors.forEach(behavior => behavior.remove());
 	}

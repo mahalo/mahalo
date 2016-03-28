@@ -1,5 +1,6 @@
 import * as types from './types';
 import filters from './filters';
+import {default as Scope, getComponent} from '../app/scope';
 
 export default function compileBranch(branch: ExpressionBranch, ctx: Object) {
 	switch (branch.type) {
@@ -22,7 +23,7 @@ export default function compileBranch(branch: ExpressionBranch, ctx: Object) {
 			return compileBranch(branch.content, ctx);
 		
 		case types.MEMBER:
-			return compileMember(branch, ctx);
+			return compileMember(branch, ctx, true);
 			
 		case types.OBJECT:
 			return compileObject(branch, ctx);
@@ -44,12 +45,12 @@ export default function compileBranch(branch: ExpressionBranch, ctx: Object) {
 		
 		case types.IDENT:
 			if (ctx instanceof Object) {
-				return ctx[branch.name];
+				return compileMemberAccess(ctx, branch.name);
 			}
 		
 		case types.BRACKET_IDENT:
 			if (ctx instanceof Object) {
-				return ctx[compileBranch(branch.prop, ctx)];
+				return compileMemberAccess(ctx, compileBranch(branch.prop, ctx));
 			}
 	}
 }
@@ -151,11 +152,11 @@ function compileMember(branch: ExpressionBranch, ctx: Object, scope?: Object) {
 	
 	if (branch.obj.type === types.IDENT) {
 		
-		obj = ctx[branch.obj.name];
+		obj = compileMemberAccess(ctx, branch.obj.name);
 		
 	} else if (branch.obj.type === types.BRACKET_IDENT) {
 		
-		obj = ctx[compileBranch(branch.obj.prop, scope || ctx)];
+		obj = compileMemberAccess(ctx, compileBranch(branch.obj.prop, scope || ctx));
 		
 	} else {
 		
@@ -243,5 +244,15 @@ function compileReserved(branch: ExpressionBranch, ctx: Object) {
 			
 		case 'null':
 			return null;
+	}
+}
+
+function compileMemberAccess(obj: Object, key: string|number) {
+	if (obj instanceof Scope) {
+		obj = getComponent.call(obj, key);
+	}
+	
+	if (obj instanceof Object) {
+		return obj[key];
 	}
 }

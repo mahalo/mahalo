@@ -30,8 +30,6 @@ export default class Form extends Component {
 		};
 		
 		this.element.addEventListener('submit', this.submit);
-		
-		console.log(this);
 	}
 	
 	remove() {

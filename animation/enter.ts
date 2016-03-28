@@ -4,15 +4,15 @@ import asap from '../utils/asap';
 
 var ENTER_CLASS = 'mh-enter';
 
-export default function enter(controller: ComponentController, parentNode: Element|DocumentFragment) {
+export default function enter(controller: ComponentController, parentNode: Element|DocumentFragment, ensure?: boolean) {
 	var node = controller.node,
 		element = node instanceof Element && node;
 	
-	parentNode.appendChild(element);
+	ensure || parentNode.appendChild(element);
 	
 	controller.isEntering && removeClass(element, ENTER_CLASS);
 	
-	if (controller.compiled) {
+	if (!ensure && controller.compiled) {
 		return;
 	}
 	

@@ -36,10 +36,12 @@ export default class For extends Component {
 		var template = document.createElement(this.each),
 			attributes = this.element.attributes,
 			attribute = attributes[0],
-			i = 0;
+			i = 0,
+			name;
 		
 		while (attribute) {
-			template.setAttribute(attribute.name, attribute.value);
+			name = attribute.name;
+			name === 'each' || name === 'of' || template.setAttribute(name, attribute.value);
 			attribute = attributes[++i];
 		}
 		
