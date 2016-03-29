@@ -77,6 +77,10 @@ export default class Template {
 			components = this.components,
 			component;
 		
+		if (name === 'PRE') {
+			return new ComponentGenerator(element, {});
+		}
+		
 		if (components.hasOwnProperty(element.tagName)) {
 			component = components[element.tagName];
 		} else if (name === config.FOR_TAG) {

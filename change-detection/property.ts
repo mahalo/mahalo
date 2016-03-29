@@ -1,6 +1,7 @@
 import asap from '../utils/asap';
 import clone from '../utils/clone';
 import {default as Scope, getComponent} from '../app/scope';
+import nextFrame from '../utils/next-frame';
 
 var callbacksByKeys = new WeakMap(),
 	computedKeys = new Map(),
@@ -158,15 +159,17 @@ function memberAssignment(obj: Object, key: string|number, value?) {
  * 
  */
 function executeCallbacks(obj: Object, key: string|number, oldValue) {
-	var keys = callbacksByKeys.get(obj),
-		newValue = obj[key];
-	
-	if (!keys || !keys.hasOwnProperty(key) || newValue === oldValue) {
-		return;
-	}
-	
-	keys[key].forEach(callback => {
-		callback(obj, key, oldValue);
+	asap(() => {
+		var keys = callbacksByKeys.get(obj),
+			newValue = obj[key];
+		
+		if (!keys || !keys.hasOwnProperty(key) || newValue === oldValue) {
+			return;
+		}
+		
+		keys[key].forEach(callback => {
+			callback(obj, key, oldValue);
+		});
 	});
 }
 

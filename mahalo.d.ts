@@ -75,13 +75,13 @@ interface ComponentController extends Controller {
 interface Generator {
 	node: Node;
 	
-	compile(parentNode: DocumentFragment, scope: Scope|Component, controller: ComponentController): void;
+	compile(parentNode: Element|DocumentFragment, scope: Scope|Component, controller: ComponentController): void;
 }
 
 interface ComponentGenerator extends Generator {	
 	template: Template;
 	
-	Component: ComponentConstructor;
+	Constructor: ComponentConstructor;
 	
 	behaviors: Object;
 	

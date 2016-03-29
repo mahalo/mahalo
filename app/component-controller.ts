@@ -49,11 +49,17 @@ export default class ComponentController implements Controller {
 	}
 	
 	init(parentNode: Element|DocumentFragment, children: Array<Generator>, behaviors: Object, template?: Template) {
-		this.localScope = this.locals ? new Scope(this.scope, this.component, this.locals) : this.scope;
+		var component = this.component,
+			scope = this.scope,
+			locals = this.locals,
+			node = this.node,
+			useScope = Object.getPrototypeOf(component) === Component.prototype;
 		
 		template = template || new Template('<children></children>');
 		
-		template.compile(this.node, this.component, this);
+		template.compile(node, useScope ? scope : component, this);
+		
+		this.localScope = locals ? new Scope(scope, component, locals) : scope;
 		
 		this.compileChildren(children);
 		
@@ -62,26 +68,27 @@ export default class ComponentController implements Controller {
 		this.append(parentNode);
 		
 		// Set dependencies
-		setDependency(Element, this.node);
+		setDependency(Element, node);
 		setDependency(Scope, this.localScope);
 		setDependency(ComponentController, this);
-		setDependency(Component, this.component);
+		setDependency(Component, component);
 		
 		this.initBehaviors(behaviors);
 	}
 	
 	compileChildren(children) {
-		var element = this.node.querySelector('children');
+		var node = this.node,
+			element = node instanceof Element && node,
+			container = node.querySelector('children');
 		
-		if (!element) {
+		if (!container || element.tagName === 'PRE') {
 			return;
 		}
 		
-		var parent = element.parentNode,
+		var parent = container.parentNode,
 			fragment = document.createDocumentFragment(),
 			child = children[0],
 			i = 0;
-		
 		
 		while (child) {
 			// Set dependency
@@ -90,9 +97,9 @@ export default class ComponentController implements Controller {
 			child.compile(fragment, this.localScope, this);
 			
 			child = children[++i];
-		}
+		}	
 		
-		parent.replaceChild(fragment, element);
+		parent.replaceChild(fragment, container);
 	}
 	
 	append(parentNode) {
@@ -128,6 +135,7 @@ export default class ComponentController implements Controller {
 		this.remove();
 	}
 	
+	// @todo: Improve removement of children and only detach this.node from DOM
 	remove() {
 		var component = this.component,
 			node = this.node;

@@ -8,31 +8,41 @@ export default class ComponentGenerator implements Generator {
 	
 	template: Template;
 	
-	Component: ComponentConstructor;
+	Constructor: ComponentConstructor;
 	
 	behaviors: Object;
 	
 	children: Array<Generator>;
 	
-	constructor(node: Element, desc: {Component?: typeof Component, template?: Template}) {
+	constructor(node: Element, desc: {Component?: typeof Component, template?: Template} = {}) {
+		// desc = desc || {};
+		
+		var Constructor = desc.Component || Component;
+		
 		this.node = node;
 		
-		desc = desc || {};
-		
-		this.Component = desc.Component || Component;
-		this.template = ('template' in this.Component && new Template(this.Component.template)) || desc.template;
+		this.Constructor = Constructor;
+		this.template = ('template' in Constructor && new Template(Constructor.template)) || desc.template;
 		this.behaviors = {};
 	}
 	
 	compile(parentNode: Element|DocumentFragment, scope: Scope|Component, parent: ComponentController) {
-		var Component = this.Component,
-			node = this.node.cloneNode(),
+		var Constructor = this.Constructor,
+			node = this.node,
 			element = node instanceof Element && node,
 			controller;
+			
+		node = node.cloneNode(element.tagName === 'PRE'),
+		element = node instanceof Element && node;
 		
 		setDependency(ComponentGenerator, this);
 		
-		controller = new ComponentController(Component, element, scope, parent, Component.locals);
+		controller = new ComponentController(Constructor, element, scope, parent, Component.locals);
+		
+		// if (Constructor === Component) {
+		// 	controller.component = parent.component;
+		// }
+		
 		controller.init(parentNode, this.children, this.behaviors, this.template);
 	}
 }
