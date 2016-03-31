@@ -2,7 +2,7 @@ import ComponentController from './component-controller';
 import Scope from './scope';
 import Expression from '../expression/expression';
 import {watch} from '../change-detection/watch';
-import {assign} from '../change-detection/property';
+import assign from '../change-detection/assign';
 import {injectDependencies, getDependency} from './injector';
 
 export default class Component {
@@ -27,6 +27,8 @@ export default class Component {
 			Constructor = Object.getPrototypeOf(Constructor);
 		}
 	}
+	
+	ready() {};
 	
 	enter() {};
 	

@@ -31,6 +31,8 @@ export default class TextController implements Controller {
 	remove() {
 		this.parent.children.delete(this);
 		
+		this.node.parentNode.removeChild(this.node);
+		
 		this.expression && this.expression.unwatch(this.update);
 	}
 }

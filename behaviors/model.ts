@@ -2,7 +2,7 @@ import Behavior from '../app/behavior';
 import Component from '../app/component';
 import ComponentController from '../app/component-controller';
 import Form from '../components/form';
-import {assign} from '../change-detection/property';
+import assign from '../change-detection/assign';
 import {default as keyPath, toKeys, toKeyPath} from '../utils/key-path';
 
 export default class Model extends Behavior {

@@ -1,7 +1,7 @@
 import Component from '../app/component';
 import ComponentGenerator from '../template/component-generator';
 import ComponentController from '../app/component-controller';
-import {assign} from '../change-detection/property';
+import assign from '../change-detection/assign';
 
 export default class For extends Component {
 	static inject = {

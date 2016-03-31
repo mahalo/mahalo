@@ -1,5 +1,5 @@
 import {default as Scope, getComponent} from '../app/scope';
-import {assign} from '../change-detection/property';
+import assign from '../change-detection/assign';
 
 export function toKeys(str: string) {
 	var keys = [],

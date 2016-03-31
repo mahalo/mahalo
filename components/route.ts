@@ -1,11 +1,13 @@
 import Component from '../app/component';
 import ComponentGenerator from '../template/component-generator';
 import ComponentController from '../app/component-controller';
-import {assign} from '../change-detection/property';
+import assign from '../change-detection/assign';
 import asap from '../utils/asap';
 import enter from '../animation/enter';
 
-var routes = new Set();
+var routes = new Set(),
+	noResolve,
+	currentID;
 
 export default class Route extends Component {
 	static inject = {
@@ -14,7 +16,7 @@ export default class Route extends Component {
 		controller: ComponentController
 	};
 	
-	static attributes = {path: ''};
+	static attributes = {id: '', path: ''};
 	
 	static template = '';
 	
@@ -26,7 +28,11 @@ export default class Route extends Component {
 	
 	path: string;
 	
+	id: string;
+	
 	resolvedPath: Array<string>;
+	
+	resolvedID: string;
 	
 	child: ComponentController;
 	
@@ -38,36 +44,54 @@ export default class Route extends Component {
 		super();
 		
 		var path = this.path,
+			id = this.id,
+			visited = new Set(),
 			parent;
 		
 		routes.add(this);
 		
-		if (!path) {
+		if (!path && !id) {
 			return;
 		}
 		
 		parent = this.controller.parent;
-			
+		
 		while (parent) {
 			var component = parent.component,
 				route = component instanceof Route && component;
 			
-			if (route) {
-				path = route.path + path;
+			if (route && !visited.has(route)) {
+				visited.add(route);
+				
+				if (path && route.path) {
+					path = route.path + path;
+				}
+				
+				if (id && route.id) {
+					id = route.id + '-' + id;
+				}
 			}
 			
 			parent = parent.parent;
 		}
 		
-		this.resolvedPath = path.replace(/^\//, '').split('/');
-		
+		path && (this.resolvedPath = path.replace(/^\//, '').split('/'));
+		id && (this.resolvedID = id);
 	}
 	
 	match(path: Array<string>) {
 		var routePath = this.resolvedPath,
-			routeParams = {},
-			part = routePath[0],
-			i = 0;
+			routeParams,
+			part,
+			i;
+		
+		if (!routePath) {
+			return this.detachController();
+		}
+		
+		routeParams = {};
+		part = routePath[0];
+		i = 0;
 		
 		while (typeof part === 'string') {
 			
@@ -145,7 +169,11 @@ export default class Route extends Component {
 		
 		this.child = childController;
 		
-		resolve();
+		if (noResolve && this.resolvedID) {
+			setRoute();
+		} else if (this.resolvedPath) {
+			resolve();
+		}
 		
 		return childController;
 	}
@@ -161,11 +189,31 @@ export default class Route extends Component {
 	resolve() {};
 }
 
-// @todo: Fix changing of route
-export function setRoute(id) {
-	routes.forEach(
-		route => route.element.id === id ? route.activate() : route.detachController()
-	);
+// @todo: Make id nestable
+export function setRoute(id?) {
+	var match = false;
+	
+	id = id || currentID;
+	currentID = id;
+	
+	routes.forEach(route => {
+		var resolvedID = route.resolvedID;
+		
+		if (resolvedID && resolvedID === id.substr(0, resolvedID.length)) {
+			if (route.resolvedPath) {
+				noResolve = true;
+				window.location.hash = '#/' + route.resolvedPath.join('/');
+			}
+			
+			route.activate();
+			
+			match = true;
+		} else {
+			route.detachController();
+		}
+	});
+	
+	return match;
 }
 
 window.addEventListener('hashchange', resolve);
@@ -177,6 +225,11 @@ asap(resolve);
 
 
 function resolve() {
+	if (noResolve) {
+		noResolve = false;
+		return;
+	}
+	
 	var hash = window.location.hash,
 		path;
     
@@ -186,7 +239,5 @@ function resolve() {
 	
 	path = hash.substr(2).split('/');
 	
-	routes.forEach(
-		route => typeof route.path === 'string' ? route.match(path) : route.detachController()
-	);
+	routes.forEach(route => route.match(path));
 }

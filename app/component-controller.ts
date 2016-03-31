@@ -74,6 +74,8 @@ export default class ComponentController implements Controller {
 		setDependency(Component, component);
 		
 		this.initBehaviors(behaviors);
+		
+		component.ready();
 	}
 	
 	compileChildren(children) {

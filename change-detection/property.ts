@@ -1,7 +1,6 @@
 import asap from '../utils/asap';
 import clone from '../utils/clone';
 import {default as Scope, getComponent} from '../app/scope';
-import nextFrame from '../utils/next-frame';
 
 var callbacksByKeys = new WeakMap(),
 	computedKeys = new Map(),
@@ -18,25 +17,6 @@ methods.forEach(method => wrapMethod(method, arrayPrototype[method]));
 // Wrap define methods
 Object.defineProperty = defineProperty;
 Object.defineProperties = defineProperties;
-
-window.onresize = assign;
-
-/**
- * 
- */
-export function assign(obj?: Object, key?: string|number, val?) {
-	switch (arguments.length) {
-		case 2:
-			return memberAssignment(obj, key);
-			
-		case 3:
-			return memberAssignment(obj, key, val);
-	}
-	
-	scheduleCheck();
-	
-	return obj;
-}
 
 /**
  * 
@@ -87,6 +67,41 @@ export function unobserve(obj: Object, key: string|number, callback: Function) {
 /**
  * 
  */
+export function executeCallbacks(obj: Object, key: string|number, oldValue) {
+	// asap(() => {
+		var keys = callbacksByKeys.get(obj),
+			newValue = obj[key];
+		
+		if (!keys || !keys.hasOwnProperty(key) || newValue === oldValue) {
+			return;
+		}
+		
+		keys[key].forEach(callback => {
+			callback(obj, key, oldValue);
+		});
+	// });
+}
+
+export function hasCallbacks(obj) {
+	return callbacksByKeys.has(obj);
+}
+
+/**
+ * 
+ */
+export function scheduleCheck() {
+	if (scheduled) {
+		return;
+	}
+	
+	scheduled = true;
+	
+	asap(checkComputed);
+}
+
+/**
+ * 
+ */
 function isComputed(obj: Object, key: string|number) {
 	while (obj instanceof Object && !obj.hasOwnProperty(key)) {
 		obj = Object.getPrototypeOf(obj);
@@ -126,64 +141,6 @@ function unobserveComputed(obj: Object, key: string|number) {
 	if (!keys.size) {
 		computedKeys.delete(obj);
 	}
-}
-
-/**
- * 
- */
-function memberAssignment(obj: Object, key: string|number, value?) {
-	obj = obj instanceof Scope ? getComponent.call(obj, key) : obj;
-	
-	var oldValue = obj[key],
-		oldObj = clone(obj);
-	
-	if (arguments.length === 2) {
-		delete obj[key];
-	} else {
-		obj[key] = value;
-	}
-	
-	if (!callbacksByKeys.has(obj)) {
-		return value;
-	}
-	
-	executeCallbacks(obj, key, oldValue);
-	executeCallbacks(obj, '', oldObj);
-	
-	scheduleCheck();
-	
-	return value;
-}
-
-/**
- * 
- */
-function executeCallbacks(obj: Object, key: string|number, oldValue) {
-	asap(() => {
-		var keys = callbacksByKeys.get(obj),
-			newValue = obj[key];
-		
-		if (!keys || !keys.hasOwnProperty(key) || newValue === oldValue) {
-			return;
-		}
-		
-		keys[key].forEach(callback => {
-			callback(obj, key, oldValue);
-		});
-	});
-}
-
-/**
- * 
- */
-function scheduleCheck() {
-	if (scheduled) {
-		return;
-	}
-	
-	scheduled = true;
-	
-	asap(checkComputed);
 }
 
 /**
