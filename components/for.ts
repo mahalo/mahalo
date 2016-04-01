@@ -80,13 +80,12 @@ export default class For extends Component {
 	
 	prepareObject(obj: Object) {
 		var children = [],
-			i = 0,
-			key;
+			keys = Object.keys(obj),
+			len = keys.length,
+			i = 0;
 		
-		for (key in obj) {
-			if (obj.hasOwnProperty(key)) {
-				children.push(this.hasPrevious(obj, key, i++))
-			}
+		while (i < len) {
+			children.push(this.hasPrevious(obj, keys[i], i++));
 		}
 		
 		this.setPrevious(children);

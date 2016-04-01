@@ -187,13 +187,15 @@ function compileMember(branch: ExpressionBranch, ctx: Object, scope?: Object) {
 
 function compileObject(branch: ExpressionBranch, ctx: Object) {
 	var obj = {},
-		keys = branch.keys,
+		map = branch.keys,
+		keys = Object.keys(map),
+		len = keys.length,
+		i = 0,
 		key;
 	
-	for (key in keys) {
-		if (keys.hasOwnProperty(key)) {
-			obj[key] = compileBranch(keys[key], ctx);
-		}
+	while (i < len) {
+		key = keys[i++];
+		obj[key] = compileBranch(map[key], ctx);
 	}
 	
 	return obj;

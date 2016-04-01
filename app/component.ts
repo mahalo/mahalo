@@ -75,14 +75,18 @@ function injectAttributes(component: Component, Constructor) {
 }
 
 function createBindings(component: Component, Constructor) {
-	var bindings = Constructor.bindings,
-		key;
+	var bindings = Constructor.bindings;
 	
 	if (!(bindings instanceof Object)) {
 		return;
 	}
 	
-	for (key in bindings) {
+	var keys = Object.keys(bindings),
+		i = keys.length,
+		key;
+	
+	while (i--) {
+		key = keys[i];
 		watch(component, key, component[bindings[key]].bind(component));
 	}
 }

@@ -27,16 +27,18 @@ export function watch(obj: Object, path: string, callback: Function) {
 }
 
 export function unwatch(obj: Object, path?: string, callback?: Function) {
-	var paths = callbacks.get(obj),
-		callbacksForPath,
-		keys;
+	var map = callbacks.get(obj);
 	
-	if (!paths) {
+	if (!map) {
 		return;
 	}
 	
 	if (!path) {
-		for (path in paths) {
+		var paths = Object.keys(map),
+			i = paths.length;
+		
+		while (i--) {
+			path = paths[i];
 			unwatchKeys(obj, '', toKeys(path), obj);
 		}
 		
@@ -45,21 +47,24 @@ export function unwatch(obj: Object, path?: string, callback?: Function) {
 		return;
 	}
 	
-	if (!paths.hasOwnProperty(path)) {
+	if (!map.hasOwnProperty(path)) {
 		return;
 	}
 	
-	callbacksForPath = paths[path];
+	var callbacksForPath,
+		keys;
+	
+	callbacksForPath = map[path];
 	
 	callback && callbacksForPath.delete(callback);
 	
 	if (!callback || !callbacksForPath.size) {
-		delete paths[path];
+		delete map[path];
 		
 		unwatchKeys(obj, '', toKeys(path), obj);
 	}
 	
-	if (!Object.keys(paths).length) {
+	if (!Object.keys(map).length) {
 		callbacks.delete(obj);
 	}
 }

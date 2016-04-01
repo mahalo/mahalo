@@ -23,7 +23,13 @@ export default function equals(x, y) {
 		return false;
 	}
 	
-	for (key in x) {
+	var keys = Object.keys(x),
+		i = keys.length,
+		key;
+	
+	while (i--) {
+		key = keys[i];
+		
 		// Allows comparing x[p] and y[p] when set to undefined
 		if (!y.hasOwnProperty(key)) {
 			return false;
@@ -35,9 +41,12 @@ export default function equals(x, y) {
 		}
 	}
 	
-	for (key in y) {
+	keys = Object.keys(y);
+	i = keys.length;
+	
+	while (i--) {
 		// allows x[p] to be set to undefined
-		if (y.hasOwnProperty(key) && !x.hasOwnProperty(key)) {
+		if (!x.hasOwnProperty(keys[i])) {
 			return false;
 		}
 	}

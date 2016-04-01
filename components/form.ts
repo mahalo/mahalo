@@ -68,16 +68,18 @@ export default class Form extends Component {
 	
 	validateForm() {
 		var fields = this.fields,
+			names = Object.keys(fields),
+			i = names.length,
 			valid = true,
 			name;
 		
-		for (name in fields) {
-			if (!fields[name].valid) {
+		while (i--) {
+			if (!fields[names[i]].valid) {
 				valid = false;
-				break;
+				i = 0;
 			}
 		}
 		
-		this.valid = true;
+		this.valid = valid;
 	}
 }

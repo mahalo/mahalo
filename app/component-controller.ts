@@ -114,18 +114,19 @@ export default class ComponentController implements Controller {
 		parentNode.appendChild(this.node);
 	}
 	
-	initBehaviors(behaviors) {
-		var Behavior,
+	initBehaviors(behaviors: Object) {
+		var names = Object.keys(behaviors),
+			i = names.length,
 			name,
-			desc;
+			desc,
+			Behavior;
 		
-		for (name in behaviors) {
-			if (behaviors.hasOwnProperty(name)) {
-				desc = behaviors[name],
-				Behavior = desc.Behavior;
+		while (i--) {
+			name = names[i];
+			desc = behaviors[name],
+			Behavior = desc.Behavior;
 				
-				this.behaviors.add(new Behavior(desc.value, name));
-			}
+			this.behaviors.add(new Behavior(desc.value, name));
 		}
 	}
 	

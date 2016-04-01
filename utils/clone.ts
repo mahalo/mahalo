@@ -32,24 +32,26 @@ export default function clone(x) {
 		return copy;
 	}
 	
-	var key;
-	
 	// Function
 	if (x instanceof Function) {
-		key = (key = FN_NAME.exec(x)) ? key[1] : '';
-		copy = Function('fn', 'return function ' + key + '() {\n\treturn fn.apply(this, arguments);\n}')(x);
+		var name = (key = FN_NAME.exec(x)) ? key[1] : '';
+		copy = Function('fn', 'return function ' + name + '() {\n\treturn fn.apply(this, arguments);\n}')(x);
 		copy.prototype = x.prototype;
 		
 		return copy;
 	}
 	
 	// Every other object
+	var keys = Object.keys(x),
+		len = keys.length,
+		i = 0,
+		key;
+	
 	copy = create(Object.getPrototypeOf(x));
 	
-	for (key in x) {
-		if (x.hasOwnProperty(key)) {
-			copy[key] = x[key] === x ? copy : x[key];
-		}
+	while (i < len) {
+		key = keys[i++];
+		copy[key] = x[key] === x ? copy : x[key];
 	}
 	
 	return copy;

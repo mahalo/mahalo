@@ -5,17 +5,19 @@ import Behavior from './behavior';
 var dependencies = new WeakMap();
 
 export function injectDependencies(component: Component|Behavior, Constructor) {
-	if (!(Constructor.inject instanceof Object)) {
+	var dependencies = Constructor.inject;
+	
+	if (!(dependencies instanceof Object)) {
 		return;
 	}
 	
-	var dependencies = Constructor.inject,
+	var	keys = Object.keys(dependencies),
+		i = keys.length,
 		key;
 	
-	for (key in dependencies) {
-		if (dependencies.hasOwnProperty(key)) {
-			inject(component, key, dependencies[key]);
-		}
+	while (i--) {
+		key = keys[i];
+		inject(component, key, dependencies[key]);
 	}
 }
 

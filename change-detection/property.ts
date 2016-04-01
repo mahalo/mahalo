@@ -149,17 +149,20 @@ function unobserveComputed(obj: Object, key: string|number) {
 function checkComputed() {
 	scheduled = false;
 	
-	computedKeys.forEach((keys, obj) => {
+	computedKeys.forEach((map, obj) => {
 		var oldObj = clone(obj),
+			keys = Object.keys(map),
+			i = keys.length,
 			newValue,
 			oldValue,
 			key;
 		
-		for (key in keys) {
+		while (i--) {
+			key = keys[i];
 			newValue = obj[key],
 			oldValue = keys[key];
 			
-			if (keys.hasOwnProperty(key) && newValue !== oldValue) {
+			if (newValue !== oldValue) {
 				keys[key] = newValue;
 				Object.defineProperty(oldObj, key, {value: oldValue});
 				executeCallbacks(obj, key, oldValue);
@@ -220,20 +223,27 @@ function defineProperty(obj: Object, key: string|number, desc: PropertyDescripto
 /**
  * 
  */
-function defineProperties(obj: Object, keys: PropertyDescriptorMap) {
+function defineProperties(obj: Object, map: PropertyDescriptorMap) {
 	var oldObj = clone(obj),
-		result = _defineProperties(obj, keys),
+		result = _defineProperties(obj, map);
+	
+	if (!callbacksByKeys.has(obj)) {
+		return result;
+	}
+	
+	var	keys = Object.keys(map),
+		i = keys.length,
 		key;
 	
-	if (callbacksByKeys.has(obj)) {
-		for (key in keys) {
-			if (keys.hasOwnProperty(key) && obj[key] !== keys[key].value) {
-				executeCallbacks(obj, key, oldObj[key]);
-			}
-		}
+	while (i--) {
+		key = keys[i];
 		
-		executeCallbacks(obj, '', oldObj);
+		if (obj[key] !== map[key].value) {
+			executeCallbacks(obj, key, oldObj[key]);
+		}
 	}
+	
+	executeCallbacks(obj, '', oldObj);
 	
 	return result;
 }

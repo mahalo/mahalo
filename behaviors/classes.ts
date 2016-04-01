@@ -14,15 +14,17 @@ export default class Classes extends Behavior {
 		}
 		
 		var element = this.element,
+			names = Object.keys(names),
+			i = names.length,
 			name;
 		
-		for (name in classes) {
-			if (classes.hasOwnProperty(name)) {
-				if (classes[name]) {
-					addClass(element, name);
-				} else {
-					removeClass(element, name);
-				}
+		while (i--) {
+			name = names[i];
+			
+			if (classes[name]) {
+				addClass(element, name);
+			} else {
+				removeClass(element, name);
 			}
 		}
 	}

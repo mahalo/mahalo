@@ -115,15 +115,14 @@ export default class Route extends Component {
 		this.activate(routeParams);
 	}
 	
-	activate(routeParams?: Object) {
-		var part;
+	activate(routeParams: Object = {}) {
+		var parts = Object.keys(routeParams),
+			i = parts.length,
+			part;
 		
-		routeParams = routeParams || {};
-		
-		for (part in routeParams) {
-			if (routeParams.hasOwnProperty(part)) {
-				assign(this.$params, part, routeParams[part]);
-			}
+		while (i--) {
+			part = parts[i];
+			assign(this.$params, part, routeParams[part]);
 		}
 		
 		if (typeof this.canActivate === 'function' && !this.canActivate()) {
@@ -189,7 +188,6 @@ export default class Route extends Component {
 	resolve() {};
 }
 
-// @todo: Make id nestable
 export function setRoute(id?) {
 	var match = false;
 	
@@ -202,7 +200,7 @@ export function setRoute(id?) {
 		if (resolvedID && resolvedID === id.substr(0, resolvedID.length)) {
 			if (route.resolvedPath) {
 				noResolve = true;
-				window.location.hash = '#/' + route.resolvedPath.join('/');
+				asap(() => window.location.hash = '#/' + route.resolvedPath.join('/'));
 			}
 			
 			route.activate();

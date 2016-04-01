@@ -42,14 +42,18 @@ function createBinding(behavior: Behavior, value: string, Constructor) {
 }
 
 function createBindings(behavior: Behavior, Constructor) {
-	var bindings = Constructor.bindings,
-		key;
+	var bindings = Constructor.bindings;
 	
 	if (!(bindings instanceof Object)) {
 		return;
 	}
 	
-	for (key in bindings) {
+	var keys = Object.keys(bindings),
+		i = keys.length,
+		key;
+	
+	while (i--) {
+		key = keys[i];
 		watch(behavior, key, behavior[bindings[key]].bind(behavior));
 	}
 }

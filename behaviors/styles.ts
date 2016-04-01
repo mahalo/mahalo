@@ -13,17 +13,19 @@ export default class Styles extends Behavior {
 		}
 		
 		var element = this.element,
-			style = 'style' in element && element.style,
-			name;
+			style = 'style' in element && element.style;
 		
 		if (!style) {
 			return;
 		}
 		
-		for (name in styles) {
-			if (styles.hasOwnProperty(name)) {
-				style[name] = styles[name];
-			}
+		var names = Object.keys(styles),
+			i = names.length,
+			name;
+		
+		while (i--) {
+			name = names[i];
+			style[name] = styles[name];
 		}
 	}
 }
