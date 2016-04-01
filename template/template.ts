@@ -31,17 +31,29 @@ export default class Template {
 		
 		this.behaviors = behaviors || {};
 		
-		this.children = this.parseChildNodes(parseHTML(html));
+		this.children = this._parseChildNodes(parseHTML(html));
 	}
 	
-	parseChildNodes(childNodes: NodeList) {
+	compile(node: Element|DocumentFragment, scope: Scope|Component, controller: ComponentController) {
+		var children = this.children,
+			child = children[0],
+			i = 0;
+		
+		while (child) {
+			child.compile(node, scope, controller);
+			
+			child = children[++i];
+		}
+	}
+	
+	_parseChildNodes(childNodes: NodeList) {
 		var children: Array<Generator> = [],
 			child = childNodes[0],
 			i = 0,
 			generator;
 			
 		while (child) {
-			generator = this.checkNode(child);
+			generator = this._checkNode(child);
 			generator && children.push(generator);
 			
 			child = childNodes[++i];
@@ -50,9 +62,9 @@ export default class Template {
 		return children;
 	}
 	
-	checkNode(node: Node): Generator {
+	_checkNode(node: Node): Generator {
 		if (node.nodeType === TEXT_NODE) {
-			return this.checkText(node);
+			return this._checkText(node);
 		}
 		
 		var element = node instanceof Element && node;
@@ -61,10 +73,10 @@ export default class Template {
 			return new ChildrenGenerator(element.cloneNode());
 		}
 		
-		return this.checkComponent(element);
+		return this._checkComponent(element);
 	}
 	
-	checkText(textNode: Node) {
+	_checkText(textNode: Node) {
 		if (!textNode.textContent.trim()) {
 			return;
 		}
@@ -72,7 +84,7 @@ export default class Template {
 		return new TextGenerator(textNode.cloneNode());
 	}
 	
-	checkComponent(element: Element) {
+	_checkComponent(element: Element) {
 		var name = element.tagName,
 			components = this.components,
 			component;
@@ -93,10 +105,10 @@ export default class Template {
 			component = {Component: Form};
 		}
 		
-		return this.checkBehaviors(element, component);
+		return this._checkBehaviors(element, component);
 	}
 	
-	checkBehaviors(element: Element, component: Object) {
+	_checkBehaviors(element: Element, component: Object) {
 		var childNodes = element.childNodes,
 			generator = new ComponentGenerator(element, component),
 			attributes = element.attributes,
@@ -104,17 +116,17 @@ export default class Template {
 			i = 0;
 		
 		while (attribute) {
-			this.checkBehavior(attribute, generator);
+			this._checkBehavior(attribute, generator);
 			
 			attribute = attributes[++i];
 		}
 		
-		generator.children = childNodes.length ? this.parseChildNodes(childNodes) : [];
+		generator.children = childNodes.length ? this._parseChildNodes(childNodes) : [];
 		
 		return generator;
 	}
 	
-	checkBehavior(attribute: Attr, generator: ComponentGenerator) {
+	_checkBehavior(attribute: Attr, generator: ComponentGenerator) {
 		var behaviors = this.behaviors,
 			name = attribute.name,
 			Behavior;
@@ -144,18 +156,6 @@ export default class Template {
 		generator.behaviors[name] = {
 			Behavior: Behavior,
 			value: attribute.value
-		}
-	}
-	
-	compile(node: Element|DocumentFragment, scope: Scope|Component, controller: ComponentController) {
-		var children = this.children,
-			child = children[0],
-			i = 0;
-		
-		while (child) {
-			child.compile(node, scope, controller);
-			
-			child = children[++i];
 		}
 	}
 }

@@ -10,10 +10,28 @@ export default class TextGenerator implements Generator {
 	constructor(textNode: Node) {
 		this.node = textNode;
 		
-		this.parseText(textNode.textContent);
+		this._parseText(textNode.textContent);
 	}
 	
-	parseText(text: string) {
+	compile(parentNode: DocumentFragment, scope: Scope|Component, parent: ComponentController) {
+		var textNode = this.node,
+			parts = this.parts,
+			part = parts[0],
+			i = 0;
+		
+		while (part) {
+			textNode = textNode.cloneNode();
+			
+			parentNode.appendChild(textNode);
+			parent.children.add(
+				new TextController(textNode, scope, parent, part)
+			);
+			
+			part = parts[++i];
+		}
+	}
+	
+	_parseText(text: string) {
 		var parts = [],
 			char = text[0],
 			i = 0,
@@ -52,23 +70,5 @@ export default class TextGenerator implements Generator {
 		}
 		
 		part && parts.push(part);
-	}
-	
-	compile(parentNode: DocumentFragment, scope: Scope|Component, parent: ComponentController) {
-		var textNode = this.node,
-			parts = this.parts,
-			part = parts[0],
-			i = 0;
-		
-		while (part) {
-			textNode = textNode.cloneNode();
-			
-			parentNode.appendChild(textNode);
-			parent.children.add(
-				new TextController(textNode, scope, parent, part)
-			);
-			
-			part = parts[++i];
-		}
 	}
 }

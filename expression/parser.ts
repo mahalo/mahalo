@@ -26,63 +26,67 @@ export default class Parser {
 		this.expression = expression;
 		this.i = -1;
 		this.paths = new Set();
-		this.ast = this.comparison();
+		this.ast = this._comparison();
 		
-		this.nextSymbol();
-		this.expect(symbols.END);
+		this._nextSymbol();
+		this._expect(symbols.END);
 		
 		parsers[expression] = this;
 	}
 	
-	comparison(): ExpressionBranch {
-		var left = this.sum();
+	compile(scope: Object) {
+		return compileBranch(this.ast, scope);
+	}
+	
+	_comparison(): ExpressionBranch {
+		var left = this._sum();
 		
-		if (this.accept(symbols.COMPARISON)) {
+		if (this._accept(symbols.COMPARISON)) {
 			return {
 				type: types.COMPARISON,
 				op: this.symbol.str,
 				left: left,
-				right: this.comparison()
+				right: this._comparison()
 			};
 		}
 
 		return left;
 	}
 	
-	sum(): ExpressionBranch {
-		var left = this.multiply();
+	_sum(): ExpressionBranch {
+		var left = this._multiply();
 		
-		if (this.accept(symbols.SUM)) {
+		if (this._accept(symbols.SUM)) {
 			return {
 				type: types.SUM,
 				op: this.symbol.str,
 				left: left,
-				right: this.sum()
+				right: this._sum()
 			};
 		}
 		
 		return left;
 	}
 	
-	multiply(): ExpressionBranch {
-		var left = this.filter();
+	_multiply(): ExpressionBranch {
+		var left = this._filter();
 		
-		if (this.accept(symbols.MULTIPLY)) {
+		if (this._accept(symbols.MULTIPLY)) {
 			return {
 				type: types.MULTIPLY,
 				op: this.symbol.str,
 				left: left,
-				right: this.multiply()
+				right: this._multiply()
 			};
 		}
 		
 		return left;
 	}
 	
-	filter(): ExpressionBranch {
-		var arg = this.unary();
+	_filter(): ExpressionBranch {
+		var arg = this._unary();
 		
-		if (!this.accept(symbols.FILTER)) {
+		if (!this._accept(symbols.FILTER)) {
 			return arg;
 		}
 		
@@ -93,99 +97,99 @@ export default class Parser {
 				args: args
 			};
 		
-		this.nextSymbol();
-		this.expect(symbols.IDENT);
+		this._nextSymbol();
+		this._expect(symbols.IDENT);
 		
 		branch.filter = this.symbol.str;
 		
-		if (this.accept(symbols.COLON)) {
-			args.push(this.comparison());
+		if (this._accept(symbols.COLON)) {
+			args.push(this._comparison());
 			
-			while(this.accept(symbols.COMMA)) {
-				args.push(this.comparison());
+			while(this._accept(symbols.COMMA)) {
+				args.push(this._comparison());
 			}
 		}
 		
 		return branch;
 	}
 	
-	unary(): ExpressionBranch {
-		if (this.accept(symbols.SUM) || this.accept(symbols.NEGATION)) {
+	_unary(): ExpressionBranch {
+		if (this._accept(symbols.SUM) || this._accept(symbols.NEGATION)) {
 			return {
 				type: types.UNARY,
 				op: this.symbol.str,
-				arg: this.paren()
+				arg: this._paren()
 			};
 		}
 		
-		return this.paren();
+		return this._paren();
 	}
 	
-	paren(): ExpressionBranch {
-		if (this.accept(symbols.LPAREN)) {
+	_paren(): ExpressionBranch {
+		if (this._accept(symbols.LPAREN)) {
 			var item = {
 					type: types.PAREN,
-					content: this.comparison()
+					content: this._comparison()
 				};
 			
-			this.nextSymbol();
-			this.expect(symbols.RPAREN);
+			this._nextSymbol();
+			this._expect(symbols.RPAREN);
 			
 			return item;
 		}
 		
-		return this.operand();
+		return this._operand();
 	}
 	
-	operand(): ExpressionBranch {
-		if (this.accept(symbols.LITERAL)) {
+	_operand(): ExpressionBranch {
+		if (this._accept(symbols.LITERAL)) {
 			return {
 				type: types.LITERAL,
 				str: this.symbol.str
 			};
 		}
 		
-		if (this.accept(symbols.NUMBER)) {
+		if (this._accept(symbols.NUMBER)) {
 			return {
 				type: types.NUMBER,
 				num: this.symbol.str
 			};
 		}
 		
-		return this.member();
+		return this._member();
 	}
 	
-	member(): ExpressionBranch {
+	_member(): ExpressionBranch {
 		var member;
 		
-		if (this.accept(symbols.LBRACE)) {
+		if (this._accept(symbols.LBRACE)) {
 			
 			member = {
 				type: types.OBJECT,
-				keys: this.object()
+				keys: this._object()
 			}
 			
-		} else if (this.accept(symbols.LBRACKET)) {
+		} else if (this._accept(symbols.LBRACKET)) {
 			
 			member = {
 				type: types.ARRAY,
-				items: this.array()
+				items: this._array()
 			}
 			
-		} else if (this.accept(symbols.MEMBER)) {
+		} else if (this._accept(symbols.MEMBER)) {
 			
-			this.nextSymbol();
-			this.expect(symbols.LBRACKET);
+			this._nextSymbol();
+			this._expect(symbols.LBRACKET);
 			
-			member = this.bracketIdentifier();
+			member = this._bracketIdentifier();
 			
 		} else {
 			
-			member = this.identifier();
+			member = this._identifier();
 			
 		}
 		
-		member = this.memberOrIdentifier(member);
+		member = this._memberOrIdentifier(member);
 		
 		if (member.type === types.IDENT && RESERVED.indexOf(member.name) > -1) {
 			return {
@@ -194,97 +198,97 @@ export default class Parser {
 			}
 		}
 		
-		this.addPath(member);
+		this._addPath(member);
 		
 		return member;
 	}
 	
-	object() {
+	_object() {
 		var keys = {},
 			next = true,
-			desc = this.key();
+			desc = this._key();
 		
 		while (desc) {
 			keys[desc.key] = desc.value;
 			
-			if (this.accept(symbols.COMMA)) {
-				desc = this.key();
-				desc || this.expect(symbols.RBRACE);
+			if (this._accept(symbols.COMMA)) {
+				desc = this._key();
+				desc || this._expect(symbols.RBRACE);
 			} else {
 				desc = null;
 			}
 		}
 		
-		this.nextSymbol();
-		this.expect(symbols.RBRACE);
+		this._nextSymbol();
+		this._expect(symbols.RBRACE);
 		
 		return keys;
 	}
 	
-	key() {
-		if (this.accept(symbols.LITERAL) || this.accept(symbols.NUMBER) || this.accept(symbols.IDENT)) {
+	_key() {
+		if (this._accept(symbols.LITERAL) || this._accept(symbols.NUMBER) || this._accept(symbols.IDENT)) {
 			return {
 				key: this.symbol.str,
-				value: this.nextSymbol() || this.expect(symbols.COLON) || this.comparison()
+				value: this._nextSymbol() || this._expect(symbols.COLON) || this._comparison()
 			};
 		}
 	}
 	
-	array() {
-		if (this.accept(symbols.RBRACKET)) {
+	_array() {
+		if (this._accept(symbols.RBRACKET)) {
 			return [];
 		}
 		
-		var items = [this.comparison()];
+		var items = [this._comparison()];
 		
-		while (this.accept(symbols.COMMA)) {
-			items.push(this.comparison());
+		while (this._accept(symbols.COMMA)) {
+			items.push(this._comparison());
 		}
 		
-		this.nextSymbol();
-		this.expect(symbols.RBRACKET);
+		this._nextSymbol();
+		this._expect(symbols.RBRACKET);
 		
 		return items;
 	}
 	
-	memberOrIdentifier(ident): ExpressionBranch {
-		if (ident.type !== types.OBJECT && ident.type !== types.ARRAY && this.accept(symbols.LPAREN)) {
-			ident = this.call(ident);
+	_memberOrIdentifier(ident): ExpressionBranch {
+		if (ident.type !== types.OBJECT && ident.type !== types.ARRAY && this._accept(symbols.LPAREN)) {
+			ident = this._call(ident);
 		}
 		
-		if (this.accept(symbols.LBRACKET)) {
+		if (this._accept(symbols.LBRACKET)) {
 			return {
 				type: types.MEMBER,
 				obj: ident,
-				prop: this.memberOrIdentifier(this.bracketIdentifier())
+				prop: this._memberOrIdentifier(this._bracketIdentifier())
 			}
 		}
 		
-		if (this.accept(symbols.MEMBER)) {
+		if (this._accept(symbols.MEMBER)) {
 			return {
 				type: types.MEMBER,
 				obj: ident,
-				prop: this.memberOrIdentifier(this.identifier())
+				prop: this._memberOrIdentifier(this._identifier())
 			};
 		}
 		
 		return ident;
 	}
 	
-	call(member): ExpressionBranch {
+	_call(member): ExpressionBranch {
 		var args = [];
 		
 		this.paths = null;
 		
-		if (!this.accept(symbols.RPAREN)) {
-			args.push(this.comparison());
+		if (!this._accept(symbols.RPAREN)) {
+			args.push(this._comparison());
 			
-			while (this.accept(symbols.COMMA)) {
-				args.push(this.comparison());
+			while (this._accept(symbols.COMMA)) {
+				args.push(this._comparison());
 			}
 			
-			this.nextSymbol();
-			this.expect(symbols.RPAREN);
+			this._nextSymbol();
+			this._expect(symbols.RPAREN);
 		}
 		
 		return {
@@ -294,11 +298,11 @@ export default class Parser {
 		}
 	}
 	
-	bracketIdentifier(): ExpressionBranch {
-		var prop = this.comparison();
+	_bracketIdentifier(): ExpressionBranch {
+		var prop = this._comparison();
 		
-		this.nextSymbol();
-		this.expect(symbols.RBRACKET);
+		this._nextSymbol();
+		this._expect(symbols.RBRACKET);
 		
 		return {
 			type: types.BRACKET_IDENT,
@@ -306,9 +310,9 @@ export default class Parser {
 		};
 	}
 	
-	identifier(): ExpressionBranch {
-		this.nextSymbol();
-		this.expect(symbols.IDENT);
+	_identifier(): ExpressionBranch {
+		this._nextSymbol();
+		this._expect(symbols.IDENT);
 		
 		return {
 			type: types.IDENT,
@@ -316,14 +320,14 @@ export default class Parser {
 		};
 	}
 	
-	expect(type: number) {
+	_expect(type: number) {
 		if (this.symbol.type !== type) {
 			throw Error('Unexpected symbol in column ' + this.symbol.start);
 		}
 	}
 	
-	accept(type: number) {
-		this.nextSymbol();
+	_accept(type: number) {
+		this._nextSymbol();
 		
 		if (this.symbol.type === type) {
 			return true;
@@ -334,11 +338,11 @@ export default class Parser {
 		return false;
 	}
 	
-	nextSymbol() {
+	_nextSymbol() {
 		nextSymbol.call(this);
 	}
 	
-	addPath(branch: ExpressionBranch, path?: string) {
+	_addPath(branch: ExpressionBranch, path?: string) {
 		if (!this.paths) {
 			return;
 		}
@@ -346,17 +350,17 @@ export default class Parser {
 		path = path ? path + '.' : '';
 		
 		if (branch.type === types.MEMBER) {
-			path = this.resolvePath(branch.obj, path);
-			path && this.addPath(branch.prop, path);
+			path = this._resolvePath(branch.obj, path);
+			path && this._addPath(branch.prop, path);
 			
 			return;
 		}
 		
-		path = this.resolvePath(branch, path);
+		path = this._resolvePath(branch, path);
 		path && this.paths.add(path);
 	}
 	
-	resolvePath(branch, path) {
+	_resolvePath(branch, path) {
 		if (branch.type === types.IDENT) {
 			return path + branch.name;
 		}
@@ -370,10 +374,6 @@ export default class Parser {
 		if (branch.type === types.BRACKET_IDENT) {
 			this.paths = null;
 		}
-	}
-	
-	compile(scope: Object) {
-		return compileBranch(this.ast, scope);
 	}
 }
 

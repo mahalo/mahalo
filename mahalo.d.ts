@@ -13,19 +13,19 @@ interface Template {
 	
 	children: Array<Generator>;
 	
-	parseChildNodes(childNodes: NodeList): Array<Generator>;
-	
-	checkNode(node: Node): Generator;
-	
-	checkText(textNode: Node): TextGenerator;
-	
-	checkComponent(element: Element): ComponentGenerator;
-	
-	checkBehaviors(element: Element, component: Object): ComponentGenerator;
-	
-	checkBehavior(attribute: Attr, generator: ComponentGenerator): void;
-	
 	compile(node: Element|DocumentFragment, scope: Scope|Component, controller: ComponentController): void;
+
+	_parseChildNodes(childNodes: NodeList): Array<Generator>;
+	
+	_checkNode(node: Node): Generator;
+	
+	_checkText(textNode: Node): TextGenerator;
+	
+	_checkComponent(element: Element): ComponentGenerator;
+	
+	_checkBehaviors(element: Element, component: Object): ComponentGenerator;
+	
+	_checkBehavior(attribute: Attr, generator: ComponentGenerator): void;
 }
 
 interface Scope {
@@ -61,15 +61,15 @@ interface ComponentController extends Controller {
 	
 	init(parentNode: Element|DocumentFragment, children: Array<Generator>, behaviors: Object, template?: Template);
 	
-	compileChildren(children);
-	
 	append(parentNode, animate);
-	
-	initBehaviors(behaviors: Object);
 	
 	detach(animate?: boolean);
 	
 	remove();
+	
+	_compileChildren(children);
+	
+	_initBehaviors(behaviors: Object);
 }
 
 interface Generator {
@@ -86,14 +86,12 @@ interface ComponentGenerator extends Generator {
 	behaviors: Object;
 	
 	children: Array<Generator>;
-	
-	compile(parentNode: Element|DocumentFragment, scope: Scope|Component, parent: ComponentController);
 }
 
 interface TextGenerator extends Generator {
 	parts: Array<string|Parser>;
 	
-	parseText(text: string): void;
+	_parseText(text: string): void;
 }
 
 interface Parser {
@@ -107,47 +105,47 @@ interface Parser {
 	
 	symbol: ExpressionSymbol;
 	
-	comparison(): ExpressionBranch;
-	
-	sum(): ExpressionBranch;
-	
-	multiply(): ExpressionBranch;
-	
-	filter(): ExpressionBranch;
-	
-	unary(): ExpressionBranch;
-	
-	paren(): ExpressionBranch;
-	
-	operand(): ExpressionBranch;
-	
-	member(): ExpressionBranch;
-	
-	object(): Object;
-	
-	key(): {key: string, value: ExpressionBranch};
-	
-	array(): Array<ExpressionBranch>;
-	
-	memberOrIdentifier(ident): ExpressionBranch;
-	
-	call(member): ExpressionBranch;
-	
-	bracketIdentifier(): ExpressionBranch;
-	
-	identifier(): ExpressionBranch;
-	
-	expect(type: number): void;
-	
-	accept(type: number): boolean;
-	
-	nextSymbol(): ExpressionBranch;
-	
-	addPath(branch: ExpressionBranch, path?: string);
-	
-	resolvePath(branch, path): void;
-	
 	compile(scope: Object);
+	
+	_comparison(): ExpressionBranch;
+	
+	_sum(): ExpressionBranch;
+	
+	_multiply(): ExpressionBranch;
+	
+	_filter(): ExpressionBranch;
+	
+	_unary(): ExpressionBranch;
+	
+	_paren(): ExpressionBranch;
+	
+	_operand(): ExpressionBranch;
+	
+	_member(): ExpressionBranch;
+	
+	_object(): Object;
+	
+	_key(): {key: string, value: ExpressionBranch};
+	
+	_array(): Array<ExpressionBranch>;
+	
+	_memberOrIdentifier(ident): ExpressionBranch;
+	
+	_call(member): ExpressionBranch;
+	
+	_bracketIdentifier(): ExpressionBranch;
+	
+	_identifier(): ExpressionBranch;
+	
+	_expect(type: number): void;
+	
+	_accept(type: number): boolean;
+	
+	_nextSymbol(): ExpressionBranch;
+	
+	_addPath(branch: ExpressionBranch, path?: string);
+	
+	_resolvePath(branch, path): void;
 }
 
 interface ComponentConstructor {

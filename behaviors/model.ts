@@ -55,7 +55,7 @@ export default class Model extends Behavior {
 			form.setValue(name, value);
 		}
 		
-		this.input(element, value);
+		this._initElement(value);
 		
 		component['value'] = value;
 	}
@@ -86,8 +86,9 @@ export default class Model extends Behavior {
 		keyPath(this.controller.localScope, this.path, value);
 	}
 	
-	input(element: Element, value) {
-		var form = this.form,
+	_initElement(value) {
+		var element = this.element,
+			form = this.form,
 			input = getInput(element),
 			validators;
 		

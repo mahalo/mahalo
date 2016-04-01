@@ -86,7 +86,7 @@ export default class Route extends Component {
 			i;
 		
 		if (!routePath) {
-			return this.detachController();
+			return this._detachController();
 		}
 		
 		routeParams = {};
@@ -105,7 +105,7 @@ export default class Route extends Component {
 				
 			} else if (part !== path[i]) {
 				
-				return this.detachController();
+				return this._detachController();
 				
 			}
 			
@@ -126,20 +126,30 @@ export default class Route extends Component {
 		}
 		
 		if (typeof this.canActivate === 'function' && !this.canActivate()) {
-			return this.detachController();
+			return this._detachController();
 		}
 		
 		if (typeof this.resolve === 'function') {
 			Promise.resolve(this.resolve()).then(() => {
-				this.createController();
+				this._createController();
 			});
 			return;
 		}
 		
-		this.createController();
+		this._createController();
 	}
 	
-	detachController() {
+	canActivate() {
+		return true;
+	}
+	
+	resolve() {}
+	
+	remove() {
+		routes.delete(this);
+	}
+	
+	_detachController() {
 		if (this.child) {
 			this.child.component = new Component();
 			this.child.detach();
@@ -148,7 +158,7 @@ export default class Route extends Component {
 		this.child = null;
 	}
 	
-	createController() {
+	_createController() {
 		if (this.child) {
 			return;
 		}
@@ -176,16 +186,6 @@ export default class Route extends Component {
 		
 		return childController;
 	}
-	
-	remove() {
-		routes.delete(this);
-	}
-	
-	canActivate() {
-		return true;
-	};
-	
-	resolve() {};
 }
 
 export function setRoute(id?) {
@@ -207,7 +207,7 @@ export function setRoute(id?) {
 			
 			match = true;
 		} else {
-			route.detachController();
+			route._detachController();
 		}
 	});
 	

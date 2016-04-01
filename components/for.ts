@@ -58,40 +58,40 @@ export default class For extends Component {
 		);
 		
 		if (Array.isArray(obj)) {
-			return this.prepareArray(obj);
+			return this._prepareArray(obj);
 		}
 		
 		if (obj instanceof Object) {
-			return this.prepareObject(obj);
+			return this._prepareObject(obj);
 		}
 	}
 	
-	prepareArray(arr: Array<any>) {
+	_prepareArray(arr: Array<any>) {
 		var children = [],
 			len = arr.length,
 			i = 0;
 		
 		while (i < len) {
-			children.push(this.hasPrevious(arr, i, i++));
+			children.push(this._hasPrevious(arr, i, i++));
 		}
 		
-		this.setPrevious(children);
+		this._setPrevious(children);
 	}
 	
-	prepareObject(obj: Object) {
+	_prepareObject(obj: Object) {
 		var children = [],
 			keys = Object.keys(obj),
 			len = keys.length,
 			i = 0;
 		
 		while (i < len) {
-			children.push(this.hasPrevious(obj, keys[i], i++));
+			children.push(this._hasPrevious(obj, keys[i], i++));
 		}
 		
-		this.setPrevious(children);
+		this._setPrevious(children);
 	}
 	
-	hasPrevious(obj, key, i) {
+	_hasPrevious(obj, key, i) {
 		var children = this.children,
 			each = this.each,
 			value = obj[key],
@@ -109,13 +109,13 @@ export default class For extends Component {
 			assign(forItem, '$index', i);
 			controller.append(this.element);
 		} else {
-			controller = this.createController(obj, key, i);
+			controller = this._createController(obj, key, i);
 		}
 		
 		return controller;
 	}
 
-	setPrevious(children: Array<ComponentController>) {
+	_setPrevious(children: Array<ComponentController>) {
 		var len = children.length;
 		
 		this.children.reverse();
@@ -125,7 +125,7 @@ export default class For extends Component {
 		children.forEach((controller, i) => controller.position = len - i);
 	}
 	
-	createController(obj: Object, key: string|number, index: number) {
+	_createController(obj: Object, key: string|number, index: number) {
 		var each = this.each,
 			element = this.template.cloneNode(),
 			controller = this.controller,

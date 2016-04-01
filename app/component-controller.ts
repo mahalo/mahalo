@@ -61,7 +61,7 @@ export default class ComponentController implements Controller {
 		
 		this.localScope = locals ? new Scope(scope, component, locals) : scope;
 		
-		this.compileChildren(children);
+		this._compileChildren(children);
 		
 		this.parent.children.add(this);
 		
@@ -73,61 +73,19 @@ export default class ComponentController implements Controller {
 		setDependency(ComponentController, this);
 		setDependency(Component, component);
 		
-		this.initBehaviors(behaviors);
+		this._initBehaviors(behaviors);
 		
 		component.ready();
 	}
 	
-	compileChildren(children) {
-		var node = this.node,
-			element = node instanceof Element && node,
-			container = node.querySelector('children');
-		
-		if (!container || element.tagName === 'PRE') {
-			return;
-		}
-		
-		var parent = container.parentNode,
-			fragment = document.createDocumentFragment(),
-			child = children[0],
-			i = 0;
-		
-		while (child) {
-			// Set dependency
-			setDependency(Component, this.component);
-			
-			child.compile(fragment, this.localScope, this);
-			
-			child = children[++i];
-		}	
-		
-		parent.replaceChild(fragment, container);
-	}
-	
-	append(parentNode) {
-		if (this.node instanceof Element) {
+	append(parentNode: Element|DocumentFragment) {
+		if (parentNode instanceof Element && this.node instanceof Element) {
 			return enter(this, parentNode);
 		}
 		
 		this.compiled = true;
 		
 		parentNode.appendChild(this.node);
-	}
-	
-	initBehaviors(behaviors: Object) {
-		var names = Object.keys(behaviors),
-			i = names.length,
-			name,
-			desc,
-			Behavior;
-		
-		while (i--) {
-			name = names[i];
-			desc = behaviors[name],
-			Behavior = desc.Behavior;
-				
-			this.behaviors.add(new Behavior(desc.value, name));
-		}
 	}
 	
 	detach() {
@@ -154,5 +112,47 @@ export default class ComponentController implements Controller {
 		node.parentNode && node.parentNode.removeChild(node);
 		
 		this.behaviors.forEach(behavior => behavior.remove());
+	}
+	
+	_compileChildren(children) {
+		var node = this.node,
+			element = node instanceof Element && node,
+			container = node.querySelector('children');
+		
+		if (!container || element.tagName === 'PRE') {
+			return;
+		}
+		
+		var parent = container.parentNode,
+			fragment = document.createDocumentFragment(),
+			child = children[0],
+			i = 0;
+		
+		while (child) {
+			// Set dependency
+			setDependency(Component, this.component);
+			
+			child.compile(fragment, this.localScope, this);
+			
+			child = children[++i];
+		}	
+		
+		parent.replaceChild(fragment, container);
+	}
+	
+	_initBehaviors(behaviors: Object) {
+		var names = Object.keys(behaviors),
+			i = names.length,
+			name,
+			desc,
+			Behavior;
+		
+		while (i--) {
+			name = names[i];
+			desc = behaviors[name],
+			Behavior = desc.Behavior;
+				
+			this.behaviors.add(new Behavior(desc.value, name));
+		}
 	}
 }

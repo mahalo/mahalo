@@ -14,7 +14,7 @@ export default class Classes extends Behavior {
 		}
 		
 		var element = this.element,
-			names = Object.keys(names),
+			names = Object.keys(classes),
 			i = names.length,
 			name;
 		

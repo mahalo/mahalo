@@ -35,14 +35,14 @@ export default class Show extends Component {
 	
 	update(value) {
 		if (value) {
-			return this.createController();
+			return this._createController();
 		}
 		
 		this.child && this.child.detach();
 		this.child = null;
 	}
 	
-	createController() {
+	_createController() {
 		var controller = this.controller,
 			element = document.createDocumentFragment(),
 			childController = new ComponentController(Component, element, controller.scope, controller);

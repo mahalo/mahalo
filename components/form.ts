@@ -37,7 +37,7 @@ export default class Form extends Component {
 	}
 	
 	setValue(name: string, value) {
-		if (!this.validateField(name, value)) {
+		if (!this._validateField(name, value)) {
 			return false;
 		}
 		
@@ -49,12 +49,12 @@ export default class Form extends Component {
 		
 		field.value = value;
 		
-		this.validateForm();
+		this._validateForm();
 		
 		return true;
 	}
 	
-	validateField(name: string, value) {
+	_validateField(name: string, value) {
 		var field = this.fields[name],
 			valid = true;
 		
@@ -66,7 +66,7 @@ export default class Form extends Component {
 		
 	}
 	
-	validateForm() {
+	_validateForm() {
 		var fields = this.fields,
 			names = Object.keys(fields),
 			i = names.length,

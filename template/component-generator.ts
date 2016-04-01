@@ -15,12 +15,9 @@ export default class ComponentGenerator implements Generator {
 	children: Array<Generator>;
 	
 	constructor(node: Element, desc: {Component?: typeof Component, template?: Template} = {}) {
-		// desc = desc || {};
-		
 		var Constructor = desc.Component || Component;
 		
 		this.node = node;
-		
 		this.Constructor = Constructor;
 		this.template = ('template' in Constructor && new Template(Constructor.template)) || desc.template;
 		this.behaviors = {};
@@ -38,10 +35,6 @@ export default class ComponentGenerator implements Generator {
 		setDependency(ComponentGenerator, this);
 		
 		controller = new ComponentController(Constructor, element, scope, parent, Component.locals);
-		
-		// if (Constructor === Component) {
-		// 	controller.component = parent.component;
-		// }
 		
 		controller.init(parentNode, this.children, this.behaviors, this.template);
 	}
