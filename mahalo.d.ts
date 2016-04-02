@@ -4,6 +4,8 @@ interface Controller {
 	parent: ComponentController;
 	
 	remove();
+	
+	removeChildren();
 }
 
 interface Template {
@@ -62,6 +64,8 @@ interface ComponentController extends Controller {
 	detach(animate?: boolean);
 	
 	remove();
+	
+	removeChildren();
 	
 	_compileChildren(children);
 	

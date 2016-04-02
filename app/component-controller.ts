@@ -96,20 +96,28 @@ export default class ComponentController implements Controller {
 		this.remove();
 	}
 	
-	// @todo: Improve removement of children and only detach this.node from DOM
 	remove() {
-		var component = this.component,
-			node = this.node;
+		var	node = this.node;
+		
+		this.removeChildren();
+		
+		node.parentNode && node.parentNode.removeChild(node);
+	}
+	
+	removeChildren() {
+		var component = this.component;
 		
 		unwatch(component);
 		
 		typeof component.remove === 'function' && component.remove();
 		
-		this.children.forEach(controller => controller.remove());
+		if (this.node.parentNode) {
+			this.children.forEach(controller => controller.removeChildren());
+		} else {
+			this.children.forEach(controller => controller.remove());
+		}
 		
 		this.parent.children.delete(this);
-		
-		node.parentNode && node.parentNode.removeChild(node);
 		
 		this.behaviors.forEach(behavior => behavior.remove());
 	}
