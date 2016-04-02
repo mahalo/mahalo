@@ -1,27 +1,27 @@
 interface ArrayConstructor {
-	copyWithin();
-	
-	entries();
-	
-	fill();
-	
-	find();
-	
-	findIndex();
-	
-	keys();
-	
-	values();
+    copyWithin();
+    
+    entries();
+    
+    fill();
+    
+    find();
+    
+    findIndex();
+    
+    keys();
+    
+    values();
 }
 
 interface StringConstructor {
-	codePointAt();
-	
-	endsWith();
-	
-	includes();
-	
-	repeat();
-	
-	startsWith();
+    codePointAt();
+    
+    endsWith();
+    
+    includes();
+    
+    repeat();
+    
+    startsWith();
 }	

@@ -1,5 +1,5 @@
 export default {
-	FOR_TAG: 'FOR',
-	SHOW_TAG: 'SHOW',
-	ROUTE_TAG: 'ROUTE'
+    FOR_TAG: 'FOR',
+    SHOW_TAG: 'SHOW',
+    ROUTE_TAG: 'ROUTE'
 };

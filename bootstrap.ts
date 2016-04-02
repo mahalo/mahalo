@@ -6,9 +6,9 @@ import App from './app/app';
 
 // @todo: Refactor to use component constructor instead of scope as third argument
 export default function bootstrap(template: Template, node: Element, app: App) {
-	var controller = new ComponentController(App, node, app);
-	
-	console.log(controller);
-	
-	template.compile(node, app, controller);
+    var controller = new ComponentController(App, node, app);
+    
+    console.log(controller);
+    
+    template.compile(node, app, controller);
 }

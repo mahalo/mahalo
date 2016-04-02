@@ -11,37 +11,37 @@
  */
 
 var MESSAGE = 'mahalo/utils/asap',
-	queue: Array<Function> = [],
-	asap;
+    queue: Array<Function> = [],
+    asap;
 
 if (postMessageSupport()) {
-	
-	window.addEventListener('message', event => {
-		if (event.source !== window || event.data !== MESSAGE) {
-			return;
-		}
-		
+    
+    window.addEventListener('message', event => {
+        if (event.source !== window || event.data !== MESSAGE) {
+            return;
+        }
+        
         runQueue();
         
-		event.stopImmediatePropagation();
-	});
+        event.stopImmediatePropagation();
+    });
 
-	asap = function asap(callback: Function, thisArg?) {
-		queue.push(callback.bind(thisArg));
-		queue.length === 1 && window.postMessage(MESSAGE, '*');
-	};
-	
+    asap = function asap(callback: Function, thisArg?) {
+        queue.push(callback.bind(thisArg));
+        queue.length === 1 && window.postMessage(MESSAGE, '*');
+    };
+    
 } else {
-	
-	var channel = new MessageChannel();
-	
-	channel.port1.onmessage = () => runQueue();
-	
-	asap = function asap(callback: Function, thisArg) {
-		queue.push(callback.bind(thisArg));
-		queue.length === 1 && channel.port2.postMessage('*');
-	};
-	
+    
+    var channel = new MessageChannel();
+    
+    channel.port1.onmessage = () => runQueue();
+    
+    asap = function asap(callback: Function, thisArg) {
+        queue.push(callback.bind(thisArg));
+        queue.length === 1 && channel.port2.postMessage('*');
+    };
+    
 }
 
 export default asap;
@@ -51,17 +51,17 @@ export default asap;
 
 
 function postMessageSupport() {
-	var support = true;
-	
-	window.addEventListener('message', callback);
-	window.postMessage(MESSAGE, '*');
-	window.removeEventListener('message', callback);
-	
-	return support;
-	
-	function callback() {
-		support = false;
-	}
+    var support = true;
+    
+    window.addEventListener('message', callback);
+    window.postMessage(MESSAGE, '*');
+    window.removeEventListener('message', callback);
+    
+    return support;
+    
+    function callback() {
+        support = false;
+    }
 }
 
 function runQueue() {
