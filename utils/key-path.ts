@@ -1,5 +1,5 @@
 import {default as Scope, getComponent} from '../app/scope';
-import {assign} from '../mahalo';
+import {assign} from '../index';
 
 export function toKeys(str: string) {
     var keys = [],

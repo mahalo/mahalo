@@ -1,8 +1,7 @@
 import {injectDependencies, getDependency} from './injector';
-import Scope from './scope';
 import Expression from '../expression/expression';
 import asap from '../utils/asap';
-import {watch} from '../mahalo';
+import {Scope, watch} from '../index';
 
 // @todo: Remove watchers on destruction
 export default class Behavior {

@@ -1,4 +1,4 @@
-import {Behavior} from '../mahalo';
+import {Behavior} from '../index';
 
 export default class Styles extends Behavior {
     static inject = {element: Element};

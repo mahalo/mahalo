@@ -1,4 +1,4 @@
-import {Behavior} from '../mahalo';
+import {Behavior} from '../index';
 
 export default class Content extends Behavior {
     static inject = {element: Element};

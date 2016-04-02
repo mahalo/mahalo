@@ -1,4 +1,4 @@
-import {Component, ComponentController, ComponentGenerator, assign} from '../mahalo';
+import {Component, ComponentController, ComponentGenerator, assign} from '../index';
 
 export default class For extends Component {
     static inject = {

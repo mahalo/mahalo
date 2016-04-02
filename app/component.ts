@@ -1,5 +1,4 @@
-import {ComponentGenerator, ComponentController, assign, watch} from '../mahalo';
-import Scope from './scope';
+import {Scope, ComponentGenerator, ComponentController, assign, watch} from '../index';
 import Expression from '../expression/expression';
 import {injectDependencies, getDependency} from './injector';
 import keyPath from '../utils/key-path';

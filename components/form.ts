@@ -1,4 +1,4 @@
-import {Component, ComponentController} from '../mahalo';
+import {Component, ComponentController} from '../index';
 
 export default class Form extends Component {
     static inject = {element: Element};

@@ -1,4 +1,4 @@
-import {watch, unwatch} from '../mahalo';
+import {watch, unwatch} from '../index';
 import Parser from './parser';
 import clone from '../utils/clone';
 import equals from '../utils/equals';

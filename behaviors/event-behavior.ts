@@ -1,5 +1,4 @@
-import {Behavior, assign} from '../mahalo';
-import Scope from '../app/scope';
+import {Scope, Behavior, assign} from '../index';
 import Expression from '../expression/expression';
 
 export default class EventBehavior extends Behavior {

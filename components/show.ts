@@ -1,4 +1,4 @@
-import {Component, ComponentController, ComponentGenerator} from '../mahalo';
+import {Component, ComponentController, ComponentGenerator} from '../index';
 import enter from '../animation/enter';
 import asap from '../utils/asap';
 

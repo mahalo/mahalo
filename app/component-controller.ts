@@ -1,5 +1,4 @@
-import {Template, Component, unwatch} from '../mahalo';
-import Scope from './scope';
+import {Scope, Component, Template, unwatch} from '../index';
 import {setDependency} from './injector';
 import enter from '../animation/enter';
 import leave from '../animation/leave';

@@ -1,6 +1,6 @@
 import config from '../config';
 
-import {ComponentGenerator} from '../mahalo';
+import {ComponentGenerator} from '../index';
 import TextGenerator from './text-generator';
 import ChildrenGenerator from './children-generator';
 

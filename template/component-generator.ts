@@ -1,5 +1,5 @@
 import {setDependency} from '../app/injector';
-import {Template, Component, ComponentController} from '../mahalo';
+import {Template, Component, ComponentController} from '../index';
 
 export default class ComponentGenerator implements Generator {
     node: Node;

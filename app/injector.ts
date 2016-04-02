@@ -1,4 +1,4 @@
-import {Component, ComponentController, Behavior} from '../mahalo';
+import {Component, ComponentController, Behavior} from '../index';
 
 var dependencies = new WeakMap();
 

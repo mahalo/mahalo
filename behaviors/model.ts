@@ -1,4 +1,4 @@
-import {Component, ComponentController, Behavior, assign} from '../mahalo';
+import {Component, ComponentController, Behavior, assign} from '../index';
 import Form from '../components/form';
 import keyPath from '../utils/key-path';
 
