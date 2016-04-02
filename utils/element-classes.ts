@@ -1,5 +1,7 @@
+var SPLIT_CLASS_NAMES = /\s+/g;
+
 export function addClass(element: Element, className) {
-	var classNames = element.className ? element.className.split(/\s+/) : [];
+	var classNames = element.className ? element.className.split(SPLIT_CLASS_NAMES) : [];
 	
 	if (classNames.indexOf(className) > -1) {
 		return;
@@ -11,7 +13,7 @@ export function addClass(element: Element, className) {
 }
 
 export function removeClass(element: Element, className) {
-	var classNames = element.className ? element.className.split(/\s+/) : [],
+	var classNames = element.className ? element.className.split(SPLIT_CLASS_NAMES) : [],
 		i = classNames.indexOf(className);
 	
 	if (i < 0) {

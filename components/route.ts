@@ -1,6 +1,7 @@
 import Component from '../app/component';
 import ComponentGenerator from '../template/component-generator';
 import ComponentController from '../app/component-controller';
+import Template from '../template/template';
 import assign from '../change-detection/assign';
 import asap from '../utils/asap';
 import enter from '../animation/enter';
@@ -20,6 +21,8 @@ export default class Route extends Component {
 	
 	static template = '';
 	
+	static view: string|Template|Function;
+	
 	element: Element;
 	
 	generator: ComponentGenerator;
@@ -36,12 +39,17 @@ export default class Route extends Component {
 	
 	child: ComponentController;
 	
-	template: Template;
-	
 	$params = {};
 	
 	constructor() {
 		super();
+		
+		var Constructor = this.constructor;
+		
+		// Make sure contructor is a direct sub class of Route		
+		if (Constructor !== Route && Object.getPrototypeOf(Constructor) !== Route) {
+			throw Error('It is not possible to extend classes that are derived from Route');
+		}
 		
 		var path = this.path,
 			id = this.id,
@@ -136,6 +144,8 @@ export default class Route extends Component {
 			return;
 		}
 		
+		document.querySelector('html').scrollTop = 0;
+		
 		this._createController();
 	}
 	
@@ -170,11 +180,49 @@ export default class Route extends Component {
 			}),
 			component = childController.component;
 		
+		this.child = childController;
+		
+		this._ensureTemplate();
+		
+		return childController;
+	}
+	
+	_ensureTemplate() {
+		var Constructor = this.constructor;
+		
+		if (!('view' in Constructor)) {
+			return this._initController();
+		}
+		
+		var view = Constructor['view'];
+		
+		if (typeof view === 'function') {
+			Promise.resolve(view()).then((template) => {
+				this._initTemplate(template.default);
+			});
+		}
+		
+		this._initTemplate(view);
+	}
+	
+	_initTemplate(template) {
+		var Constructor = this.constructor;
+		
+		template = template instanceof Template ? template : void 0;
+		
+		Constructor['view'] = template;
+		this._initController(template);
+	}
+	
+	_initController(template?: Template) {
+		var controller = this.controller,
+			childController = this.child;
+		
 		enter(controller, controller.parent.node, true);
 		
 		childController.component = this;
 		
-		childController.init(this.element, this.generator.children, {}, this.template);
+		childController.init(this.element, this.generator.children, {}, template);
 		
 		this.child = childController;
 		
@@ -183,8 +231,6 @@ export default class Route extends Component {
 		} else if (this.resolvedPath) {
 			resolve();
 		}
-		
-		return childController;
 	}
 }
 

@@ -1,3 +1,5 @@
+/// <reference path="array.d.ts" />
+
 var arrayMethods = {
 		copyWithin: Array.copyWithin,
 		entries: Array.entries,

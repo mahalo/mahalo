@@ -1,5 +1,5 @@
-var property = require('../../change-detection/property'),
-	assign = property.assign,
+var assign = require('../../change-detection/assign').default,
+	property = require('../../change-detection/property'),
 	observe = property.observe,
 	unobserve = property.unobserve;
 

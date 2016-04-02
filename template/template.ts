@@ -1,13 +1,13 @@
 import config from '../config';
 
+import ComponentGenerator from './component-generator';
+import TextGenerator from './text-generator';
+import ChildrenGenerator from './children-generator';
+
 import Show from '../components/show';
 import For from '../components/for';
 import Route from '../components/route';
 import Form from '../components/form';
-
-import ComponentGenerator from './component-generator';
-import TextGenerator from './text-generator';
-import ChildrenGenerator from './children-generator';
 
 import EventBehavior from '../behaviors/event-behavior';
 import AttributeBehavior from '../behaviors/attribute-behavior';

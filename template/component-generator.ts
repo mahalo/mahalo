@@ -19,8 +19,20 @@ export default class ComponentGenerator implements Generator {
 		
 		this.node = node;
 		this.Constructor = Constructor;
-		this.template = ('template' in Constructor && new Template(Constructor.template)) || desc.template;
 		this.behaviors = {};
+		
+		if (!('template' in Constructor)) {
+			this.template = desc.template;
+			return;	
+		}
+		
+		var template = Constructor.template;
+		
+		if (template instanceof Template) {
+			this.template = template;
+		} else if (typeof template === 'string') {
+			this.template = new Template(template);
+		}
 	}
 	
 	compile(parentNode: Element|DocumentFragment, scope: Scope|Component, parent: ComponentController) {

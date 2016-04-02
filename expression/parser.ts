@@ -342,6 +342,10 @@ export default class Parser {
 		nextSymbol.call(this);
 	}
 	
+	_isBracketIdentifier(branch) {
+		return branch.type === types.BRACKET_IDENT && (branch.prop.type === types.LITERAL || branch.prop.type === types.NUMBER);
+	}
+	
 	_addPath(branch: ExpressionBranch, path?: string) {
 		if (!this.paths) {
 			return;
@@ -365,7 +369,7 @@ export default class Parser {
 			return path + branch.name;
 		}
 		
-		if (isBracketIdentifier(branch)) {
+		if (this._isBracketIdentifier(branch)) {
 			var prop = branch.prop;
 			
 			return path + toKeyPath(prop.str || prop.num);
@@ -375,8 +379,4 @@ export default class Parser {
 			this.paths = null;
 		}
 	}
-}
-
-function isBracketIdentifier(branch) {
-	return branch.type === types.BRACKET_IDENT && (branch.prop.type === types.LITERAL || branch.prop.type === types.NUMBER);
 }

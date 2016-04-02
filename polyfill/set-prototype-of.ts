@@ -45,6 +45,7 @@ function polyfill() {
 	
 	function bindMethod(method) {
 		return () => {
+			// No need to clone arguments for old IEs
 			return method.apply(this, arguments);
 		}
 	}

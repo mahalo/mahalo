@@ -38,6 +38,7 @@ function camel(value: string, first?: boolean) {
 	return value;
 }
 
+// @todo: Refactor to return correct date format
 function date(value) {
 	var date = new Date(value);
 	

@@ -32,10 +32,6 @@ interface Scope {
 	
 }
 
-interface Behavior {
-	remove();
-}
-
 interface ComponentController extends Controller {
 	node: Element|DocumentFragment;
 	
@@ -143,6 +139,8 @@ interface Parser {
 	
 	_nextSymbol(): ExpressionBranch;
 	
+	_isBracketIdentifier(): boolean;
+	
 	_addPath(branch: ExpressionBranch, path?: string);
 	
 	_resolvePath(branch, path): void;
@@ -157,7 +155,7 @@ interface ComponentConstructor {
 	
 	bindings: Object;
 	
-	template: string;
+	template: string|Template;
 }
 
 interface Component {
@@ -165,6 +163,14 @@ interface Component {
 	
 	leave();
 	
+	remove();
+}
+
+interface BehaviorConstructor {
+	
+}
+
+interface Behavior {
 	remove();
 }
 
@@ -207,3 +213,7 @@ interface ExpressionSymbol {
 	
 	start: number
 }
+
+// declare var require: {
+// 	ensure(dependencies: Array<string>, callback?: Function): Promise<Function>;
+// }

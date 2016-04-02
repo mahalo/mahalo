@@ -183,7 +183,7 @@ function checkComputed() {
 }
 
 /**
- * 
+ * @todo: Refactor to clone arguments
  */
 function wrapMethod(name: string, method: Function) {
 	_defineProperty(arrayPrototype, name, {

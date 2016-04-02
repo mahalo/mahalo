@@ -1,4 +1,6 @@
+import ComponentGenerator from '../template/component-generator';
 import ComponentController from './component-controller';
+
 import Scope from './scope';
 import Expression from '../expression/expression';
 import {watch} from '../change-detection/watch';
@@ -14,7 +16,7 @@ export default class Component {
 	
 	static bindings: Object;
 	
-	static template: string;
+	static template: string|Template;
 	
 	constructor() {
 		var Constructor = this.constructor;

@@ -13,7 +13,7 @@ export default class Styles extends Behavior {
 		}
 		
 		var element = this.element,
-			style = 'style' in element && element.style;
+			style: CSSStyleDeclaration = 'style' in element && element['style'];
 		
 		if (!style) {
 			return;

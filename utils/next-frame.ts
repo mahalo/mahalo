@@ -1,4 +1,4 @@
-// @todo: Remove if unneeded
+// @todo: Remove if unused
 var requestAnimationFrame = window.requestAnimationFrame || setTimeout,
 	queue: Set<Function> = new Set();
 

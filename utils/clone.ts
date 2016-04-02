@@ -1,9 +1,15 @@
-var FN_NAME = /^function ([^(]*)/;
+var DEVELOPMENT = true,
+	FN_NAME = /^function ([^(]*)/;
 
 export default function clone(x) {
 	// Not an object
 	if (!(x instanceof Object)) {
 		return x;
+	}
+	
+	// Arraylike objects will be turned to arrays
+	if (x instanceof NodeList || x instanceof HTMLCollection) {
+		
 	}
 	
 	// DOM Element
@@ -34,7 +40,9 @@ export default function clone(x) {
 	
 	// Function
 	if (x instanceof Function) {
-		var name = (key = FN_NAME.exec(x)) ? key[1] : '';
+		var match = FN_NAME.exec(x),
+			name = match ? match[1] : '';
+		
 		copy = Function('fn', 'return function ' + name + '() {\n\treturn fn.apply(this, arguments);\n}')(x);
 		copy.prototype = x.prototype;
 		
@@ -42,12 +50,23 @@ export default function clone(x) {
 	}
 	
 	// Every other object
-	var keys = Object.keys(x),
+	return DEVELOPMENT ? tryCatch(x) : cloneObject(x);
+}
+
+function tryCatch(x) {
+	try {
+		return cloneKeys(x);
+	} catch (e) {
+		return cloneObject(x);
+	}
+}
+
+function cloneKeys(x) {
+	var copy = create(Object.getPrototypeOf(x)),
+		keys = Object.keys(x),
 		len = keys.length,
 		i = 0,
 		key;
-	
-	copy = create(Object.getPrototypeOf(x));
 	
 	while (i < len) {
 		key = keys[i++];
@@ -72,4 +91,8 @@ export function create(prototype) {
 	Object.prototype = prototype;
     
 	return new Object();
+}
+
+function cloneObject(x) {
+	return Object.assign(Object.create(Object.getPrototypeOf(x)), x);
 }
