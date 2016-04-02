@@ -1,13 +1,10 @@
-import ComponentGenerator from '../template/component-generator';
-import ComponentController from './component-controller';
-
+import {ComponentGenerator, ComponentController, assign, watch} from '../mahalo';
 import Scope from './scope';
 import Expression from '../expression/expression';
-import {watch} from '../change-detection/watch';
-import assign from '../change-detection/assign';
 import {injectDependencies, getDependency} from './injector';
+import keyPath from '../utils/key-path';
 
-// @todo: Remove watchers
+// @todo: Remove watchers on destruction
 export default class Component {
     static locals: Array<string>;
     
@@ -15,7 +12,7 @@ export default class Component {
     
     static attributes: Object;
     
-    static bindings: Object;
+    static bindings: Object; // @todo: rename to pull
     
     static template: string|Template;
     
@@ -50,36 +47,15 @@ function injectAttributes(component: Component, Constructor) {
     var element = getDependency(Element),
         scope = getDependency(Scope),
         compiledAttributes = {},
-        attributes = Constructor.attributes;
+        attributes = Constructor.attributes,
+        names =  Object.keys(attributes),
+        i = names.length,
+        name;
     
-    Object.keys(attributes).forEach(
-        attribute => {
-            var value = attributes[attribute],
-                first = value[0],
-                oneWay = first === '.',
-                twoWay = first === ':',
-                expression;
-            
-            if (oneWay || twoWay || first === '?') {
-                value = value.substr(1);
-                
-                expression = new Expression(element.getAttribute(value || attribute), scope);
-                
-                if (oneWay || twoWay) {
-                    expression.watch(newValue => assign(component, attribute, newValue));
-                }
-                
-                // @todo: Implement two way binding
-                if (twoWay) {
-                    
-                }
-                
-                component[attribute] = expression.compile();
-            } else {
-                component[attribute] = element.getAttribute(value || attribute);
-            }
-        }
-    );
+    while (i--) {
+        name = names[i];
+        createAttributeBinding(component, scope, name, attributes[name], element)
+    }
 }
 
 function createBindings(component: Component, Constructor) {
@@ -96,5 +72,31 @@ function createBindings(component: Component, Constructor) {
     while (i--) {
         key = keys[i];
         watch(component, key, component[bindings[key]].bind(component));
+    }
+}
+
+function createAttributeBinding(component: Component, scope: Component|Scope, name: string, attribute: string, element: Element) {
+    var first = attribute[0],
+        oneWay = first === '.',
+        twoWay = first === ':',
+        path,
+        expression;
+        
+    if (oneWay || twoWay || first === '?') {
+        attribute = attribute.substr(1);
+        path = element.getAttribute(attribute || name);
+        expression = new Expression(path, scope);
+        
+        if (oneWay || twoWay) {
+            expression.watch(newValue => assign(component, name, newValue));
+        }
+        
+        if (twoWay) {
+            watch(component, name, newValue => keyPath(scope, path, newValue))
+        }
+        
+        component[name] = expression.compile();
+    } else {
+        component[name] = element.getAttribute(attribute || name);
     }
 }

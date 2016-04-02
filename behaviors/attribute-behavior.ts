@@ -1,4 +1,4 @@
-import Behavior from '../app/behavior';
+import {Behavior} from '../mahalo';
 
 export default class AttributeBehavior extends Behavior {
     static inject = {

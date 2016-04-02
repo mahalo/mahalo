@@ -1,4 +1,4 @@
-import Behavior from '../app/behavior';
+import {Behavior, assign} from '../mahalo';
 import Scope from '../app/scope';
 import Expression from '../expression/expression';
 
@@ -34,5 +34,9 @@ export default class EventBehavior extends Behavior {
 }
 
 function interceptor(event) {
+    assign(this.scope, '$event', event);
+    
     this.expression.compile();
+    
+    assign(this.scope, '$event');
 }

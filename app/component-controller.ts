@@ -1,10 +1,8 @@
-import {unwatch} from '../change-detection/watch';
+import {Template, Component, unwatch} from '../mahalo';
 import Scope from './scope';
 import {setDependency} from './injector';
 import enter from '../animation/enter';
 import leave from '../animation/leave';
-import Component from './component';
-import Template from '../template/template';
 
 export default class ComponentController implements Controller {
     node: Element|DocumentFragment;

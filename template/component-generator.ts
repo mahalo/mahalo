@@ -1,7 +1,5 @@
-import Template from './template';
-import Component from '../app/component';
 import {setDependency} from '../app/injector';
-import ComponentController from '../app/component-controller';
+import {Template, Component, ComponentController} from '../mahalo';
 
 export default class ComponentGenerator implements Generator {
     node: Node;
@@ -46,7 +44,7 @@ export default class ComponentGenerator implements Generator {
         
         setDependency(ComponentGenerator, this);
         
-        controller = new ComponentController(Constructor, element, scope, parent, Component.locals);
+        controller = new ComponentController(Constructor, element, scope, parent, Constructor.locals);
         
         controller.init(parentNode, this.children, this.behaviors, this.template);
     }

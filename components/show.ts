@@ -1,6 +1,4 @@
-import Component from '../app/component';
-import ComponentGenerator from '../template/component-generator';
-import ComponentController from '../app/component-controller';
+import {Component, ComponentController, ComponentGenerator} from '../mahalo';
 import enter from '../animation/enter';
 import asap from '../utils/asap';
 

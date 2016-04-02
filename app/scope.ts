@@ -13,7 +13,7 @@ export default class Scope {
 export function getComponent(key: string|number): Component {
     var scope = scopes.get(this);
     
-    if (localKeys.get(this).hasOwnProperty(key)) {
+    if (localKeys.get(this).indexOf(key) > -1) {
         return components.get(this);
     }
     

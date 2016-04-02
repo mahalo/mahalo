@@ -1,4 +1,4 @@
-import Behavior from '../app/behavior';
+import {Behavior} from '../mahalo';
 import {setRoute} from '../components/route';
 
 export default class Route extends Behavior {

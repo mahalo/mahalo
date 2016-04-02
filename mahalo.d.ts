@@ -171,7 +171,11 @@ interface Component {
 }
 
 interface BehaviorConstructor {
+    inject: Object;
     
+    bind: string;
+    
+    bindings: Object;
 }
 
 interface Behavior {
@@ -217,3 +221,31 @@ interface ExpressionSymbol {
     
     start: number
 }
+
+interface ArrayConstructor {
+    copyWithin();
+    
+    entries();
+    
+    fill();
+    
+    find();
+    
+    findIndex();
+    
+    keys();
+    
+    values();
+}
+
+interface StringConstructor {
+    codePointAt();
+    
+    endsWith();
+    
+    includes();
+    
+    repeat();
+    
+    startsWith();
+}	

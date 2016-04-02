@@ -1,5 +1,5 @@
+import {watch, unwatch} from '../mahalo';
 import Parser from './parser';
-import {watch, unwatch} from '../change-detection/watch';
 import clone from '../utils/clone';
 import equals from '../utils/equals';
 

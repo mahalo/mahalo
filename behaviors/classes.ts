@@ -1,4 +1,4 @@
-import Behavior from '../app/behavior';
+import {Behavior} from '../mahalo';
 import {addClass, removeClass} from '../utils/element-classes';
 
 export default class Classes extends Behavior {

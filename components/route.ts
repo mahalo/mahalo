@@ -1,8 +1,4 @@
-import Component from '../app/component';
-import ComponentGenerator from '../template/component-generator';
-import ComponentController from '../app/component-controller';
-import Template from '../template/template';
-import assign from '../change-detection/assign';
+import {Template, Component, ComponentController, ComponentGenerator, assign} from '../mahalo';
 import asap from '../utils/asap';
 import enter from '../animation/enter';
 
@@ -39,7 +35,7 @@ export default class Route extends Component {
     
     child: ComponentController;
     
-    _params = {};
+    $params = {};
     
     constructor() {
         super();
@@ -130,7 +126,7 @@ export default class Route extends Component {
         
         while (i--) {
             part = parts[i];
-            assign(this._params, part, routeParams[part]);
+            assign(this.$params, part, routeParams[part]);
         }
         
         if (typeof this.canActivate === 'function' && !this.canActivate()) {
@@ -173,7 +169,7 @@ export default class Route extends Component {
         
         var controller = this.controller,
             element = document.createDocumentFragment(),
-            childController = new ComponentController(Component, element, controller.scope, controller, ['_params']),
+            childController = new ComponentController(Component, element, controller.scope, controller, ['$params']),
             component = childController.component;
         
         this.child = childController;
@@ -215,6 +211,8 @@ export default class Route extends Component {
             childController = this.child;
         
         enter(controller, controller.parent.node, true);
+        
+        document.querySelector('body').scrollTop = 0;
         
         childController.component = this;
         

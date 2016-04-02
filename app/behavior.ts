@@ -2,13 +2,15 @@ import {injectDependencies, getDependency} from './injector';
 import Scope from './scope';
 import Expression from '../expression/expression';
 import asap from '../utils/asap';
-import {watch} from '../change-detection/watch';
+import {watch} from '../mahalo';
 
-// @todo: Remove watchers
+// @todo: Remove watchers on destruction
 export default class Behavior {
+    static inject: Object;
+    
     static bind: string;
     
-    static inject: Object;
+    static bindings: Object;
     
     constructor(value: string) {
         var Constructor = this.constructor;
@@ -35,6 +37,7 @@ function createBinding(behavior: Behavior, value: string, Constructor) {
     }
     
     expression = new Expression(value, getDependency(Scope));
+    
     expression.watch(
         newValue => behavior[bind](newValue)
     );
@@ -42,7 +45,6 @@ function createBinding(behavior: Behavior, value: string, Constructor) {
     asap(() => behavior[bind](expression.compile()));
 }
 
-// @todo: Support two way binding
 function createBindings(behavior: Behavior, Constructor) {
     var bindings = Constructor.bindings;
     

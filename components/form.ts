@@ -1,18 +1,17 @@
-import Component from '../app/component';
-import ComponentController from '../app/component-controller';
+import {Component, ComponentController} from '../mahalo';
 
 export default class Form extends Component {
     static inject = {element: Element};
     
-    static locals = ['fields'];
+    static locals = ['$fields', '$valid', '$dirty'];
     
     element: Element;
     
-    _fields = {};
+    $fields = {};
     
-    valid = true;
+    $valid = true;
     
-    dirty = false;
+    $dirty = false;
     
     submit: EventListener;
     
@@ -20,7 +19,7 @@ export default class Form extends Component {
         super();
         
         this.submit = event => {
-            if (this.valid) {
+            if (this.$valid) {
                 return;
             }
             
@@ -41,10 +40,10 @@ export default class Form extends Component {
             return false;
         }
         
-        var field = this._fields[name];
+        var field = this.$fields[name];
         
         if ('value' in field) {
-            this.dirty = true;
+            this.$dirty = true;
         }
         
         field.value = value;
@@ -55,7 +54,7 @@ export default class Form extends Component {
     }
     
     _validateField(name: string, value) {
-        var field = this._fields[name],
+        var field = this.$fields[name],
             valid = true;
         
         field.validators.forEach(validator => {
@@ -67,7 +66,7 @@ export default class Form extends Component {
     }
     
     _validateForm() {
-        var fields = this._fields,
+        var fields = this.$fields,
             names = Object.keys(fields),
             i = names.length,
             valid = true,
@@ -80,6 +79,6 @@ export default class Form extends Component {
             }
         }
         
-        this.valid = valid;
+        this.$valid = valid;
     }
 }

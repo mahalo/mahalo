@@ -1,9 +1,6 @@
-import Behavior from '../app/behavior';
-import Component from '../app/component';
-import ComponentController from '../app/component-controller';
+import {Component, ComponentController, Behavior, assign} from '../mahalo';
 import Form from '../components/form';
-import assign from '../change-detection/assign';
-import {default as keyPath, toKeys, toKeyPath} from '../utils/key-path';
+import keyPath from '../utils/key-path';
 
 export default class Model extends Behavior {
     static inject = {
@@ -48,7 +45,7 @@ export default class Model extends Behavior {
         this.skip = true;
         
         if (name && form) {
-            form._fields[name] = {
+            form.$fields[name] = {
                 validators: []
             };
             
@@ -106,7 +103,7 @@ export default class Model extends Behavior {
             return;
         }
         
-        validators = form._fields[this.name].validators;
+        validators = form.$fields[this.name].validators;
         
         switch(input.type) {
             case 'number':

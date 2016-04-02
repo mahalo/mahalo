@@ -1,6 +1,6 @@
 import config from '../config';
 
-import ComponentGenerator from './component-generator';
+import {ComponentGenerator} from '../mahalo';
 import TextGenerator from './text-generator';
 import ChildrenGenerator from './children-generator';
 
@@ -131,6 +131,7 @@ export default class Template {
             name = attribute.name,
             Behavior;
         
+        // @todo: Add push bindings
         if (/^@/.test(name)) {
             Behavior = EventBehavior;
         } else if (/^#/.test(name)) {

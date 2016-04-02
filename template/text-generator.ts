@@ -1,6 +1,6 @@
 import Parser from '../expression/parser';
 import TextController from '../app/text-controller';
-import Component from '../app/component';
+import {Component} from '../mahalo';
 
 export default class TextGenerator implements Generator {
     node: Node;
