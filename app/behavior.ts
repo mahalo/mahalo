@@ -4,6 +4,7 @@ import Expression from '../expression/expression';
 import asap from '../utils/asap';
 import {watch} from '../change-detection/watch';
 
+// @todo: Remove watchers
 export default class Behavior {
     static bind: string;
     
@@ -41,6 +42,7 @@ function createBinding(behavior: Behavior, value: string, Constructor) {
     asap(() => behavior[bind](expression.compile()));
 }
 
+// @todo: Support two way binding
 function createBindings(behavior: Behavior, Constructor) {
     var bindings = Constructor.bindings;
     

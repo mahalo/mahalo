@@ -7,8 +7,9 @@ import {watch} from '../change-detection/watch';
 import assign from '../change-detection/assign';
 import {injectDependencies, getDependency} from './injector';
 
+// @todo: Remove watchers
 export default class Component {
-    static locals: Object;
+    static locals: Array<string>;
     
     static inject: Object;
     
@@ -55,17 +56,22 @@ function injectAttributes(component: Component, Constructor) {
         attribute => {
             var value = attributes[attribute],
                 first = value[0],
-                binding,
+                oneWay = first === '.',
+                twoWay = first === ':',
                 expression;
             
-            if (first === '.' || first === '!') {
-                binding = first === '.';
+            if (oneWay || twoWay || first === '?') {
                 value = value.substr(1);
                 
                 expression = new Expression(element.getAttribute(value || attribute), scope);
                 
-                if (binding) {
+                if (oneWay || twoWay) {
                     expression.watch(newValue => assign(component, attribute, newValue));
+                }
+                
+                // @todo: Implement two way binding
+                if (twoWay) {
+                    
                 }
                 
                 component[attribute] = expression.compile();

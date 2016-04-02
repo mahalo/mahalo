@@ -4,11 +4,11 @@ import ComponentController from '../app/component-controller';
 export default class Form extends Component {
     static inject = {element: Element};
     
-    static locals = {fields: '$fields'};
+    static locals = ['fields'];
     
     element: Element;
     
-    fields = {};
+    _fields = {};
     
     valid = true;
     
@@ -41,7 +41,7 @@ export default class Form extends Component {
             return false;
         }
         
-        var field = this.fields[name];
+        var field = this._fields[name];
         
         if ('value' in field) {
             this.dirty = true;
@@ -55,7 +55,7 @@ export default class Form extends Component {
     }
     
     _validateField(name: string, value) {
-        var field = this.fields[name],
+        var field = this._fields[name],
             valid = true;
         
         field.validators.forEach(validator => {
@@ -67,7 +67,7 @@ export default class Form extends Component {
     }
     
     _validateForm() {
-        var fields = this.fields,
+        var fields = this._fields,
             names = Object.keys(fields),
             i = names.length,
             valid = true,

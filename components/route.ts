@@ -39,7 +39,7 @@ export default class Route extends Component {
     
     child: ComponentController;
     
-    $params = {};
+    _params = {};
     
     constructor() {
         super();
@@ -130,7 +130,7 @@ export default class Route extends Component {
         
         while (i--) {
             part = parts[i];
-            assign(this.$params, part, routeParams[part]);
+            assign(this._params, part, routeParams[part]);
         }
         
         if (typeof this.canActivate === 'function' && !this.canActivate()) {
@@ -143,8 +143,6 @@ export default class Route extends Component {
             });
             return;
         }
-        
-        document.querySelector('html').scrollTop = 0;
         
         this._createController();
     }
@@ -175,9 +173,7 @@ export default class Route extends Component {
         
         var controller = this.controller,
             element = document.createDocumentFragment(),
-            childController = new ComponentController(Component, element, controller.scope, controller, {
-                $params: '.'
-            }),
+            childController = new ComponentController(Component, element, controller.scope, controller, ['_params']),
             component = childController.component;
         
         this.child = childController;

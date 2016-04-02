@@ -11,7 +11,7 @@ export default class ComponentController implements Controller {
     
     scope: Scope|Component;
     
-    locals: Object;
+    locals: Array<string>;
     
     localScope: Scope|Component;
     
@@ -31,7 +31,7 @@ export default class ComponentController implements Controller {
     
     isLeaving: boolean;
     
-    constructor(Constructor, node: Element|DocumentFragment, scope: Scope|Component, parent?: ComponentController, locals?: Object) {
+    constructor(Constructor, node: Element|DocumentFragment, scope: Scope|Component, parent?: ComponentController, locals?: Array<string>) {
         this.node = node;
         this.parent = parent;
         this.children = new Set();

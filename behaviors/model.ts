@@ -48,7 +48,7 @@ export default class Model extends Behavior {
         this.skip = true;
         
         if (name && form) {
-            form.fields[name] = {
+            form._fields[name] = {
                 validators: []
             };
             
@@ -106,7 +106,7 @@ export default class Model extends Behavior {
             return;
         }
         
-        validators = form.fields[this.name].validators;
+        validators = form._fields[this.name].validators;
         
         switch(input.type) {
             case 'number':

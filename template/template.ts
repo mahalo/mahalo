@@ -34,13 +34,13 @@ export default class Template {
         this.children = this._parseChildNodes(parseHTML(html));
     }
     
-    compile(node: Element|DocumentFragment, scope: Scope|Component, controller: ComponentController) {
+    compile(parentNode: Element|DocumentFragment, scope: Scope|Component, controller: ComponentController) {
         var children = this.children,
             child = children[0],
             i = 0;
         
         while (child) {
-            child.compile(node, scope, controller);
+            child.compile(parentNode, scope, controller);
             
             child = children[++i];
         }

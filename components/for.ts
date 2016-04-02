@@ -135,11 +135,7 @@ export default class For extends Component {
                 element instanceof Element && element,
                 controller.scope,
                 controller,
-                {
-                    [each]: '',
-                    $key: '',
-                    $index: ''
-                }
+                [each, '$key', '$index']
             ),
             component = itemController.component,
             _component = component instanceof ForItem && component;

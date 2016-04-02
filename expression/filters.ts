@@ -3,7 +3,8 @@ export default {
     lower: lower,
     upper: upper,
     camel: camel,
-    date: date
+    date: date,
+    escape: escape
 }
 
 function lower(value: string) {
@@ -43,4 +44,9 @@ function date(value) {
     var date = new Date(value);
     
     return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
+}
+
+// @todo: Implement escape filter
+function escape(value) {
+    return value;
 }

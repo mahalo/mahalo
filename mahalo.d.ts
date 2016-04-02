@@ -15,7 +15,7 @@ interface Template {
     
     children: Array<Generator>;
     
-    compile(node: Element|DocumentFragment, scope: Scope|Component, controller: ComponentController): void;
+    compile(parentNode: Element|DocumentFragment, scope: Scope|Component, controller: ComponentController): void;
 
     _parseChildNodes(childNodes: NodeList): Array<Generator>;
     
@@ -151,7 +151,7 @@ interface Parser {
 }
 
 interface ComponentConstructor {
-    locals: Object;
+    locals: Array<string>;
     
     inject: Object;
     
@@ -217,7 +217,3 @@ interface ExpressionSymbol {
     
     start: number
 }
-
-// declare var require: {
-// 	ensure(dependencies: Array<string>, callback?: Function): Promise<Function>;
-// }

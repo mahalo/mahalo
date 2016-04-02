@@ -1,3 +1,2 @@
 @todo: Write this file
-@todo: Reorder arguments to be more consistent
-@todo: Turn tabs into spaces
+@todo: Refactor binding to support push and pull mode with "!" for no evaluation, "?" for one time evaluation, "." for one way binding and ":" for two way binding
