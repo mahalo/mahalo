@@ -1,9 +1,9 @@
-var assign = require('../../change-detection/assign').default,
-    property = require('../../change-detection/property'),
+var assign = require('../../index').assign,
+    property = require('../../change-detection/key'),
     observe = property.observe,
     unobserve = property.unobserve;
 
-describe('change detection: property', function() {
+describe('change detection: key:', function() {
     var obj = {
             key: 0
         },

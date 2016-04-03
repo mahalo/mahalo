@@ -1,4 +1,6 @@
 import {Scope, Component, Template, unwatch} from '../index';
+import {removeAttributeBindings} from './component';
+import {removeBinding} from './behavior';
 import {setDependency} from './injector';
 import enter from '../animation/enter';
 import leave from '../animation/leave';
@@ -106,6 +108,8 @@ export default class ComponentController implements Controller {
         
         unwatch(component);
         
+        removeAttributeBindings(component);
+        
         typeof component.remove === 'function' && component.remove();
         
         if (this.node.parentNode) {
@@ -116,7 +120,17 @@ export default class ComponentController implements Controller {
         
         this.parent.children.delete(this);
         
-        this.behaviors.forEach(behavior => behavior.remove());
+        this.behaviors.forEach(behavior => {
+            unwatch(behavior);
+            
+            removeBinding(behavior);
+            
+            typeof behavior.remove === 'function' && behavior.remove();
+        });
+    }
+    
+    _removeBindings() {
+        
     }
     
     _compileChildren(children) {

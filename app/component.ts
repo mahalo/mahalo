@@ -3,7 +3,8 @@ import Expression from '../expression/expression';
 import {injectDependencies, getDependency} from './injector';
 import keyPath from '../utils/key-path';
 
-// @todo: Remove watchers on destruction
+var expressions = new WeakMap();
+
 export default class Component {
     static locals: Array<string>;
     
@@ -20,7 +21,7 @@ export default class Component {
         
         while (Constructor !== Component) {
             injectDependencies(this, Constructor);
-            injectAttributes(this, Constructor);
+            createAttributeBindings(this, Constructor);
             createBindings(this, Constructor);
             
             Constructor = Object.getPrototypeOf(Constructor);
@@ -36,7 +37,7 @@ export default class Component {
     remove() {};
 }
 
-function injectAttributes(component: Component, Constructor) {
+function createAttributeBindings(component: Component, Constructor) {
     var constructor
     
     if (!(Constructor.attributes instanceof Object)) {
@@ -50,6 +51,8 @@ function injectAttributes(component: Component, Constructor) {
         names =  Object.keys(attributes),
         i = names.length,
         name;
+    
+    expressions.set(component, []);
     
     while (i--) {
         name = names[i];
@@ -87,6 +90,8 @@ function createAttributeBinding(component: Component, scope: Component|Scope, na
         expression = new Expression(path, scope);
         
         if (oneWay || twoWay) {
+            expressions.get(component).push(expression);
+            
             expression.watch(newValue => assign(component, name, newValue));
         }
         
@@ -97,5 +102,14 @@ function createAttributeBinding(component: Component, scope: Component|Scope, na
         component[name] = expression.compile();
     } else {
         component[name] = element.getAttribute(attribute || name);
+    }
+}
+
+export function removeAttributeBindings(component: Component) {
+    if (expressions.has(component)) {
+        expressions.get(component).forEach(expression => {
+            expression.unwatch();
+        });
+        expressions.delete(component);
     }
 }

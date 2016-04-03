@@ -116,29 +116,29 @@ function isComputed(obj: Object, key: string|number) {
  * 
  */
 function observeComputed(obj: Object, key: string|number) {
-    var keys = computedKeys.get(obj);
+    var map = computedKeys.get(obj);
     
-    if (!keys) {
-        keys = {};
-        computedKeys.set(obj, keys);
+    if (!map) {
+        map = {};
+        computedKeys.set(obj, map);
     }
     
-    keys[key] = obj[key];
+    map[key] = obj[key];
 }
 
 /**
  * 
  */
 function unobserveComputed(obj: Object, key: string|number) {
-    var keys = computedKeys.get(obj);
+    var map = computedKeys.get(obj);
     
-    if (!keys) {
+    if (!map) {
         return;
     }
     
-    delete keys[key];
+    delete map[key];
     
-    if (!keys.size) {
+    if (!map.size) {
         computedKeys.delete(obj);
     }
 }
@@ -160,10 +160,10 @@ function checkComputed() {
         while (i--) {
             key = keys[i];
             newValue = obj[key],
-            oldValue = keys[key];
+            oldValue = map[key];
             
             if (newValue !== oldValue) {
-                keys[key] = newValue;
+                map[key] = newValue;
                 Object.defineProperty(oldObj, key, {value: oldValue});
                 executeCallbacks(obj, key, oldValue);
             }

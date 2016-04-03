@@ -1,4 +1,4 @@
-import {scheduleCheck, hasCallbacks, executeCallbacks} from './property';
+import {scheduleCheck, hasCallbacks, executeCallbacks} from './key';
 import {default as Scope, getComponent} from '../app/scope';
 import clone from '../utils/clone';
 
@@ -34,10 +34,6 @@ function memberAssignment(obj: Object, key: string|number, value?) {
         delete obj[key];
     } else {
         obj[key] = value;
-    }
-    
-    if (!hasCallbacks(obj)) {
-        return value;
     }
     
     executeCallbacks(obj, key, oldValue);

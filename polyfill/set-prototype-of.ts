@@ -16,7 +16,9 @@ function polyfill() {
             descriptor,
             parentDescriptor;
         
-        obj.hasOwnProperty('__proto__') || (obj.__proto__ = parent);
+        if (!obj.hasOwnProperty('__proto__')) {
+            Object.defineProperty(obj, '__proto__', {configurable: true, writable: true, value: parent});
+        }
         
         while (key) {
             if (key === '__proto__') {
@@ -44,8 +46,7 @@ function polyfill() {
     }
     
     function bindMethod(method) {
-        return () => {
-            // No need to clone arguments for old IEs
+        return () => {           
             return method.apply(this, arguments);
         }
     }
@@ -58,10 +59,10 @@ function polyfill() {
             
             parentDescriptor = {
                 get: function() {
-                    return obj['__' + key] || defaultValue
+                    return obj['_$' + key] || defaultValue
                 },
                 set: function(value) {
-                    obj['__' + key] = value;
+                    obj['_$' + key] = value;
                 }
             }
         }

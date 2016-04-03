@@ -7,6 +7,7 @@ import {toKeyPath} from '../utils/key-path';
 var RESERVED = ['true', 'false', 'null'],
     parsers = {};
 
+// @todo: Fix precedence
 export default class Parser {
     expression: string;
     

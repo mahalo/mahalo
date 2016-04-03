@@ -1,5 +1,5 @@
 import {default as keyPath, toKeys, toKeyPath} from '../utils/key-path';
-import {observe, unobserve} from './property';
+import {observe, unobserve} from './key';
 import equals from '../utils/equals';
 
 var callbacks = new WeakMap(),

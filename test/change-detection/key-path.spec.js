@@ -1,9 +1,9 @@
-var assign = require('../../change-detection/property').assign,
-    watcher = require('../../change-detection/watch'),
-    watch = watcher.watch,
-    unwatch = watcher.unwatch;
+var assign = require('../../index').assign,
+    keyPath = require('../../change-detection/key-path'),
+    watch = keyPath.watch,
+    unwatch = keyPath.unwatch;
 
-describe('change detection: watcher', function() {
+describe('change detection: key-path:', function() {
     var obj = {
             child: {},
             list: []

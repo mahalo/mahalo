@@ -9,9 +9,12 @@ export {default as ComponentController} from './app/component-controller';
 export {default as ComponentGenerator} from './template/component-generator';
 export {default as Behavior} from './app/behavior';
 export {default as Template} from './template/template';
+export {default as Show} from './components/show';
+export {default as For} from './components/for';
 export {default as Route} from './components/route';
+export {default as Form} from './components/form';
 export {default as assign} from './change-detection/assign';
-export {watch, unwatch} from './change-detection/watch';
+export {watch, unwatch} from './change-detection/key-path';
 
 export function bootstrap(component: Component, template: Template, node: Element) {
     var controller = new ComponentController(Component, node, component);

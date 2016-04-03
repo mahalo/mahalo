@@ -3,7 +3,8 @@ import Expression from '../expression/expression';
 import asap from '../utils/asap';
 import {Scope, watch} from '../index';
 
-// @todo: Remove watchers on destruction
+var expressions = new WeakMap();
+
 export default class Behavior {
     static inject: Object;
     
@@ -41,7 +42,16 @@ function createBinding(behavior: Behavior, value: string, Constructor) {
         newValue => behavior[bind](newValue)
     );
     
+    expressions.set(behavior, expression);
+    
     asap(() => behavior[bind](expression.compile()));
+}
+
+export function removeBinding(behavior: Behavior) {
+    if (expressions.has(behavior)) {
+        expressions.get(behavior).unwatch();
+        expressions.delete(behavior);
+    }
 }
 
 function createBindings(behavior: Behavior, Constructor) {
