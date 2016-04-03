@@ -2,9 +2,9 @@
 
 import config from '../config';
 
-var SEPARATOR = /^\d+([^\d])\d+[^\d]\d*$/,
-    DECIMAL_POINT = /^\d+([^\d])\d+(([^\d])\d*)?$/,
-    PRECISION = /^\d+[^\d](\d+)([^\d](\d*))?$/;
+var SEPARATOR = /^\d([^\d])/,
+    DECIMAL_POINT = /^\d[^\d]?\d\d\d([^\d])/,
+    PRECISION = /(\d*)$/;
 
 export default {
     lower: lower,
@@ -64,10 +64,12 @@ function pad(value: string|number, length: number, char: string = '0') {
     return str;
 }
 
-function date(value: string, format: string = config.dateFormat) {
+function date(value: string, format: string) {
     var date = new Date(value);
     
-    return format.replace(/(m|mm|d|dd|yy|yyyy)/ig, (m, token) => {
+    format = typeof format === 'string' ? format : config.dateFormat;
+    
+    return format.replace(/(M+|D+|Y+|h+|m+|s+)/ig, (m, token) => {
         switch (token) {
             case 'M':
                 return date.getMonth() + 1 + '';
@@ -101,6 +103,8 @@ function date(value: string, format: string = config.dateFormat) {
             case 'ss':
                 return pad(date.getSeconds(), 2);
         }
+        
+        return m;
     });
 }
 
@@ -112,13 +116,13 @@ function number(value, format: string = config.numberFormat) {
         pow;
     
     match = SEPARATOR.exec(format);
-    separator = match[1]
+    separator = match && match[1];
     
     match = DECIMAL_POINT.exec(format);
-    decimalPoint = match[3] || match[2] || '';
+    decimalPoint = match && match[1];
     
     match = PRECISION.exec(format);
-    precision = Math.pow(10, (precision[3] || precision[2] || '').length);
+    precision = Math.pow(10, (match ? match[1] : '').length);
     
     value = Math.round(parseFloat(value) * precision) / precision;
     value = value.toString().split('.');

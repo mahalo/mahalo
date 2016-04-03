@@ -103,7 +103,7 @@ export default class Model extends Behavior {
             return;
         }
         
-        validators = form.$fields[this.name].validators;
+        this.name && (validators = form.$fields[this.name].validators);
         
         switch(input.type) {
             case 'number':

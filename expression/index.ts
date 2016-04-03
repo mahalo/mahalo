@@ -14,8 +14,8 @@ export default class Expression {
     
     value;
     
-    constructor(expression: string|Parser, scope: Object) {
-        var parser = typeof expression === 'string' ? new Parser(expression) : expression;
+    constructor(expression: string, scope: Object) {
+        var parser = new Parser(expression);
         
         this.parser = parser;
         this.scope = scope;

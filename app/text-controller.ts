@@ -11,22 +11,22 @@ export default class TextController implements Controller {
     
     update: Function;
     
-    constructor(node: Node, scope: Scope|Component, parent: ComponentController, text: string|Parser) {
-        var _text = typeof text === 'string' && text,
+    constructor(node: Node, scope: Scope|Component, parent: ComponentController, desc: Object) {
+        var text = desc.text,
             expression;
         
         this.node = node;
         this.parent = parent;
         this.update = update.bind(this);
         
-        if (text instanceof Parser) {
+        if (desc.expression) {
             expression = this.expression = new Expression(text, scope);
             expression.watch(this.update);
             
-            _text = expression.compile() || '';
+            text = expression.compile() || '';
         }
         
-        node.textContent = _text;
+        node.textContent = text;
     }
     
     remove() {

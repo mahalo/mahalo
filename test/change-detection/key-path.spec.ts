@@ -1,7 +1,4 @@
-var assign = require('../../index').assign,
-    keyPath = require('../../change-detection/key-path'),
-    watch = keyPath.watch,
-    unwatch = keyPath.unwatch;
+import {assign, watch, unwatch} from '../../index';
 
 describe('change detection: key-path:', function() {
     var obj = {

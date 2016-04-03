@@ -1,7 +1,5 @@
-var assign = require('../../index').assign,
-    property = require('../../change-detection/key'),
-    observe = property.observe,
-    unobserve = property.unobserve;
+import {assign} from '../../index';
+import {observe, unobserve} from '../../change-detection/key';
 
 describe('change detection: key:', function() {
     var obj = {

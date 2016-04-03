@@ -3,6 +3,7 @@
 import Component from './app/component';
 import ComponentController from './app/component-controller';
 
+export {default as config} from './config';
 export {default as Scope} from './app/scope';
 export {default as Component} from './app/component';
 export {default as ComponentController} from './app/component-controller';

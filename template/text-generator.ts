@@ -5,7 +5,7 @@ import {Component} from '../index';
 export default class TextGenerator implements Generator {
     node: Node;
     
-    parts: Array<string|Parser>;
+    parts: Array<Object>;
     
     constructor(textNode: Node) {
         this.node = textNode;
@@ -43,7 +43,7 @@ export default class TextGenerator implements Generator {
             
         while (char) {
             if (text[++i] === '{' && char === '$') {
-                part && parts.push(part);
+                part && parts.push({text: part});
                 part = '';
                 expression = true;
                 i++;
@@ -54,7 +54,7 @@ export default class TextGenerator implements Generator {
                     nested--;
                 } else {
                     part = part.trim();
-                    part && parts.push(new Parser(part));
+                    part && parts.push({text: part, expression: true});
                     part = '';
                     expression = false;
                 }
@@ -69,6 +69,6 @@ export default class TextGenerator implements Generator {
             throw Error('Unclosed object literal in expression');
         }
         
-        part && parts.push(part);
+        part && parts.push({text: part});
     }
 }

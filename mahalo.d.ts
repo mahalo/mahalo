@@ -89,65 +89,9 @@ interface ComponentGenerator extends Generator {
 }
 
 interface TextGenerator extends Generator {
-    parts: Array<string|Parser>;
+    parts: Array<Object>;
     
     _parseText(text: string): void;
-}
-
-interface Parser {
-    expression: string;
-    
-    i: number;
-    
-    paths: Set<string>;
-    
-    ast: ExpressionBranch;
-    
-    symbol: ExpressionSymbol;
-    
-    compile(scope: Object);
-    
-    _comparison(): ExpressionBranch;
-    
-    _sum(): ExpressionBranch;
-    
-    _multiply(): ExpressionBranch;
-    
-    _filter(): ExpressionBranch;
-    
-    _unary(): ExpressionBranch;
-    
-    _paren(): ExpressionBranch;
-    
-    _operand(): ExpressionBranch;
-    
-    _member(): ExpressionBranch;
-    
-    _object(): Object;
-    
-    _key(): {key: string, value: ExpressionBranch};
-    
-    _array(): Array<ExpressionBranch>;
-    
-    _memberOrIdentifier(ident): ExpressionBranch;
-    
-    _call(member): ExpressionBranch;
-    
-    _bracketIdentifier(): ExpressionBranch;
-    
-    _identifier(): ExpressionBranch;
-    
-    _expect(type: number): void;
-    
-    _accept(type: number): boolean;
-    
-    _nextSymbol(): ExpressionBranch;
-    
-    _isBracketIdentifier(): boolean;
-    
-    _addPath(branch: ExpressionBranch, path?: string);
-    
-    _resolvePath(branch, path): void;
 }
 
 interface ComponentConstructor {

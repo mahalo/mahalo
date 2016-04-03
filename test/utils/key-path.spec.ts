@@ -1,6 +1,4 @@
-var keyPath = require('../../utils/key-path'),
-    toKeys = keyPath.toKeys,
-    toKeyPath = keyPath.toKeyPath;
+import {default as keyPath, toKeyPath, toKeys} from '../../utils/key-path';
 
 describe('KeyPath', function() {
     it('should convert paths to key arrays', function() {
