@@ -17,6 +17,7 @@ export {default as Route} from './components/route';
 export {default as Form} from './components/form';
 export {default as filters} from './expression/filters';
 export {default as assign} from './change-detection/assign';
+export {default as keyPath} from './utils/key-path';
 export {watch, unwatch} from './change-detection/key-path';
 
 export function bootstrap(component: Component, template: Template, node: Element) {

@@ -1,6 +1,5 @@
-import {Scope, ComponentGenerator, ComponentController, Expression, assign, watch} from '../index';
+import {Scope, ComponentGenerator, ComponentController, Expression, assign, keyPath, watch} from '../index';
 import {injectDependencies, getDependency} from './injector';
-import keyPath from '../utils/key-path';
 
 var expressions = new WeakMap();
 

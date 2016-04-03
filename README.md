@@ -1,1 +1,1 @@
-@todo: Write this file
+@todo: Copy quick start guide here

@@ -131,7 +131,7 @@ export default class Template {
             name = attribute.name,
             Behavior;
         
-        // @todo: Add attribute push behavior
+        // @todo: Add attribute push behavior before 1.0
         if (/^@/.test(name)) {
             Behavior = EventBehavior;
         } else if (/^#/.test(name)) {

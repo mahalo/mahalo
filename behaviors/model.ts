@@ -1,6 +1,5 @@
-import {Component, ComponentController, Behavior, assign} from '../index';
+import {Component, ComponentController, Behavior, assign, keyPath} from '../index';
 import Form from '../components/form';
-import keyPath from '../utils/key-path';
 
 export default class Model extends Behavior {
     static inject = {
