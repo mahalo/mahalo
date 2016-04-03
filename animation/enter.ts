@@ -4,7 +4,6 @@ import asap from '../utils/asap';
 
 var ENTER_CLASS = 'mh-enter';
 
-// @todo: Don't animate when parent is animating
 export default function enter(controller: ComponentController, parentNode: Element|DocumentFragment, ensure?: boolean) {
     var node = controller.node,
         element = node instanceof Element && node;

@@ -1,4 +1,4 @@
-var Expression = require('../../expression/expression')['default'];
+import {Expression} from '../../index';
 
 describe('Expression', function() {
     it('should be able to access members', function() {

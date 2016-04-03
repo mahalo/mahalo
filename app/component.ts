@@ -1,5 +1,4 @@
-import {Scope, ComponentGenerator, ComponentController, assign, watch} from '../index';
-import Expression from '../expression/expression';
+import {Scope, ComponentGenerator, ComponentController, Expression, assign, watch} from '../index';
 import {injectDependencies, getDependency} from './injector';
 import keyPath from '../utils/key-path';
 
@@ -12,7 +11,7 @@ export default class Component {
     
     static attributes: Object;
     
-    static bindings: Object; // @todo: rename to pull
+    static bindings: Object;
     
     static template: string|Template;
     

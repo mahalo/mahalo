@@ -7,7 +7,6 @@ import {toKeyPath} from '../utils/key-path';
 var RESERVED = ['true', 'false', 'null'],
     parsers = {};
 
-// @todo: Fix precedence
 export default class Parser {
     expression: string;
     
@@ -27,7 +26,7 @@ export default class Parser {
         this.expression = expression;
         this.i = -1;
         this.paths = new Set();
-        this.ast = this._comparison();
+        this.ast = this._filter();
         
         this._nextSymbol();
         this._expect(symbols.END);
@@ -39,6 +38,36 @@ export default class Parser {
         return compileBranch(this.ast, scope);
     }
     
+    _filter(): ExpressionBranch {
+        var arg = this._comparison();
+        
+        if (!this._accept(symbols.FILTER)) {
+            return arg;
+        }
+        
+        var args = [],
+            branch: ExpressionBranch = {
+                type: types.FILTER,
+                arg: arg,
+                args: args
+            };
+        
+        this._nextSymbol();
+        this._expect(symbols.IDENT);
+        
+        branch.filter = this.symbol.str;
+        
+        if (this._accept(symbols.COLON)) {
+            args.push(this._filter());
+            
+            while(this._accept(symbols.COMMA)) {
+                args.push(this._filter());
+            }
+        }
+        
+        return branch;
+    }
+    
     _comparison(): ExpressionBranch {
         var left = this._sum();
         
@@ -47,7 +76,7 @@ export default class Parser {
                 type: types.COMPARISON,
                 op: this.symbol.str,
                 left: left,
-                right: this._comparison()
+                right: this._filter()
             };
         }
 
@@ -70,7 +99,7 @@ export default class Parser {
     }
     
     _multiply(): ExpressionBranch {
-        var left = this._filter();
+        var left = this._unary();
         
         if (this._accept(symbols.MULTIPLY)) {
             return {
@@ -82,36 +111,6 @@ export default class Parser {
         }
         
         return left;
-    }
-    
-    _filter(): ExpressionBranch {
-        var arg = this._unary();
-        
-        if (!this._accept(symbols.FILTER)) {
-            return arg;
-        }
-        
-        var args = [],
-            branch: ExpressionBranch = {
-                type: types.FILTER,
-                arg: arg,
-                args: args
-            };
-        
-        this._nextSymbol();
-        this._expect(symbols.IDENT);
-        
-        branch.filter = this.symbol.str;
-        
-        if (this._accept(symbols.COLON)) {
-            args.push(this._comparison());
-            
-            while(this._accept(symbols.COMMA)) {
-                args.push(this._comparison());
-            }
-        }
-        
-        return branch;
     }
     
     _unary(): ExpressionBranch {
@@ -130,7 +129,7 @@ export default class Parser {
         if (this._accept(symbols.LPAREN)) {
             var item = {
                     type: types.PAREN,
-                    content: this._comparison()
+                    content: this._filter()
                 };
             
             this._nextSymbol();
@@ -230,7 +229,7 @@ export default class Parser {
         if (this._accept(symbols.LITERAL) || this._accept(symbols.NUMBER) || this._accept(symbols.IDENT)) {
             return {
                 key: this.symbol.str,
-                value: this._nextSymbol() || this._expect(symbols.COLON) || this._comparison()
+                value: this._nextSymbol() || this._expect(symbols.COLON) || this._filter()
             };
         }
     }
@@ -240,10 +239,10 @@ export default class Parser {
             return [];
         }
         
-        var items = [this._comparison()];
+        var items = [this._filter()];
         
         while (this._accept(symbols.COMMA)) {
-            items.push(this._comparison());
+            items.push(this._filter());
         }
         
         this._nextSymbol();
@@ -282,10 +281,10 @@ export default class Parser {
         this.paths = null;
         
         if (!this._accept(symbols.RPAREN)) {
-            args.push(this._comparison());
+            args.push(this._filter());
             
             while (this._accept(symbols.COMMA)) {
-                args.push(this._comparison());
+                args.push(this._filter());
             }
             
             this._nextSymbol();
@@ -300,7 +299,7 @@ export default class Parser {
     }
     
     _bracketIdentifier(): ExpressionBranch {
-        var prop = this._comparison();
+        var prop = this._filter();
         
         this._nextSymbol();
         this._expect(symbols.RBRACKET);

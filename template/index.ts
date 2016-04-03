@@ -131,22 +131,22 @@ export default class Template {
             name = attribute.name,
             Behavior;
         
-        // @todo: Add push bindings
+        // @todo: Add attribute push behavior
         if (/^@/.test(name)) {
             Behavior = EventBehavior;
         } else if (/^#/.test(name)) {
             Behavior = AttributeBehavior;
         } else if (behaviors.hasOwnProperty(name)) {
             Behavior = behaviors[name];
-        } else if (name === 'classes') {
+        } else if (name === config.CLASSES_ATTRIBUTE) {
             Behavior = Classes;
-        } else if (name === 'styles') {
+        } else if (name === config.STYLES_ATTRIBUTE) {
             Behavior = Styles;
-        } else if (name === 'content') {
+        } else if (name === config.CONTENT_ATTRIBUTE) {
             Behavior = Content;
-        } else if (name === 'model') {
+        } else if (name === config.MODEL_ATTRIBUTE) {
             Behavior = Model;
-        } else if (name === 'route') {
+        } else if (name === config.ROUTE_ATTRIBUTE) {
             Behavior = RouteBehavior;
         }
         

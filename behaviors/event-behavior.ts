@@ -1,5 +1,4 @@
-import {Scope, Behavior, assign} from '../index';
-import Expression from '../expression/expression';
+import {Scope, Behavior, Expression, assign} from '../index';
 
 export default class EventBehavior extends Behavior {
     static inject = {

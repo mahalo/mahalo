@@ -1,5 +1,5 @@
 import {injectDependencies, getDependency} from './injector';
-import Expression from '../expression/expression';
+import {Expression} from '../index';
 import asap from '../utils/asap';
 import {Scope, watch} from '../index';
 

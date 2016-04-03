@@ -1,6 +1,7 @@
-import Expression from '../expression/expression';
+import {Expression} from '../index';
 import Parser from '../expression/parser';
 
+// @todo: Don't use Parser here
 export default class TextController implements Controller {
     node: Node;
     

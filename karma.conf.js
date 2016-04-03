@@ -3,10 +3,10 @@ module.exports = function (config) {
         frameworks: ['jasmine'],
         browsers: ['Chrome'],
         files: [
-            'test/index.js'
+            'test/index.ts'
         ],
         preprocessors: {
-            'test/index.js': ['webpack']
+            'test/index.ts': ['webpack']
         },
         webpack: {
             module: {
@@ -18,7 +18,6 @@ module.exports = function (config) {
                             presets: ['es2015'],
                             plugins: [
                                 'transform-class-properties',
-                                ['transform-es2015-classes', {loose: true}],
                                 'transform-flow-strip-types',
                                 'transform-runtime'
                             ]

@@ -2,6 +2,16 @@ import {addClass, removeClass} from '../utils/element-classes';
 import equals from '../utils/equals';
 
 export default function hasAnimation(controller: ComponentController, className: string) {
+    var parent = controller.parent;
+    
+    while (parent) {
+        if (parent.isEntering || parent.isLeaving) {
+            return false;
+        }
+        
+        parent = parent.parent;
+    }
+    
     var node = controller.node,
         element = node instanceof Element && node,
         oldAnimations = getAnimations(element),

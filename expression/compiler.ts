@@ -2,7 +2,6 @@ import * as types from './types';
 import filters from './filters';
 import {default as Scope, getComponent} from '../app/scope';
 
-// @todo: Turn into a proper class
 export default function compileBranch(branch: ExpressionBranch, ctx: Object) {
     switch (branch.type) {
         case types.COMPARISON:

@@ -5,7 +5,6 @@ import asap from '../utils/asap';
 var ENTER_CLASS = 'mh-enter',
     LEAVE_CLASS = 'mh-leave';
 
-// @todo: Don't animate when parent is animating
 export default function leave(controller: ComponentController) {
     var node = controller.node,
         element = node instanceof Element && node,
