@@ -1,5 +1,5 @@
 import {Behavior} from '../index';
-import {setRoute} from '../components/route';
+import {setByID} from '../components/route';
 
 export default class Route extends Behavior {
     static inject = {element: Element};
@@ -12,7 +12,7 @@ export default class Route extends Behavior {
         super(id);
         
         this.click = event => {
-            if (!setRoute(id)) {
+            if (!setByID(id)) {
                 return;
             }
             

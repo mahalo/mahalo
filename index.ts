@@ -2,6 +2,7 @@
 
 import Component from './app/component';
 import ComponentController from './app/component-controller';
+import asap from './utils/asap';
 
 export {default as config} from './config';
 export {default as Scope} from './app/scope';
@@ -21,9 +22,11 @@ export {default as keyPath} from './utils/key-path';
 export {watch, unwatch} from './change-detection/key-path';
 
 export function bootstrap(component: Component, template: Template, node: Element) {
-    var controller = new ComponentController(Component, node, component);
-    
-    console.log(controller);
-    
-    template.compile(node, component, controller);
+    asap(() => {
+        var controller = new ComponentController(Component, node, component);
+        
+        console.log(controller);
+        
+        template.compile(node, component, controller);
+    });
 }

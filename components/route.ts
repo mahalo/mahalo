@@ -1,10 +1,6 @@
-import {Template, Component, ComponentController, ComponentGenerator, assign} from '../index';
+import {Template, Component, ComponentController, ComponentGenerator, assign, config} from '../index';
 import asap from '../utils/asap';
 import enter from '../animation/enter';
-
-var routes = new Set(),
-    noResolve,
-    currentID;
 
 export default class Route extends Component {
     static inject = {
@@ -47,16 +43,14 @@ export default class Route extends Component {
             throw Error('It is not possible to extend classes that are derived from Route');
         }
         
-        var path = this.path,
+        var path = (this.path || '').replace(/^([^\/])/, '/$1'),
             id = this.id,
             visited = new Set(),
             parent;
         
-        routes.add(this);
+        install();
         
-        if (!path && !id) {
-            return;
-        }
+        routes.add(this);
         
         parent = this.controller.parent;
         
@@ -67,7 +61,7 @@ export default class Route extends Component {
             if (route && !visited.has(route)) {
                 visited.add(route);
                 
-                if (path && route.path) {
+                if (route.path) {
                     path = route.path + path;
                 }
                 
@@ -79,22 +73,19 @@ export default class Route extends Component {
             parent = parent.parent;
         }
         
-        path && (this.resolvedPath = path.replace(/^\//, '').split('/'));
+        this.resolvedPath = path.replace(/^\//, '').split('/');
+        
         id && (this.resolvedID = id);
     }
     
     match(path: Array<string>) {
-        var routePath = this.resolvedPath,
+        var resolvedPath = this.resolvedPath,
             routeParams,
             part,
             i;
         
-        if (!routePath) {
-            return this._detachController();
-        }
-        
         routeParams = {};
-        part = routePath[0];
+        part = resolvedPath[0];
         i = 0;
         
         while (typeof part === 'string') {
@@ -107,19 +98,17 @@ export default class Route extends Component {
                 
                 routeParams[part.substr(1)] = path[i];
                 
-            } else if (part !== path[i]) {
-                
+            } else if ((part !== '' || path[i]) && part !== path[i]) {
                 return this._detachController();
-                
             }
             
-            part = routePath[++i];
+            part = resolvedPath[++i];
         }
         
         this.activate(routeParams);
     }
     
-    activate(routeParams: Object = {}) {
+    activate(routeParams: Object = {}, id?: string) {
         var parts = Object.keys(routeParams),
             i = parts.length,
             part;
@@ -135,12 +124,12 @@ export default class Route extends Component {
         
         if (typeof this.resolve === 'function') {
             Promise.resolve(this.resolve()).then(() => {
-                this._createController();
+                this._createController(id);
             });
             return;
         }
         
-        this._createController();
+        this._createController(id);
     }
     
     canActivate() {
@@ -162,7 +151,7 @@ export default class Route extends Component {
         this.child = null;
     }
     
-    _createController() {
+    _createController(id?: string) {
         if (this.child) {
             return;
         }
@@ -174,39 +163,40 @@ export default class Route extends Component {
         
         this.child = childController;
         
-        this._ensureTemplate();
+        this._ensureTemplate(id);
         
         return childController;
     }
     
-    _ensureTemplate() {
+    _ensureTemplate(id?: string) {
         var Constructor = this.constructor;
         
         if (!('view' in Constructor)) {
-            return this._initController();
+            return this._initController(void 0, id);
         }
         
         var view = Constructor['view'];
         
         if (typeof view === 'function') {
             Promise.resolve(view()).then((template) => {
-                this._initTemplate(template.default);
+                this._initTemplate(template.default, id);
             });
         }
         
-        this._initTemplate(view);
+        this._initTemplate(view, id);
     }
     
-    _initTemplate(template) {
+    _initTemplate(template, id?: string) {
         var Constructor = this.constructor;
         
         template = template instanceof Template ? template : void 0;
         
         Constructor['view'] = template;
-        this._initController(template);
+        
+        this._initController(template, id);
     }
     
-    _initController(template?: Template) {
+    _initController(template?: Template, id?: string) {
         var controller = this.controller,
             childController = this.child;
         
@@ -220,62 +210,130 @@ export default class Route extends Component {
         
         this.child = childController;
         
-        if (noResolve && this.resolvedID) {
-            setRoute();
+        if (id && this.resolvedID) {
+            setByID(id);
         } else if (this.resolvedPath) {
             resolve();
         }
     }
 }
 
-export function setRoute(id?) {
+export function setByID(id) {
     var match = false;
-    
-    id = id || currentID;
-    currentID = id;
     
     routes.forEach(route => {
         var resolvedID = route.resolvedID;
         
-        if (resolvedID && resolvedID === id.substr(0, resolvedID.length)) {
-            if (route.resolvedPath) {
-                noResolve = true;
-                asap(() => window.location.hash = '#/' + route.resolvedPath.join('/'));
-            }
-            
-            route.activate();
-            
-            match = true;
-        } else {
+        if (!resolvedID || resolvedID !== id.substr(0, resolvedID.length)) {
             route._detachController();
+            return;
         }
+        
+        if (route.child) {
+            return;
+        }
+        
+        match = true;
+        
+        asap(() => {
+            var path = '/' + route.resolvedPath.join('/').replace(/\/$/, '');
+            
+            if (supportsPopState) {
+                window.history.pushState({}, '', path);
+            } else {
+                noResolve = true;
+                window.location.hash = path;
+            }
+        });
+        
+        route.activate({}, id);
     });
     
     return match;
 }
 
-window.addEventListener('hashchange', resolve);
-
-asap(resolve);
+export function setByPath(path: string) {
+    if (!supportsPopState) {
+        window.location.hash = path;
+        return;
+    }
+    
+    window.history.pushState({}, '', path);
+    
+    resolve();
+}
 
 
 //////////
 
 
-function resolve() {
-    if (noResolve) {
-        noResolve = false;
+var BASE_PATH = new RegExp(config.basePath),
+    supportsPopState = 'onpopstate' in window && !/file/.test(window.location.protocol),
+    routes = new Set(),
+    installed,
+    noResolve;
+
+function install() {
+    if (installed) {
         return;
     }
     
-    var hash = window.location.hash,
-        path;
+    installed = true;
     
-    if (hash[1] !== '/') {
-        path = [''];
+    window.onhashchange = hashChange;
+    
+    setTimeout(resolve);
+    
+    
+    //////////
+    
+    
+    function popState(event: Event) {
+        resolve();
+        
+        event.preventDefault();
     }
     
-    path = hash.substr(2).split('/');
+    function hashChange(event: Event) {
+        if (noResolve) {
+            noResolve = false;
+            return;
+        }
+        
+        var hash = window.location.hash;
+        
+        if (hash[1] && hash[1] !== '/') {
+            supportsPopState || goto(hash.substr(1));
+            return;
+        }
+        
+        supportsPopState && window.history.replaceState({}, '', hash.substr(1));
+        
+        resolve();
+        
+        event.preventDefault();
+    }
+}
+
+function resolve() {
+    var parts = normalize().split('/');
     
-    routes.forEach(route => route.match(path));
+    routes.forEach(route => route.match(parts));
+}
+
+function normalize() {
+    var path;
+    
+    if (supportsPopState) {
+        path = window.location.pathname;
+        path = path.replace(BASE_PATH, '');
+    } else {
+        path = window.location.hash.substr(1);
+    }
+    
+    return path.replace(/\/$/, '').replace(/^\//, '');
+}
+
+function goto(id: string) {
+    // @todo: Implement fake jumping to anchors
 }

@@ -12,7 +12,7 @@ module.exports = function (config) {
             module: {
                 loaders: [
                     {
-                        test: /\.ts$/,
+                        test: /\.(t|j)s$/,
                         loader: 'babel',
                         query: {
                             presets: ['es2015'],

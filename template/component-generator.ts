@@ -1,5 +1,5 @@
-import {setDependency} from '../app/injector';
 import {Template, Component, ComponentController} from '../index';
+import {setDependency} from '../app/injector';
 
 export default class ComponentGenerator implements Generator {
     node: Node;

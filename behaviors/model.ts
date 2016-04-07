@@ -71,11 +71,12 @@ export default class Model extends Behavior {
     }
     
     updateModel(value) {
-        var form = this.form;
+        var form = this.form,
+            name = this.name;
         
         this.skip = !this.skip;
         
-        if (!this.skip || form && !form.setValue(this.name, value)) {
+        if (!this.skip || form && name && !form.setValue(name, value)) {
             return;
         }
         
@@ -98,11 +99,11 @@ export default class Model extends Behavior {
         
         input.value = value || '';
         
-        if (!form) {
+        if (!form || !this.name) {
             return;
         }
         
-        this.name && (validators = form.$fields[this.name].validators);
+        validators = form.$fields[this.name].validators;
         
         switch(input.type) {
             case 'number':

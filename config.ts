@@ -8,6 +8,8 @@ export default {
     MODEL_ATTRIBUTE: 'model',
     ROUTE_ATTRIBUTE: 'route',
     
+    basePath: '/',
+    
     dateFormat: 'MM/DD/YYYY hh:mm',
-    numberFormat: '1,000.00',
+    numberFormat: '1,000.00'
 };

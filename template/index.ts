@@ -7,6 +7,7 @@ import ChildrenGenerator from './children-generator';
 import Show from '../components/show';
 import For from '../components/for';
 import Route from '../components/route';
+import A from '../components/a';
 import Form from '../components/form';
 
 import EventBehavior from '../behaviors/event-behavior';
@@ -17,7 +18,8 @@ import Content from '../behaviors/content';
 import Model from '../behaviors/model';
 import RouteBehavior from '../behaviors/route';
 
-var TEXT_NODE = Node.TEXT_NODE;
+var TEXT_NODE = Node.TEXT_NODE,
+    creationAllowed;
 
 export default class Template {
     components: Object;
@@ -103,6 +105,8 @@ export default class Template {
             component = {Component: Route};
         } else if (name === 'FORM') {
             component = {Component: Form};
+        } else if (name === 'A') {
+            component = {Component: A};
         }
         
         return this._checkBehaviors(element, component);
@@ -120,6 +124,8 @@ export default class Template {
             
             attribute = attributes[++i];
         }
+        
+        creationAllowed = false;
         
         generator.children = childNodes.length ? this._parseChildNodes(childNodes) : [];
         
