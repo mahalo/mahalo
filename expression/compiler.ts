@@ -1,8 +1,17 @@
+/**
+ * 
+ */
+
+/***/
+
 import * as types from './types';
 import filters from './filters';
 import {default as Scope, getComponent} from '../app/scope';
 
-export default function compileBranch(branch: ExpressionBranch, ctx: Object) {
+/**
+ * 
+ */
+export default function compileBranch(branch: IExpressionBranch, ctx: Object) {
     switch (branch.type) {
         case types.COMPARISON:
             return compileComparison(branch, ctx);
@@ -55,7 +64,11 @@ export default function compileBranch(branch: ExpressionBranch, ctx: Object) {
     }
 }
 
-function compileComparison(branch: ExpressionBranch, ctx: Object) {
+
+//////////
+
+
+function compileComparison(branch: IExpressionBranch, ctx: Object) {
     var left = compileBranch(branch.left, ctx),
         right = compileBranch(branch.right, ctx);
         
@@ -80,7 +93,7 @@ function compileComparison(branch: ExpressionBranch, ctx: Object) {
     }
 }
 
-function compileSum(branch: ExpressionBranch, ctx: Object) {
+function compileSum(branch: IExpressionBranch, ctx: Object) {
     var left = compileBranch(branch.left, ctx),
         right = compileBranch(branch.right, ctx);
     
@@ -91,7 +104,7 @@ function compileSum(branch: ExpressionBranch, ctx: Object) {
     return left - right;
 }
 
-function compileMultiply(branch: ExpressionBranch, ctx: Object): number {
+function compileMultiply(branch: IExpressionBranch, ctx: Object): number {
     var op = branch.op,
         left = compileBranch(branch.left, ctx),
         right = compileBranch(branch.right, ctx);
@@ -107,7 +120,7 @@ function compileMultiply(branch: ExpressionBranch, ctx: Object): number {
     return left % right;
 }
 
-function compileFilter(branch: ExpressionBranch, ctx: Object) {
+function compileFilter(branch: IExpressionBranch, ctx: Object) {
     var filter = filters[branch.filter];
     
     if (typeof filter !== 'function') {
@@ -128,7 +141,7 @@ function compileFilter(branch: ExpressionBranch, ctx: Object) {
     return filter.apply(null, args);
 }
 
-function compileUnary(branch: ExpressionBranch, ctx: Object): any {
+function compileUnary(branch: IExpressionBranch, ctx: Object): any {
     var op = branch.op,
         arg = compileBranch(branch.arg, ctx);
     
@@ -143,7 +156,7 @@ function compileUnary(branch: ExpressionBranch, ctx: Object): any {
     return +arg;
 }
 
-function compileMember(branch: ExpressionBranch, ctx: Object, scope?: Object) {
+function compileMember(branch: IExpressionBranch, ctx: Object, scope?: Object) {
     if (!(ctx instanceof Object)) {
         return;
     }
@@ -185,7 +198,7 @@ function compileMember(branch: ExpressionBranch, ctx: Object, scope?: Object) {
     return obj[prop.name];
 }
 
-function compileObject(branch: ExpressionBranch, ctx: Object) {
+function compileObject(branch: IExpressionBranch, ctx: Object) {
     var obj = {},
         map = branch.keys,
         keys = Object.keys(map),
@@ -201,7 +214,7 @@ function compileObject(branch: ExpressionBranch, ctx: Object) {
     return obj;
 }
 
-function compileArray(branch: ExpressionBranch, ctx: Object) {
+function compileArray(branch: IExpressionBranch, ctx: Object) {
     var arr = [],
         items = branch.items,
         item = items[0],
@@ -216,7 +229,7 @@ function compileArray(branch: ExpressionBranch, ctx: Object) {
     return arr;
 }
 
-function compileCall(branch: ExpressionBranch, ctx: Object, obj?: Object) {
+function compileCall(branch: IExpressionBranch, ctx: Object, obj?: Object) {
     var method = compileBranch(branch.prop, ctx);
     
     if (typeof method !== 'function') {
@@ -236,7 +249,7 @@ function compileCall(branch: ExpressionBranch, ctx: Object, obj?: Object) {
     return method.apply(obj || ctx, args);
 }
 
-function compileReserved(branch: ExpressionBranch, ctx: Object) {
+function compileReserved(branch: IExpressionBranch, ctx: Object) {
     switch (branch.str) {
         case 'true':
             return true;

@@ -1,7 +1,16 @@
-import {Template, Component, ComponentController, ComponentGenerator, assign, config} from '../index';
+/**
+ * 
+ */
+
+/***/
+
+import {Component, ComponentController, ComponentGenerator, Template, assign, config} from '../index';
 import asap from '../utils/asap';
 import enter from '../animation/enter';
 
+/**
+ * @alias {Route} from mahalo
+ */
 export default class Route extends Component {
     static inject = {
         element: Element,
@@ -136,11 +145,15 @@ export default class Route extends Component {
         return true;
     }
     
-    resolve() {}
-    
     remove() {
         routes.delete(this);
     }
+    
+    resolve() {}
+    
+    
+    //////////
+    
     
     _detachController() {
         if (this.child) {
@@ -211,14 +224,17 @@ export default class Route extends Component {
         this.child = childController;
         
         if (id && this.resolvedID) {
-            setByID(id);
+            setByID(id, true);
         } else if (this.resolvedPath) {
             resolve();
         }
     }
 }
 
-export function setByID(id) {
+/**
+ * 
+ */
+export function setByID(id, replace?: boolean) {
     var match = false;
     
     routes.forEach(route => {
@@ -233,18 +249,18 @@ export function setByID(id) {
             return;
         }
         
-        match = true;
-        
-        asap(() => {
+        // asap(() => {
             var path = '/' + route.resolvedPath.join('/').replace(/\/$/, '');
             
             if (supportsPopState) {
-                window.history.pushState({}, '', path);
+                window.history[replace ? 'replaceState' : 'pushState']({}, '', path);
             } else {
                 noResolve = true;
                 window.location.hash = path;
             }
-        });
+        // });
+        
+        match = true;
         
         route.activate({}, id);
     });
@@ -252,6 +268,9 @@ export function setByID(id) {
     return match;
 }
 
+/**
+ * 
+ */
 export function setByPath(path: string) {
     if (!supportsPopState) {
         window.location.hash = path;
@@ -263,6 +282,8 @@ export function setByPath(path: string) {
     resolve();
 }
 
+export var installed;
+
 
 //////////
 
@@ -270,7 +291,6 @@ export function setByPath(path: string) {
 var BASE_PATH = new RegExp(config.basePath),
     supportsPopState = 'onpopstate' in window && !/file/.test(window.location.protocol),
     routes = new Set(),
-    installed,
     noResolve;
 
 function install() {
@@ -280,7 +300,9 @@ function install() {
     
     installed = true;
     
-    window.onhashchange = hashChange;
+    supportsPopState && (window.onpopstate = popstate);
+    
+    window.onhashchange = hashchange;
     
     setTimeout(resolve);
     
@@ -288,13 +310,14 @@ function install() {
     //////////
     
     
-    function popState(event: Event) {
+    function popstate(event: Event) {
         resolve();
         
         event.preventDefault();
     }
     
-    function hashChange(event: Event) {
+    // @todo: Fix IE9 routing when coming from setByID route before 1.0
+    function hashchange(event: Event) {
         if (noResolve) {
             noResolve = false;
             return;

@@ -1,6 +1,10 @@
-var DEVELOPMENT = true,
-    FN_NAME = /^function ([^(]*)/;
+/**
+ * 
+ */
 
+/**
+ * 
+ */
 export default function clone(x) {
     // Not an object
     if (!(x instanceof Object)) {
@@ -52,6 +56,13 @@ export default function clone(x) {
     // Every other object
     return DEVELOPMENT ? tryCatch(x) : cloneObject(x);
 }
+
+
+//////////
+
+
+var DEVELOPMENT = true,
+    FN_NAME = /^function ([^(]*)/;
 
 function tryCatch(x) {
     try {

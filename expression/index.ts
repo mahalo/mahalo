@@ -1,8 +1,17 @@
+/**
+ * 
+ */
+
+/***/
+
 import {watch, unwatch} from '../index';
 import Parser from './parser';
 import clone from '../utils/clone';
 import equals from '../utils/equals';
 
+/**
+ * @alias {Expression} from mahalo
+ */
 export default class Expression {
     parser: Parser;
     
@@ -74,6 +83,10 @@ export default class Expression {
         return this.parser.compile(this.scope);
     }
 }
+
+
+//////////
+
 
 function interceptor() {
     var oldValue = this.value,

@@ -1,5 +1,14 @@
+/**
+ * 
+ */
+
+/***/
+
 import {Component, ComponentController, ComponentGenerator, assign} from '../index';
 
+/**
+ * @alias {For} from mahalo
+ */
 export default class For extends Component {
     static inject = {
         element: Element,
@@ -63,6 +72,10 @@ export default class For extends Component {
         }
     }
     
+    
+    //////////
+    
+    
     _prepareArray(arr: Array<any>) {
         var children = [],
             len = arr.length,
@@ -99,11 +112,10 @@ export default class For extends Component {
         if (controller) {
             children.splice(children.indexOf(controller), 1);
             
-            var component = controller.component,
-                forItem = component instanceof ForItem && component;
-            
-            assign(forItem, '$key', key);
-            assign(forItem, '$index', i);
+            var component = controller.component;
+                        
+            assign(component, '$key', key);
+            assign(component, '$index', i);
             controller.append(this.element);
         } else {
             controller = this._createController(obj, key, i);
@@ -128,27 +140,20 @@ export default class For extends Component {
             controller = this.controller,
             generator = this.generator,
             itemController = new ComponentController(
-                ForItem,
+                Component,
                 element instanceof Element && element,
                 controller.scope,
                 controller,
                 [each, '$key', '$index']
             ),
-            component = itemController.component,
-            _component = component instanceof ForItem && component;
+            component = itemController.component;
         
-        _component[each] = obj[key];
-        _component.$key = key;
-        _component.$index = index;
+        component[each] = obj[key];
+        component['$key'] = key;
+        component['$index'] = index;
         
         itemController.init(this.element, generator.children, generator.behaviors);
         
         return itemController;
     }
-}
-
-class ForItem extends Component {
-    $key: string|number;
-    
-    $index: number;
 }

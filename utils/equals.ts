@@ -1,10 +1,10 @@
 /**
- * mahalo/utils/equals
  * 
- * @since 0.5
- * @author Markus Schmidt
  */
 
+/**
+ * 
+ */
 export default function equals(x, y) {
     var key;
     

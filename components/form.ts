@@ -1,5 +1,14 @@
+/**
+ * 
+ */
+
+/***/
+
 import {Component, ComponentController} from '../index';
 
+/**
+ * @alias {Form} from mahalo
+ */
 export default class Form extends Component {
     static inject = {element: Element};
     
@@ -53,6 +62,10 @@ export default class Form extends Component {
         return true;
     }
     
+    
+    //////////
+    
+    
     _validateField(name: string, value) {
         var field = this.$fields[name],
             valid = true;
@@ -69,8 +82,7 @@ export default class Form extends Component {
         var fields = this.$fields,
             names = Object.keys(fields),
             i = names.length,
-            valid = true,
-            name;
+            valid = true;
         
         while (i--) {
             if (!fields[names[i]].valid) {

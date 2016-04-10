@@ -1,10 +1,16 @@
+/**
+ * 
+ */
+
+/***/
+
 import {default as keyPath, toKeys, toKeyPath} from '../utils/key-path';
 import {observe, unobserve} from './key';
 import equals from '../utils/equals';
 
-var callbacks = new WeakMap(),
-    interceptors = new WeakMap();
-
+/**
+ * @alias {watch} from mahalo
+ */
 export function watch(obj: Object, path: string, callback: Function) {
     var paths = callbacks.get(obj),
         callbacksForPath;
@@ -26,6 +32,9 @@ export function watch(obj: Object, path: string, callback: Function) {
     callbacksForPath.add(callback);
 }
 
+/**
+ * @alias {unwatch} from mahalo
+ */
 export function unwatch(obj: Object, path?: string, callback?: Function) {
     var map = callbacks.get(obj);
     
@@ -51,8 +60,7 @@ export function unwatch(obj: Object, path?: string, callback?: Function) {
         return;
     }
     
-    var callbacksForPath,
-        keys;
+    var callbacksForPath;
     
     callbacksForPath = map[path];
     
@@ -69,6 +77,16 @@ export function unwatch(obj: Object, path?: string, callback?: Function) {
     }
 }
 
+
+//////////
+
+
+var callbacks = new WeakMap(),
+    interceptors = new WeakMap();
+
+/**
+ * 
+ */
 function watchKeys(obj: Object, pathTo: string, keys: Array<string>) {
     var key = keys.shift() || '',
         value = !pathTo ? obj : keyPath(obj, pathTo),
@@ -89,6 +107,9 @@ function watchKeys(obj: Object, pathTo: string, keys: Array<string>) {
     watchKeys(obj, pathTo, keys);
 }
 
+/**
+ * 
+ */
 function unwatchKeys(obj: Object, pathTo: string, keys: Array<string>, value) {
     var key = keys.shift() || '',
         interceptor;
@@ -108,10 +129,11 @@ function unwatchKeys(obj: Object, pathTo: string, keys: Array<string>, value) {
     unwatchKeys(obj, pathTo, keys, value[key]);
 }
 
+/**
+ * 
+ */
 function getInterceptor(obj: Object, pathTo: string, pathFrom: string) {
-    var paths = interceptors.get(obj),
-        interceptorsByPath,
-        interceptorForPath;
+    var paths = interceptors.get(obj);
     
     if (!paths) {
         interceptors.set(obj, paths = {});
@@ -122,6 +144,9 @@ function getInterceptor(obj: Object, pathTo: string, pathFrom: string) {
     return paths.hasOwnProperty(pathFrom) ? paths[pathFrom] : paths[pathFrom] = interceptor.bind(obj, pathTo, pathFrom);
 }
 
+/**
+ * 
+ */
 function interceptor(pathTo: string, pathFrom: string, obj: Object, key: string, value) {
     var oldValue = !pathFrom ? value : keyPath(value, pathFrom.substr(key.length)),
         keys = toKeys(pathFrom);
@@ -132,6 +157,9 @@ function interceptor(pathTo: string, pathFrom: string, obj: Object, key: string,
     executeCallbacks(this, pathTo + (pathFrom ? '.' + pathFrom : ''), oldValue);
 }
 
+/**
+ * 
+ */
 function executeCallbacks(obj: Object, path: string, oldValue) {
     var newValue = keyPath(obj, path);
     

@@ -1,22 +1,12 @@
+/**
+ * 
+ */
+
+/***/
+
 import asap from '../utils/asap';
 import clone from '../utils/clone';
 import {default as Scope, getComponent} from '../app/scope';
-
-var callbacksByKeys = new WeakMap(),
-    computedKeys = new Map(),
-    _defineProperty = Object.defineProperty,
-    _defineProperties = Object.defineProperties,
-    arrayPrototype = Array.prototype,
-    methods = ['push', 'pop', 'shift', 'unshift', 'splice', 'reverse', 'sort'],
-    counter = 0,
-    scheduled;
-
-// Wrap array methods
-methods.forEach(method => wrapMethod(method, arrayPrototype[method]));
-
-// Wrap define methods
-Object.defineProperty = defineProperty;
-Object.defineProperties = defineProperties;
 
 /**
  * 
@@ -82,6 +72,9 @@ export function executeCallbacks(obj: Object, key: string|number, oldValue) {
     // });
 }
 
+/**
+ * 
+ */
 export function hasCallbacks(obj) {
     return callbacksByKeys.has(obj);
 }
@@ -98,6 +91,26 @@ export function scheduleCheck() {
     
     asap(checkComputed);
 }
+
+
+//////////
+
+
+var callbacksByKeys = new WeakMap(),
+    computedKeys = new Map(),
+    _defineProperty = Object.defineProperty,
+    _defineProperties = Object.defineProperties,
+    arrayPrototype = Array.prototype,
+    methods = ['push', 'pop', 'shift', 'unshift', 'splice', 'reverse', 'sort'],
+    counter = 0,
+    scheduled;
+
+// Wrap array methods
+methods.forEach(method => wrapMethod(method, arrayPrototype[method]));
+
+// Wrap define methods
+Object.defineProperty = defineProperty;
+Object.defineProperties = defineProperties;
 
 /**
  * 

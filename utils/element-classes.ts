@@ -1,5 +1,10 @@
-var SPLIT_CLASS_NAMES = /\s+/g;
+/**
+ * 
+ */
 
+/**
+ * 
+ */
 export function addClass(element: Element, className) {
     var classNames = element.className ? element.className.split(SPLIT_CLASS_NAMES) : [];
     
@@ -12,6 +17,9 @@ export function addClass(element: Element, className) {
     element.className = classNames.join(' ');
 }
 
+/**
+ * 
+ */
 export function removeClass(element: Element, className) {
     var classNames = element.className ? element.className.split(SPLIT_CLASS_NAMES) : [],
         i = classNames.indexOf(className);
@@ -28,3 +36,9 @@ export function removeClass(element: Element, className) {
     
     element.className = classNames.join(' ');
 }
+
+
+//////////
+
+
+var SPLIT_CLASS_NAMES = /\s+/g;

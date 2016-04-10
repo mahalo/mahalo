@@ -1,3 +1,7 @@
+/**
+ * Mahalo's configuration object. It's a simple map that
+ * you can read from but also write to.
+ */
 export default {
     FOR_TAG: 'FOR',
     SHOW_TAG: 'SHOW',
@@ -6,7 +10,7 @@ export default {
     STYLES_ATTRIBUTE: 'styles',
     CONTENT_ATTRIBUTE: 'content',
     MODEL_ATTRIBUTE: 'model',
-    ROUTE_ATTRIBUTE: 'route',
+    LINK_ATTRIBUTE: 'link',
     
     basePath: '/',
     

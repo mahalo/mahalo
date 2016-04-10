@@ -1,3 +1,9 @@
+/**
+ * 
+ */
+
+/***/
+
 export var
     FILTER = 0,
     COMPARISON = 1,

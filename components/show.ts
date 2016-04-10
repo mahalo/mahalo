@@ -1,7 +1,16 @@
+/**
+ * 
+ */
+
+/***/
+
 import {Component, ComponentController, ComponentGenerator} from '../index';
 import enter from '../animation/enter';
 import asap from '../utils/asap';
 
+/**
+ * @alias {Show} from mahalo
+ */
 export default class Show extends Component {
     static inject = {
         element: Element,
@@ -39,6 +48,10 @@ export default class Show extends Component {
         this.child && this.child.detach();
         this.child = null;
     }
+    
+    
+    //////////
+    
     
     _createController() {
         var controller = this.controller,

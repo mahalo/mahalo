@@ -1,18 +1,37 @@
+/**
+ * Test
+ */
+
+/***/
+
 import {Scope, ComponentGenerator, ComponentController, Expression, assign, keyPath, watch} from '../index';
 import {injectDependencies, getDependency} from './injector';
 
-var expressions = new WeakMap();
-
-export default class Component {
+/**
+ * @alias {Component} from mahalo
+ */
+export default class Component implements IComponent {
+    /**
+     * All keys of the component in this array of strings
+     * will be available in children of the defining element
+     * 
+     * Example:
+     * ```javascript
+     *     static locals = ['firstName', 'lastName'];
+     * ```
+     */
     static locals: Array<string>;
     
+    /**
+     * 
+     */
     static inject: Object;
     
-    static attributes: Object;
+    // static attributes: Object;
     
     static bindings: Object;
     
-    static template: string|Template;
+    static template: string|ITemplate;
     
     constructor() {
         var Constructor = this.constructor;
@@ -25,26 +44,32 @@ export default class Component {
             Constructor = Object.getPrototypeOf(Constructor);
         }
     }
-    
-    ready() {};
-    
-    enter() {};
-    
-    leave() {};
-    
-    remove() {};
 }
 
+/**
+ * 
+ */
+export function removeAttributeBindings(component: Component) {
+    if (expressions.has(component)) {
+        expressions.get(component).forEach(expression => {
+            expression.unwatch();
+        });
+        expressions.delete(component);
+    }
+}
+
+
+//////////
+
+
+var expressions = new WeakMap();
+
 function createAttributeBindings(component: Component, Constructor) {
-    var constructor
-    
     if (!(Constructor.attributes instanceof Object)) {
         return;
     }
     
-    var element = getDependency(Element),
-        scope = getDependency(Scope),
-        compiledAttributes = {},
+    var scope = getDependency(Scope),
         attributes = Constructor.attributes,
         names =  Object.keys(attributes),
         i = names.length,
@@ -54,7 +79,7 @@ function createAttributeBindings(component: Component, Constructor) {
     
     while (i--) {
         name = names[i];
-        createAttributeBinding(component, scope, name, attributes[name], element)
+        createAttributeBinding(component, scope, name, attributes[name])
     }
 }
 
@@ -75,8 +100,9 @@ function createBindings(component: Component, Constructor) {
     }
 }
 
-function createAttributeBinding(component: Component, scope: Component|Scope, name: string, attribute: string, element: Element) {
-    var first = attribute[0],
+function createAttributeBinding(component: Component, scope: Component|Scope, name: string, attribute: string) {
+    var element = getDependency(Element),
+        first = attribute[0],
         oneWay = first === '.',
         twoWay = first === ':',
         path,
@@ -100,14 +126,5 @@ function createAttributeBinding(component: Component, scope: Component|Scope, na
         component[name] = expression.compile();
     } else {
         component[name] = element.getAttribute(attribute || name);
-    }
-}
-
-export function removeAttributeBindings(component: Component) {
-    if (expressions.has(component)) {
-        expressions.get(component).forEach(expression => {
-            expression.unwatch();
-        });
-        expressions.delete(component);
     }
 }

@@ -1,11 +1,20 @@
+/**
+ * 
+ */
+
+/***/
+
 import {Behavior} from '../index';
 
+/**
+ * 
+ */
 export default class AttributeBehavior extends Behavior {
     static inject = {
         element: Element
     };
     
-    static bind = 'update';
+    static update = 'update';
     
     element: Element;
     

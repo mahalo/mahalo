@@ -1,32 +1,41 @@
+/**
+ * 
+ */
+
+/***/
+
 import config from '../config';
 
+// Generators
 import {ComponentGenerator} from '../index';
 import TextGenerator from './text-generator';
 import ChildrenGenerator from './children-generator';
 
+// Components
 import Show from '../components/show';
 import For from '../components/for';
 import Route from '../components/route';
 import A from '../components/a';
 import Form from '../components/form';
 
+// Behaviors
 import EventBehavior from '../behaviors/event-behavior';
 import AttributeBehavior from '../behaviors/attribute-behavior';
 import Classes from '../behaviors/classes';
 import Styles from '../behaviors/styles';
 import Content from '../behaviors/content';
 import Model from '../behaviors/model';
-import RouteBehavior from '../behaviors/route';
+import LinkBehavior from '../behaviors/link';
 
-var TEXT_NODE = Node.TEXT_NODE,
-    creationAllowed;
-
+/**
+ * @alias {Template} from mahalo
+ */
 export default class Template {
     components: Object;
     
     behaviors: Object;
     
-    children: Array<Generator>;
+    children: Array<IGenerator>;
     
     constructor(html?: string, components?: Object, behaviors?: Object) {
         this.components = components || {};
@@ -36,7 +45,7 @@ export default class Template {
         this.children = this._parseChildNodes(parseHTML(html));
     }
     
-    compile(parentNode: Element|DocumentFragment, scope: Scope|Component, controller: ComponentController) {
+    compile(parentNode: Element|DocumentFragment, scope: IScope|IComponent, controller: IComponentController) {
         var children = this.children,
             child = children[0],
             i = 0;
@@ -48,8 +57,12 @@ export default class Template {
         }
     }
     
+    
+    //////////
+    
+    
     _parseChildNodes(childNodes: NodeList) {
-        var children: Array<Generator> = [],
+        var children: Array<IGenerator> = [],
             child = childNodes[0],
             i = 0,
             generator;
@@ -64,12 +77,16 @@ export default class Template {
         return children;
     }
     
-    _checkNode(node: Node): Generator {
+    _checkNode(node: Node): IGenerator {
         if (node.nodeType === TEXT_NODE) {
             return this._checkText(node);
         }
         
         var element = node instanceof Element && node;
+        
+        if (!element) {
+            return;
+        }
         
         if (element.tagName === 'CHILDREN') {
             return new ChildrenGenerator(element.cloneNode());
@@ -152,8 +169,8 @@ export default class Template {
             Behavior = Content;
         } else if (name === config.MODEL_ATTRIBUTE) {
             Behavior = Model;
-        } else if (name === config.ROUTE_ATTRIBUTE) {
-            Behavior = RouteBehavior;
+        } else if (name === config.LINK_ATTRIBUTE) {
+            Behavior = LinkBehavior;
         }
         
         if (!Behavior) {
@@ -167,6 +184,16 @@ export default class Template {
     }
 }
 
+
+//////////
+
+
+var TEXT_NODE = Node.TEXT_NODE,
+    creationAllowed;
+
+/**
+ * 
+ */
 function parseHTML(html: string) {
     var container = document.createElement('div');
     

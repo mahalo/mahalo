@@ -1,10 +1,19 @@
+/**
+ * 
+ */
+
+/***/
+
 import {Behavior} from '../index';
 import {addClass, removeClass} from '../utils/element-classes';
 
+/**
+ * @alias {Classes} from mahalo
+ */
 export default class Classes extends Behavior {
     static inject = {element: Element};
     
-    static bind = 'update';
+    static update = 'update';
     
     element: Element;
     

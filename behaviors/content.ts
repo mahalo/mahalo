@@ -1,13 +1,24 @@
+/**
+ * 
+ */
+
+/***/
+
 import {Behavior} from '../index';
 
+/**
+ * @alias {Content} from mahalo
+ */
 export default class Content extends Behavior {
     static inject = {element: Element};
     
-    static bind = 'update';
+    static update = 'update';
     
     element: Element;
     
     update(html) {
-        this.element.innerHTML = html;
+        var element = this.element;
+        
+        element instanceof HTMLElement && (element.innerHTML = html);
     }
 }

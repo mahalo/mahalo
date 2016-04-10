@@ -1,3 +1,9 @@
+/**
+ * 
+ */
+
+/***/
+
 import {Scope, Component, Template, unwatch} from '../index';
 import {removeAttributeBindings} from './component';
 import {removeBinding} from './behavior';
@@ -5,7 +11,10 @@ import {setDependency} from './injector';
 import enter from '../animation/enter';
 import leave from '../animation/leave';
 
-export default class ComponentController implements Controller {
+/**
+ * @alias {ComponentController} from mahalo
+ */
+export default class ComponentController implements IComponentController {
     node: Element|DocumentFragment;
     
     scope: Scope|Component;
@@ -18,9 +27,9 @@ export default class ComponentController implements Controller {
     
     component: Component;
     
-    behaviors: Set<Behavior>;
+    behaviors: Set<IBehavior>;
     
-    children: Set<Controller>;
+    children: Set<IController>;
     
     compiled: boolean;
     
@@ -47,7 +56,7 @@ export default class ComponentController implements Controller {
         this.locals = locals;	
     }
     
-    init(parentNode: Element|DocumentFragment, children: Array<Generator>, behaviors: Object, template?: Template) {
+    init(parentNode: Element|DocumentFragment, children: Array<IGenerator>, behaviors: Object, template?: Template) {
         var component = this.component,
             scope = this.scope,
             locals = this.locals,
@@ -74,7 +83,7 @@ export default class ComponentController implements Controller {
         
         this._initBehaviors(behaviors);
         
-        component.ready();
+        typeof component['ready'] === 'function' && component['ready']();
     }
     
     append(parentNode: Element|DocumentFragment) {
@@ -110,7 +119,7 @@ export default class ComponentController implements Controller {
         
         removeAttributeBindings(component);
         
-        typeof component.remove === 'function' && component.remove();
+        typeof component['remove'] === 'function' && component['remove']();
         
         if (this.node.parentNode) {
             this.children.forEach(controller => controller.removeChildren());
@@ -129,8 +138,12 @@ export default class ComponentController implements Controller {
         });
     }
     
+    
+    //////////
+    
+    
     _removeBindings() {
-        
+        // @todo: remove if unneeded
     }
     
     _compileChildren(children) {

@@ -1,56 +1,22 @@
-/*
- * mahalo/utils/asap
+/**
  * 
+ */
+
+/**
  * This function executes a callback after the current event loop.
  * If window.postMessage is available it will take precedence
  * otherwise MessageChannel is used as a fallback.
- * 
- * @module
- * @since 0.3
- * @author Markus Schmidt
  */
-
-var MESSAGE = 'mahalo/utils/asap',
-    queue: Array<Function> = [],
-    asap;
-
-if (postMessageSupport()) {
-    
-    window.addEventListener('message', event => {
-        if (event.source !== window || event.data !== MESSAGE) {
-            return;
-        }
-        
-        runQueue();
-        
-        event.stopImmediatePropagation();
-    });
-
-    asap = function asap(callback: Function, thisArg?) {
-        queue.push(callback.bind(thisArg));
-        queue.length === 1 && window.postMessage(MESSAGE, '*');
-    };
-    
-} else {
-    
-    var channel = new MessageChannel();
-    
-    channel.port1.onmessage = () => runQueue();
-    
-    asap = function asap(callback: Function, thisArg) {
-        queue.push(callback.bind(thisArg));
-        queue.length === 1 && channel.port2.postMessage('*');
-    };
-    
-}
-
-export default asap;
+export default supportsPostMessage() ? getPostMessage() : getFallback();
 
 
 //////////
 
 
-function postMessageSupport() {
+var MESSAGE = 'mahalo/utils/asap#' + Math.random(),
+    queue: Array<Function> = [];
+
+function supportsPostMessage() {
     var support = true;
     
     window.addEventListener('message', callback);
@@ -62,6 +28,38 @@ function postMessageSupport() {
     function callback() {
         support = false;
     }
+}
+
+function getPostMessage() {
+    window.addEventListener('message', event => {
+        if (event.source !== window || event.data !== MESSAGE) {
+            return;
+        }
+        
+        runQueue();
+        
+        event.stopImmediatePropagation();
+    });
+    
+    function asap(callback: Function, thisArg?) {
+        queue.push(callback.bind(thisArg));
+        queue.length === 1 && window.postMessage(MESSAGE, '*');
+    }
+    
+    return asap;
+}
+
+function getFallback() {
+    var channel = new MessageChannel();
+    
+    channel.port1.onmessage = () => runQueue();
+    
+    function asap(callback: Function, thisArg?) {
+        queue.push(callback.bind(thisArg));
+        queue.length === 1 && channel.port2.postMessage('*');
+    }
+    
+    return asap;
 }
 
 function runQueue() {

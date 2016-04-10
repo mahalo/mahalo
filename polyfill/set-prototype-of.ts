@@ -1,13 +1,24 @@
+/**
+ * This module just installs a polyfill for Object.setPrototypeOf
+ * if it is not available natively. If this is not done Babel
+ * transpiled code will not work in IE9.
+ */
+
+/***/
+
 'setPrototypeOf' in Object || polyfill();
 
+
+//////////
+
+
+/**
+ * Installs the polyfill
+ */
 function polyfill() {
-    var skip = ['length', 'name', 'arguments', 'caller', 'prototype'];
-    
-    Object.defineProperty(Object, 'setPrototypeOf', {
-        enumerable: false,
-        value: setPrototypeOf
-    });
-    
+    /**
+     * Sets the prototype of an object
+     */
     function setPrototypeOf(obj, parent) {
         var keys = Object.getOwnPropertyNames(parent),
             key = keys[0],
@@ -45,12 +56,29 @@ function polyfill() {
         proto && setPrototypeOf(obj, proto);
     }
     
+    
+    //////////
+    
+    
+    var skip = ['length', 'name', 'arguments', 'caller', 'prototype'];
+    
+    Object.defineProperty(Object, 'setPrototypeOf', {
+        enumerable: false,
+        value: setPrototypeOf
+    });
+    
+    /**
+     * 
+     */
     function bindMethod(method) {
         return () => {           
             return method.apply(this, arguments);
         }
     }
     
+    /**
+     * 
+     */
     function bindKey(obj, key: string|number, parentDescriptor?: PropertyDescriptor) {
         var defaultValue;
         

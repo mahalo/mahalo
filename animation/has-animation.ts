@@ -1,9 +1,13 @@
 import {addClass, removeClass} from '../utils/element-classes';
 import equals from '../utils/equals';
 
-export default function hasAnimation(controller: ComponentController, className: string) {
+/**
+ * Checks a controller for an existing CSS animations for a given class name.
+ */
+export default function hasAnimation(controller: IComponentController, className: string) {
     var parent = controller.parent;
     
+    // Check if a parent is still animating and prevent animations in such a case
     while (parent) {
         if (parent.isEntering || parent.isLeaving) {
             return false;
@@ -26,6 +30,14 @@ export default function hasAnimation(controller: ComponentController, className:
     return !equals(oldAnimations, newAnimations);
 }
 
+
+//////////
+
+
+/**
+ * Returns a list with names of all CSS animations currently set
+ * on a given element.
+ */
 function getAnimations(element: Element) {
     var style = getComputedStyle(element),
         vendor,

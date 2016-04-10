@@ -1,7 +1,16 @@
+/**
+ * 
+ */
+
+/***/
+
 import {Behavior} from '../index';
 import {setByID} from '../components/route';
 
-export default class Route extends Behavior {
+/**
+ * @alias {Link} from mahalo
+ */
+export default class Link extends Behavior {
     static inject = {element: Element};
     
     element: Element;

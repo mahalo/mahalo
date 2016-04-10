@@ -1,53 +1,70 @@
-interface Controller {
+/**
+ * The typescript definition file of Mahalo. All interfaces are defined
+ * here to get IntelliSense working properly. Is also used by typedoc.
+ */
+
+/**
+ * @alias {IController} from mahalo
+ */
+interface IController {
     node: Node;
     
-    parent: ComponentController;
+    parent: IComponentController;
     
     remove();
     
     removeChildren();
 }
 
-interface Template {
+/**
+ * @alias {ITemplate} from mahalo
+ */
+interface ITemplate {
     components: Object;
     
     behaviors: Object;
     
-    children: Array<Generator>;
+    children: Array<IGenerator>;
     
-    compile(parentNode: Element|DocumentFragment, scope: Scope|Component, controller: ComponentController): void;
+    compile(parentNode: Element|DocumentFragment, scope: IScope|IComponent, controller: IComponentController): void;
 
-    _parseChildNodes(childNodes: NodeList): Array<Generator>;
+    _parseChildNodes(childNodes: NodeList): Array<IGenerator>;
     
-    _checkNode(node: Node): Generator;
+    _checkNode(node: Node): IGenerator;
     
-    _checkText(textNode: Node): TextGenerator;
+    _checkText(textNode: Node): ITextGenerator;
     
-    _checkComponent(element: Element): ComponentGenerator;
+    _checkComponent(element: Element): IComponentGenerator;
     
-    _checkBehaviors(element: Element, component: Object): ComponentGenerator;
+    _checkBehaviors(element: Element, component: Object): IComponentGenerator;
     
-    _checkBehavior(attribute: Attr, generator: ComponentGenerator): void;
+    _checkBehavior(attribute: Attr, generator: IComponentGenerator): void;
 }
 
-interface Scope {
+/**
+ * @alias {IScope} from mahalo
+ */
+interface IScope {
     
 }
 
-interface ComponentController extends Controller {
+/**
+ * @alias {IComponentController} from mahalo
+ */
+interface IComponentController extends IController {
     node: Element|DocumentFragment;
     
-    scope: Scope|Component;
+    scope: IScope|IComponent;
     
-    localScope: Scope|Component;
+    localScope: IScope|IComponent;
     
-    parent: ComponentController;
+    parent: IComponentController;
     
-    component: Component;
+    component: IComponent;
     
-    behaviors: Set<Behavior>;
+    behaviors: Set<IBehavior>;
     
-    children: Set<Controller>;
+    children: Set<IController>;
     
     compiled: boolean;
     
@@ -57,7 +74,7 @@ interface ComponentController extends Controller {
     
     isLeaving: boolean;
     
-    init(parentNode: Element|DocumentFragment, children: Array<Generator>, behaviors: Object, template?: Template);
+    init(parentNode: Element|DocumentFragment, children: Array<IGenerator>, behaviors: Object, template?: ITemplate);
     
     append(parentNode, animate);
     
@@ -72,82 +89,99 @@ interface ComponentController extends Controller {
     _initBehaviors(behaviors: Object);
 }
 
-interface Generator {
+/**
+ * @alias {IGenerator} from mahalo
+ */
+interface IGenerator {
     node: Node;
     
-    compile(parentNode: Element|DocumentFragment, scope: Scope|Component, controller: ComponentController): void;
+    compile(parentNode: Element|DocumentFragment, scope: IScope|IComponent, controller: IComponentController): void;
 }
 
-interface ComponentGenerator extends Generator {	
-    template: Template;
+/**
+ * @alias {IComponentGenerator} from mahalo
+ */
+interface IComponentGenerator extends IGenerator {	
+    template: ITemplate;
     
-    Constructor: ComponentConstructor;
+    Constructor: IComponentConstructor;
     
     behaviors: Object;
     
-    children: Array<Generator>;
+    children: Array<IGenerator>;
 }
 
-interface TextGenerator extends Generator {
+/**
+ * @alias {ITextGenerator} from mahalo
+ */
+interface ITextGenerator extends IGenerator {
     parts: Array<Object>;
     
     _parseText(text: string): void;
 }
 
-interface ComponentConstructor {
-    locals: Array<string>;
+/**
+ * @alias {IComponentConstructor} from mahalo
+ */
+interface IComponentConstructor {
+    locals?: Array<string>;
     
-    inject: Object;
+    inject?: Object;
     
-    attributes: Object;
+    attributes?: Object;
     
-    bindings: Object;
+    bindings?: Object;
     
-    template: string|Template;
+    template?: string|ITemplate;
+    
+    new(): IComponent;
 }
 
-interface Component {
-    enter();
+/**
+ * @alias {IComponent} from mahalo
+ */
+interface IComponent {
+    ready?();
     
-    leave();
+    enter?();
     
-    remove();
+    leave?();
+    
+    remove?();
 }
 
-interface BehaviorConstructor {
-    inject: Object;
-    
-    bind: string;
-    
-    bindings: Object;
+/**
+ * @alias {IBehavior} from mahalo
+ */
+interface IBehavior {
+    remove?();
 }
 
-interface Behavior {
-    remove();
-}
-
-interface ExpressionBranch {
+/**
+ * @alias {IExpressionBranch} from mahalo
+ */
+interface IExpressionBranch {
     type: number;
     
     name?: string;
     
-    arg?: ExpressionBranch;
+    arg?: IExpressionBranch;
     
     filter?: string;
     
-    prop?: ExpressionBranch;
+    prop?: IExpressionBranch;
     
-    obj?: ExpressionBranch;
+    obj?: IExpressionBranch;
     
     op?: string;
     
-    left?: ExpressionBranch;
+    left?: IExpressionBranch;
     
-    right?: ExpressionBranch;
+    right?: IExpressionBranch;
     
     str?: string;
     
-    content?: ExpressionBranch;
+    content?: IExpressionBranch;
     
     num?: string;
     
@@ -155,41 +189,16 @@ interface ExpressionBranch {
     
     items?: Array<any>;
     
-    args?: Array<ExpressionBranch>;
+    args?: Array<IExpressionBranch>;
 }
 
-interface ExpressionSymbol {
+/**
+ * @alias {IExpressionSymbol} from mahalo
+ */
+interface IExpressionSymbol {
     type: number
     
     str: string
     
     start: number
 }
-
-interface ArrayConstructor {
-    copyWithin();
-    
-    entries();
-    
-    fill();
-    
-    find();
-    
-    findIndex();
-    
-    keys();
-    
-    values();
-}
-
-interface StringConstructor {
-    codePointAt();
-    
-    endsWith();
-    
-    includes();
-    
-    repeat();
-    
-    startsWith();
-}	

@@ -1,6 +1,15 @@
+/**
+ * 
+ */
+
+/***/
+
 import {Component, ComponentController, Behavior, assign, keyPath} from '../index';
 import Form from '../components/form';
 
+/**
+ * @alias {Model} from mahalo
+ */
 export default class Model extends Behavior {
     static inject = {
         element: Element,
@@ -9,7 +18,7 @@ export default class Model extends Behavior {
         form: Form
     };
     
-    static bind = 'update';
+    static update = 'update';
     
     static bindings = {
         'component.value': 'updateModel'
@@ -83,6 +92,10 @@ export default class Model extends Behavior {
         keyPath(this.controller.localScope, this.path, value);
     }
     
+    
+    //////////
+    
+    
     _initElement(value) {
         var element = this.element,
             form = this.form,
@@ -119,10 +132,13 @@ export default class Model extends Behavior {
     }
 }
 
+
+//////////
+
+
 // @todo: Add more validators
 var NUMBER = /^\s*\d+(\.\d+)?\s*$/,
-    EMAIL = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/,
-    URL = /\w/;
+    EMAIL = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
 
 function getInput(element: Element) {
     return (

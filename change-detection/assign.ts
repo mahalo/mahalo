@@ -1,11 +1,15 @@
+/**
+ * 
+ */
+
+/***/
+
 import {scheduleCheck, hasCallbacks, executeCallbacks} from './key';
 import {default as Scope, getComponent} from '../app/scope';
 import clone from '../utils/clone';
 
-window.onresize = assign;
-
 /**
- * 
+ * @alias {assign} from mahalo
  */
 export default function assign(obj?: Object, key?: string|number, val?) {
     switch (arguments.length) {
@@ -20,6 +24,12 @@ export default function assign(obj?: Object, key?: string|number, val?) {
     
     return obj;
 }
+
+
+//////////
+
+
+window.onresize = assign;
 
 /**
  * 

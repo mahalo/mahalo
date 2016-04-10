@@ -1,5 +1,20 @@
+/**
+ * 
+ */
+
+/***/
+
 import config from '../config';
 
+/**
+ * This is the filters object that will be used to look
+ * for filters in expressions. It's a plain JS object so
+ * you can just import it, use its methods as you see fit,
+ * add custom filters to it or even overwrite the default
+ * ones.
+ * 
+ * @alias {filters} from mahalo
+ */
 export default {
     lower: lower,
     upper: upper,
@@ -172,8 +187,7 @@ function number(value, format?: string) {
     var match,
         separator,
         decimalPoint,
-        precision,
-        pow;
+        precision;
     
     format = typeof format === 'string' ? format : config.numberFormat;
     

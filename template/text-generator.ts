@@ -1,11 +1,20 @@
+/**
+ * 
+ */
+
+/***/
+
 import Parser from '../expression/parser';
 import TextController from '../app/text-controller';
 import {Component} from '../index';
 
-export default class TextGenerator implements Generator {
+/**
+ * 
+ */
+export default class TextGenerator implements ITextGenerator {
     node: Node;
     
-    parts: Array<Object>;
+    parts: Array<{text: string, expression: boolean}>;
     
     constructor(textNode: Node) {
         this.node = textNode;
@@ -13,7 +22,7 @@ export default class TextGenerator implements Generator {
         this._parseText(textNode.textContent);
     }
     
-    compile(parentNode: DocumentFragment, scope: Scope|Component, parent: ComponentController) {
+    compile(parentNode: DocumentFragment, scope: IScope|Component, parent: IComponentController) {
         var textNode = this.node,
             parts = this.parts,
             part = parts[0],
@@ -30,6 +39,10 @@ export default class TextGenerator implements Generator {
             part = parts[++i];
         }
     }
+    
+    
+    //////////
+    
     
     _parseText(text: string) {
         var parts = [],

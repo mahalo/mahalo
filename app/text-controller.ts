@@ -1,16 +1,25 @@
+/**
+ * 
+ */
+
+/***/
+
 import {Expression} from '../index';
 import Parser from '../expression/parser';
 
-export default class TextController implements Controller {
+/**
+ * 
+ */
+export default class TextController implements TextController {
     node: Node;
     
-    parent: ComponentController;
+    parent: IComponentController;
     
     expression: Expression;
     
     update: Function;
     
-    constructor(node: Node, scope: Scope|Component, parent: ComponentController, desc: Object) {
+    constructor(node: Node, scope: IScope|IComponent, parent: IComponentController, desc: {text: string, expression: boolean}) {
         var text = desc.text,
             expression;
         
@@ -40,6 +49,10 @@ export default class TextController implements Controller {
         this.expression && this.expression.unwatch(this.update);
     }
 }
+
+
+//////////
+
 
 function update(newValue) {
     this.node.textContent = newValue || '';

@@ -1,44 +1,18 @@
+/**
+ * Lorem
+ */
+
+/***/
+
 import {default as Scope, getComponent} from '../app/scope';
 import {assign} from '../index';
 
-export function toKeys(str: string) {
-    var keys = [],
-        key = '',
-        char = str[0],
-        i = 0,
-        esc = false;
-
-    while (char) {
-        if (char === '^' && !esc) {
-            esc = true;
-        } else if (char === '.' && !esc) {
-            keys.push(key);
-            key = '';
-            esc = false;
-        } else {
-            key += char;
-            esc = false;
-        }
-        
-        char = str[++i];
-    }
-
-    keys.push(key);
-
-    return keys;
-}
-
-export function toKeyPath(keys: Array<string>|string) {
-    var _keys = typeof keys === 'string' ? [keys] : keys,
-        i = _keys.length;
-    
-    while (i--) {
-        _keys[i] = _keys[i].replace('^', '^^').replace('.', '^.');
-    }
-    
-    return _keys.join('.');
-}
-
+/**
+ * Finds a value along a given path or sets a value in the given path
+ * when called with a second argument.
+ * 
+ * @alias {keyPath} from mahalo
+ */
 export default function keyPath(obj: Object, path: string, val?) {
     if (!(obj instanceof Object)) {
         return;
@@ -79,4 +53,48 @@ export default function keyPath(obj: Object, path: string, val?) {
     }
 
     return obj[key];
+}
+
+/**
+ * 
+ */
+export function toKeys(str: string) {
+    var keys = [],
+        key = '',
+        char = str[0],
+        i = 0,
+        esc = false;
+
+    while (char) {
+        if (char === '^' && !esc) {
+            esc = true;
+        } else if (char === '.' && !esc) {
+            keys.push(key);
+            key = '';
+            esc = false;
+        } else {
+            key += char;
+            esc = false;
+        }
+        
+        char = str[++i];
+    }
+
+    keys.push(key);
+
+    return keys;
+}
+
+/**
+ * 
+ */
+export function toKeyPath(keys: Array<string>|string) {
+    var _keys = typeof keys === 'string' ? [keys] : keys,
+        i = _keys.length;
+    
+    while (i--) {
+        _keys[i] = _keys[i].replace('^', '^^').replace('.', '^.');
+    }
+    
+    return _keys.join('.');
 }

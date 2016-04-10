@@ -1,25 +1,14 @@
+/**
+ * 
+ */
+
+/***/
+
 import * as symbols from './symbols';
 
-var WHITESPACE = /\s/,
-    SUM = /[-+]/,
-    MULTIPLY = /[*/%]/,
-    NEGATION = '!',
-    MEMBER = '.',
-    COMPARISON = /[<>=]/,
-    LITERAL = /['"]/,
-    IDENT_START = /[a-z_$]/i,
-    IDENT = /[\w_$]/,
-    NUMBER = /\d/,
-    LPAREN = '(',
-    RPAREN = ')',
-    LBRACKET = '[',
-    RBRACKET = ']',
-    LBRACE = '{',
-    RBRACE = '}',
-    COLON = ':',
-    COMMA = ',',
-    FILTER = '|';
-
+/**
+ * 
+ */
 export function nextSymbol() {
     var expression = this.expression,
         char = expression[++this.i],
@@ -166,3 +155,27 @@ export function nextSymbol() {
         start: start
     };
 }
+
+
+//////////
+
+
+var WHITESPACE = /\s/,
+    SUM = /[-+]/,
+    MULTIPLY = /[*/%]/,
+    NEGATION = '!',
+    MEMBER = '.',
+    COMPARISON = /[<>=]/,
+    LITERAL = /['"]/,
+    IDENT_START = /[a-z_$]/i,
+    IDENT = /[\w_$]/,
+    NUMBER = /\d/,
+    LPAREN = '(',
+    RPAREN = ')',
+    LBRACKET = '[',
+    RBRACKET = ']',
+    LBRACE = '{',
+    RBRACE = '}',
+    COLON = ':',
+    COMMA = ',',
+    FILTER = '|';

@@ -1,4 +1,11 @@
-export default class ChildrenGenerator implements Generator {
+/**
+ * 
+ */
+
+/**
+ * 
+ */
+export default class ChildrenGenerator implements IGenerator {
     node: Node;
     
     constructor(node) {

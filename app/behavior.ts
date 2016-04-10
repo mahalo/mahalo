@@ -1,14 +1,20 @@
+/**
+ * 
+ */
+
+/***/
+
+import {Expression, Scope, watch} from '../index';
 import {injectDependencies, getDependency} from './injector';
-import {Expression} from '../index';
 import asap from '../utils/asap';
-import {Scope, watch} from '../index';
 
-var expressions = new WeakMap();
-
-export default class Behavior {
+/**
+ * @alias {Behavior} from mahalo
+ */
+export default class Behavior implements IBehavior {
     static inject: Object;
     
-    static bind: string;
+    static update: string;
     
     static bindings: Object;
     
@@ -24,27 +30,6 @@ export default class Behavior {
             Constructor = Object.getPrototypeOf(Constructor);
         }
     }
-    
-    remove() {}
-}
-
-function createBinding(behavior: Behavior, value: string, Constructor) {
-    var bind = Constructor.bind,
-        expression;
-    
-    if (typeof bind !== 'string' || typeof behavior[bind] !== 'function') {
-        return;
-    }
-    
-    expression = new Expression(value, getDependency(Scope));
-    
-    expression.watch(
-        newValue => behavior[bind](newValue)
-    );
-    
-    expressions.set(behavior, expression);
-    
-    asap(() => behavior[bind](expression.compile()));
 }
 
 export function removeBinding(behavior: Behavior) {
@@ -52,6 +37,31 @@ export function removeBinding(behavior: Behavior) {
         expressions.get(behavior).unwatch();
         expressions.delete(behavior);
     }
+}
+
+
+//////////
+
+
+var expressions = new WeakMap();
+
+function createBinding(behavior: Behavior, value: string, Constructor) {
+    var update = Constructor.update,
+        expression;
+    
+    if (typeof update !== 'string' || typeof behavior[update] !== 'function') {
+        return;
+    }
+    
+    expression = new Expression(value, getDependency(Scope));
+    
+    expression.watch(
+        newValue => behavior[update](newValue)
+    );
+    
+    expressions.set(behavior, expression);
+    
+    asap(() => behavior[update](expression.compile()));
 }
 
 function createBindings(behavior: Behavior, Constructor) {

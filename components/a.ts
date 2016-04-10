@@ -1,9 +1,16 @@
+/**
+ * 
+ */
+
+/***/
+
 import {Component, ComponentController, Route, config} from '../index';
-import {setByPath} from './route';
+import {installed, setByPath} from './route';
+import asap from '../utils/asap';
 
-var URL = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
-    supportsPopState = 'onpopstate' in window && !/file/.test(window.location.protocol);
-
+/**
+ * @alias {A} from mahalo
+ */
 export default class A extends Component {
     static inject = {
         element: Element,
@@ -27,6 +34,10 @@ export default class A extends Component {
     constructor() {
         super();
         
+        asap(() => installed && this.init());
+    }
+    
+    init() {
         var href = this.href;
         
         if (!href || URL.test(href) || href[0] === '#' && supportsPopState) {
@@ -59,18 +70,18 @@ export default class A extends Component {
 //////////
 
 
+var URL = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
+    supportsPopState = 'onpopstate' in window && !/file/.test(window.location.protocol);
+
 function relativePath(controller: ComponentController, path: string) {
     var parent = controller.parent,
-        visited = new Set(),
         route;
     
     while (parent) {
         route = parent.component;
         
-        if (!visited.has(route) && route instanceof Route) {
-            visited.add(route);
-            
-            path = route.path + '/' + path;
+        if (route instanceof Route) {
+            return '/' + route.resolvedPath.join('/').replace(/\/$/g, '') + '/' + path;
         }
         
         parent = parent.parent;

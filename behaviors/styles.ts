@@ -1,9 +1,18 @@
+/**
+ * 
+ */
+
+/***/
+
 import {Behavior} from '../index';
 
+/**
+ * @alias {Styles} from mahalo
+ */
 export default class Styles extends Behavior {
     static inject = {element: Element};
     
-    static bind = 'update';
+    static update = 'update';
     
     element: Element;
     

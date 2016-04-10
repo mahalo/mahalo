@@ -1,19 +1,32 @@
+/**
+ * 
+ */
+
+/***/
+
 import {Template, Component, ComponentController} from '../index';
 import {setDependency} from '../app/injector';
 
-export default class ComponentGenerator implements Generator {
+/**
+ * @alias {ComponentGenerator} from mahalo
+ */
+export default class ComponentGenerator implements IComponentGenerator {
     node: Node;
     
     template: Template;
     
-    Constructor: ComponentConstructor;
+    Constructor: typeof Component;
     
     behaviors: Object;
     
-    children: Array<Generator>;
+    children: Array<IGenerator>;
     
     constructor(node: Element, desc: {Component?: typeof Component, template?: Template} = {}) {
         var Constructor = desc.Component || Component;
+        
+        if (desc.Component instanceof Template) {
+            throw Error('Not possible');
+        }
         
         this.node = node;
         this.Constructor = Constructor;
@@ -33,7 +46,7 @@ export default class ComponentGenerator implements Generator {
         }
     }
     
-    compile(parentNode: Element|DocumentFragment, scope: Scope|Component, parent: ComponentController) {
+    compile(parentNode: Element|DocumentFragment, scope: IScope|Component, parent: ComponentController) {
         var Constructor = this.Constructor,
             node = this.node,
             element = node instanceof Element && node,

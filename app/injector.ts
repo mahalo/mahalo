@@ -1,7 +1,14 @@
+/**
+ * 
+ */
+
+/***/
+
 import {Component, ComponentController, Behavior} from '../index';
 
-var dependencies = new WeakMap();
-
+/**
+ * 
+ */
 export function injectDependencies(component: Component|Behavior, Constructor) {
     var dependencies = Constructor.inject;
     
@@ -19,13 +26,25 @@ export function injectDependencies(component: Component|Behavior, Constructor) {
     }
 }
 
+/**
+ * 
+ */
 export function getDependency(Constructor: Function) {
     return dependencies.get(Constructor);
 }
 
+/**
+ * 
+ */
 export function setDependency(Constructor, dependency) {
     dependencies.set(Constructor, dependency);
 }
+
+
+//////////
+
+
+var dependencies = new WeakMap();
 
 function inject(obj, key, Constructor) {
     var dependency = dependencies.get(Constructor),

@@ -1,12 +1,18 @@
+/**
+ * 
+ */
+
+/***/
+
 import * as symbols from './symbols';
 import * as types from './types';
 import {nextSymbol} from './lexer';
 import compileBranch from './compiler';
 import {toKeyPath} from '../utils/key-path';
 
-var RESERVED = ['true', 'false', 'null'],
-    parsers = {};
-
+/**
+ * 
+ */
 export default class Parser {
     expression: string;
     
@@ -14,9 +20,9 @@ export default class Parser {
     
     paths: Set<string>;
     
-    ast: ExpressionBranch;
+    ast: IExpressionBranch;
     
-    symbol: ExpressionSymbol;
+    symbol: IExpressionSymbol;
     
     constructor(expression: string) {
         if (parsers.hasOwnProperty(expression)) {
@@ -38,7 +44,11 @@ export default class Parser {
         return compileBranch(this.ast, scope);
     }
     
-    _filter(): ExpressionBranch {
+    
+    //////////
+    
+    
+    _filter(): IExpressionBranch {
         var arg = this._comparison();
         
         if (!this._accept(symbols.FILTER)) {
@@ -46,7 +56,7 @@ export default class Parser {
         }
         
         var args = [],
-            branch: ExpressionBranch = {
+            branch: IExpressionBranch = {
                 type: types.FILTER,
                 arg: arg,
                 args: args
@@ -68,7 +78,7 @@ export default class Parser {
         return branch;
     }
     
-    _comparison(): ExpressionBranch {
+    _comparison(): IExpressionBranch {
         var left = this._sum();
         
         if (this._accept(symbols.COMPARISON)) {
@@ -83,7 +93,7 @@ export default class Parser {
         return left;
     }
     
-    _sum(): ExpressionBranch {
+    _sum(): IExpressionBranch {
         var left = this._multiply();
         
         if (this._accept(symbols.SUM)) {
@@ -98,7 +108,7 @@ export default class Parser {
         return left;
     }
     
-    _multiply(): ExpressionBranch {
+    _multiply(): IExpressionBranch {
         var left = this._unary();
         
         if (this._accept(symbols.MULTIPLY)) {
@@ -113,7 +123,7 @@ export default class Parser {
         return left;
     }
     
-    _unary(): ExpressionBranch {
+    _unary(): IExpressionBranch {
         if (this._accept(symbols.SUM) || this._accept(symbols.NEGATION)) {
             return {
                 type: types.UNARY,
@@ -125,7 +135,7 @@ export default class Parser {
         return this._paren();
     }
     
-    _paren(): ExpressionBranch {
+    _paren(): IExpressionBranch {
         if (this._accept(symbols.LPAREN)) {
             var item = {
                     type: types.PAREN,
@@ -141,7 +151,7 @@ export default class Parser {
         return this._operand();
     }
     
-    _operand(): ExpressionBranch {
+    _operand(): IExpressionBranch {
         if (this._accept(symbols.LITERAL)) {
             return {
                 type: types.LITERAL,
@@ -159,7 +169,7 @@ export default class Parser {
         return this._member();
     }
     
-    _member(): ExpressionBranch {
+    _member(): IExpressionBranch {
         var member;
         
         if (this._accept(symbols.LBRACE)) {
@@ -205,7 +215,6 @@ export default class Parser {
     
     _object() {
         var keys = {},
-            next = true,
             desc = this._key();
         
         while (desc) {
@@ -251,7 +260,7 @@ export default class Parser {
         return items;
     }
     
-    _memberOrIdentifier(ident): ExpressionBranch {
+    _memberOrIdentifier(ident): IExpressionBranch {
         if (ident.type !== types.OBJECT && ident.type !== types.ARRAY && this._accept(symbols.LPAREN)) {
             ident = this._call(ident);
         }
@@ -275,7 +284,7 @@ export default class Parser {
         return ident;
     }
     
-    _call(member): ExpressionBranch {
+    _call(member): IExpressionBranch {
         var args = [];
         
         this.paths = null;
@@ -298,7 +307,7 @@ export default class Parser {
         }
     }
     
-    _bracketIdentifier(): ExpressionBranch {
+    _bracketIdentifier(): IExpressionBranch {
         var prop = this._filter();
         
         this._nextSymbol();
@@ -310,7 +319,7 @@ export default class Parser {
         };
     }
     
-    _identifier(): ExpressionBranch {
+    _identifier(): IExpressionBranch {
         this._nextSymbol();
         this._expect(symbols.IDENT);
         
@@ -346,7 +355,7 @@ export default class Parser {
         return branch.type === types.BRACKET_IDENT && (branch.prop.type === types.LITERAL || branch.prop.type === types.NUMBER);
     }
     
-    _addPath(branch: ExpressionBranch, path?: string) {
+    _addPath(branch: IExpressionBranch, path?: string) {
         if (!this.paths) {
             return;
         }
@@ -380,3 +389,10 @@ export default class Parser {
         }
     }
 }
+
+
+//////////
+
+
+var RESERVED = ['true', 'false', 'null'],
+    parsers = {};

@@ -1,5 +1,14 @@
+/**
+ *
+ */
+
+/***/
+
 import {Scope, Behavior, Expression, assign} from '../index';
 
+/**
+ * 
+ */
 export default class EventBehavior extends Behavior {
     static inject = {
         element: Element,
@@ -8,7 +17,7 @@ export default class EventBehavior extends Behavior {
     
     element: Element;
     
-    scope: Scope|Component;
+    scope: Scope|IComponent;
     
     event: string;
     
@@ -30,6 +39,10 @@ export default class EventBehavior extends Behavior {
         this.element.addEventListener(this.event, this.interceptor);
     }
 }
+
+
+//////////
+
 
 function interceptor(event) {
     assign(this.scope, '$event', event);
