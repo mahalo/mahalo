@@ -4,7 +4,7 @@
 
 /***/
 
-import config from '../config';
+import {config} from '../index';
 
 /**
  * This is the filters object that will be used to look

@@ -151,6 +151,8 @@ interface IComponent {
 }
 
 /**
+ * Interface for Mahalo behaviors
+ * 
  * @alias {IBehavior} from mahalo
  */
 interface IBehavior {

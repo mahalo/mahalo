@@ -9,7 +9,7 @@ import asap from '../utils/asap';
 import enter from '../animation/enter';
 
 /**
- * @alias {Route} from mahalo
+ * @alias {CRoute} from mahalo
  */
 export default class Route extends Component {
     static inject = {
@@ -192,7 +192,7 @@ export default class Route extends Component {
         
         if (typeof view === 'function') {
             Promise.resolve(view()).then((template) => {
-                this._initTemplate(template.default, id);
+                setTimeout(() => this._initTemplate(template.default, id));
             });
         }
         
@@ -235,6 +235,7 @@ export default class Route extends Component {
  * 
  */
 export function setByID(id, replace?: boolean) {
+    // @todo: Fix setByID before 1.0
     var match = false;
     
     routes.forEach(route => {
@@ -249,16 +250,14 @@ export function setByID(id, replace?: boolean) {
             return;
         }
         
-        // asap(() => {
-            var path = '/' + route.resolvedPath.join('/').replace(/\/$/, '');
-            
-            if (supportsPopState) {
-                window.history[replace ? 'replaceState' : 'pushState']({}, '', path);
-            } else {
-                noResolve = true;
-                window.location.hash = path;
-            }
-        // });
+        var path = '/' + route.resolvedPath.join('/').replace(/\/$/, '');
+        
+        if (supportsPopState) {
+            window.history[replace ? 'replaceState' : 'pushState']({}, '', path);
+        } else {
+            noResolve = true;
+            window.location.hash = path;
+        }
         
         match = true;
         
@@ -316,10 +315,10 @@ function install() {
         event.preventDefault();
     }
     
-    // @todo: Fix IE9 routing when coming from setByID route before 1.0
     function hashchange(event: Event) {
         if (noResolve) {
             noResolve = false;
+            event.preventDefault();
             return;
         }
         
@@ -330,7 +329,7 @@ function install() {
             return;
         }
         
-        supportsPopState && window.history.replaceState({}, '', hash.substr(1));
+        supportsPopState && window.history.replaceState({}, '', hash.substr(1).split('#').shift());
         
         resolve();
         
@@ -345,18 +344,35 @@ function resolve() {
 }
 
 function normalize() {
-    var path;
+    var path,
+        hash;
     
     if (supportsPopState) {
         path = window.location.pathname;
         path = path.replace(BASE_PATH, '');
+        hash = window.location.hash.substr(1);
+        
+        if (hash) {
+            goto(hash);
+        }
     } else {
-        path = window.location.hash.substr(1);
+        hash = window.location.hash.substr(1).split('#');
+        path = hash.shift();
+        
+        if (hash.length) {
+            goto(hash.join('#'));
+        }
     }
     
     return path.replace(/\/$/, '').replace(/^\//, '');
 }
 
-function goto(id: string) {
-    // @todo: Implement fake jumping to anchors
+// @todo: Improve scrolling by taking scroll containers into account and make it work in IE
+function goto(name: string) {
+    setTimeout(() => {
+        var anchor = document.querySelector('[name="' + name + '"]'),
+            rect = anchor && anchor.getBoundingClientRect();
+        
+        rect && window.scrollTo(rect.left + window.scrollX, rect.top + window.scrollY);
+    });
 }

@@ -9,9 +9,9 @@ import {installed, setByPath} from './route';
 import asap from '../utils/asap';
 
 /**
- * @alias {A} from mahalo
+ * @alias {Anchor} from mahalo
  */
-export default class A extends Component {
+export default class Anchor extends Component {
     static inject = {
         element: Element,
         controller: ComponentController
@@ -75,13 +75,32 @@ var URL = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
 
 function relativePath(controller: ComponentController, path: string) {
     var parent = controller.parent,
-        route;
+        route,
+        parts,
+        part,
+        i = 0;
     
     while (parent) {
         route = parent.component;
         
         if (route instanceof Route) {
-            return '/' + route.resolvedPath.join('/').replace(/\/$/g, '') + '/' + path;
+            path = '/' + route.resolvedPath.join('/').replace(/\/$/g, '') + '/' + path;
+            
+            parts = path.split('/');
+            part = parts[0];
+            i = 0;
+            
+            while (part) {
+                if (i && part === '..') {
+                    parts.splice(i - 1, 2);
+                    i -= 2;
+                }
+                
+                part = parts[++i];
+            }
+            
+            return parts.join('/');
+            // return path;
         }
         
         parent = parent.parent;

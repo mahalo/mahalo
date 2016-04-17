@@ -1,1 +1,1 @@
-@todo: Copy quick start guide here
+@todo: Copy install guide here

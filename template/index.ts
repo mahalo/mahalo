@@ -4,7 +4,7 @@
 
 /***/
 
-import config from '../config';
+import {config} from '../index';
 
 // Generators
 import {ComponentGenerator} from '../index';
@@ -12,25 +12,17 @@ import TextGenerator from './text-generator';
 import ChildrenGenerator from './children-generator';
 
 // Components
-import Show from '../components/show';
-import For from '../components/for';
-import Route from '../components/route';
-import A from '../components/a';
-import Form from '../components/form';
+import {Show, For, Route, Anchor, Form} from '../index';
 
 // Behaviors
 import EventBehavior from '../behaviors/event-behavior';
 import AttributeBehavior from '../behaviors/attribute-behavior';
-import Classes from '../behaviors/classes';
-import Styles from '../behaviors/styles';
-import Content from '../behaviors/content';
-import Model from '../behaviors/model';
-import LinkBehavior from '../behaviors/link';
+import {Classes, Styles, Content, Model, Link} from '../index';
 
 /**
  * @alias {Template} from mahalo
  */
-export default class Template {
+export default class Template implements ITemplate {
     components: Object;
     
     behaviors: Object;
@@ -112,18 +104,30 @@ export default class Template {
             return new ComponentGenerator(element, {});
         }
         
-        if (components.hasOwnProperty(element.tagName)) {
-            component = components[element.tagName];
+        if (components.hasOwnProperty(name)) {
+            
+            component = components[name];
+            
         } else if (name === config.FOR_TAG) {
+            
             component = {Component: For};
+            
         } else if (name === config.SHOW_TAG) {
+            
             component = {Component: Show};
+            
         } else if (name === config.ROUTE_TAG) {
+            
             component = {Component: Route};
+            
         } else if (name === 'FORM') {
+            
             component = {Component: Form};
+            
         } else if (name === 'A') {
-            component = {Component: A};
+            
+            component = {Component: Anchor};
+            
         }
         
         return this._checkBehaviors(element, component);
@@ -170,7 +174,7 @@ export default class Template {
         } else if (name === config.MODEL_ATTRIBUTE) {
             Behavior = Model;
         } else if (name === config.LINK_ATTRIBUTE) {
-            Behavior = LinkBehavior;
+            Behavior = Link;
         }
         
         if (!Behavior) {

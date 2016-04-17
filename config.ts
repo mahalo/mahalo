@@ -1,8 +1,17 @@
 /**
+ * This module holds the configuration of Mahalo
+ */
+
+/**
  * Mahalo's configuration object. It's a simple map that
  * you can read from but also write to.
+ * 
+ * @alias {config} from mahalo
  */
-export default {
+export var config = {
+    /**
+     * The tag that will be used for loops
+     */
     FOR_TAG: 'FOR',
     SHOW_TAG: 'SHOW',
     ROUTE_TAG: 'ROUTE',

@@ -16,7 +16,7 @@ import Component from './app/component';
 import ComponentController from './app/component-controller';
 import asap from './utils/asap';
 
-export {default as config} from './config';
+export {config} from './config';
 export {default as Scope} from './app/scope';
 export {default as Component} from './app/component';
 export {default as ComponentController} from './app/component-controller';
@@ -24,7 +24,7 @@ export {default as ComponentGenerator} from './template/component-generator';
 export {default as Behavior} from './app/behavior';
 export {default as Template} from './template/index';
 export {default as Expression} from './expression/index';
-export {default as A} from './components/a';
+export {default as Anchor} from './components/anchor';
 export {default as Show} from './components/show';
 export {default as For} from './components/for';
 export {default as Route} from './components/route';
