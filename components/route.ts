@@ -258,12 +258,12 @@ export function setByID(id) {
  * 
  */
 export function setByPath(path: string) {
-    if (!supportsPopState) {
+    if (supportsPopState) {
+        noResolve = true;
+        window.history.pushState({}, '', path);
+    } else {
         window.location.hash = path;
-        return;
     }
-    
-    window.history.pushState({}, '', path);
     
     resolve();
 }
@@ -274,8 +274,9 @@ export var installed;
 //////////
 
 
-var BASE_PATH = new RegExp(config.basePath),
-    supportsPopState = 'onpopstate' in window && !/file/.test(window.location.protocol),
+var BASE_PATH = new RegExp('^' + config.basePath),
+    fromFileSystem = /file/.test(window.location.protocol),
+    supportsPopState = 'onpopstate' in window && !fromFileSystem,
     routes = new Set(),
     currentPath = [],
     currentID = '',
@@ -297,7 +298,7 @@ function install() {
     } else {
         hash = hash[0] === '/' ? hash : window.location.pathname + (hash ? '#' + hash : '');
         
-        window.location.pathname !== config.basePath && (window.location.href = config.basePath + (hash ? '#' + hash : ''));
+        !fromFileSystem && window.location.pathname !== config.basePath && (window.location.href = config.basePath + (hash ? '#' + hash : ''));
         
         window.onhashchange = hashchange;
     }
@@ -336,7 +337,7 @@ function normalize() {
     var path = window.location.pathname.replace(BASE_PATH, ''),
         hash = window.location.hash.substr(1);
     
-    if (!supportsPopState && hash[0] === '/') {
+    if (!supportsPopState && (fromFileSystem || hash[0] === '/')) {
         path = hash.split('#').shift();
     }
     
