@@ -52,10 +52,14 @@ export default class Route extends Component {
             throw Error('It is not possible to extend classes that are derived from Route');
         }
         
-        var path = (this.path || '').replace(/^([^\/])/, '/$1'),
+        var path = this.path && this.path.replace(/^([^\/])/, '/$1'),
             id = this.id,
             visited = new Set(),
             parent;
+        
+        if (!path && !id) {
+            return;
+        }
         
         install();
         
@@ -70,7 +74,7 @@ export default class Route extends Component {
             if (route && !visited.has(route)) {
                 visited.add(route);
                 
-                if (route.path) {
+                if (path && route.path) {
                     path = route.path + path;
                 }
                 
@@ -82,11 +86,12 @@ export default class Route extends Component {
             parent = parent.parent;
         }
         
-        this.resolvedPath = path.replace(/^\//, '').split('/');
+        path && (this.resolvedPath = path.replace(/^\//, '').split('/'));
         
         id && (this.resolvedID = id);
         
         this.match(currentPath);
+        
         matchID(this);
     }
     
@@ -95,6 +100,10 @@ export default class Route extends Component {
             routeParams,
             part,
             i;
+        
+        if (!resolvedPath) {
+            return this._detachController();
+        }
         
         routeParams = {};
         part = resolvedPath[0];
@@ -376,6 +385,12 @@ function matchID(route, push?: boolean) {
         return true;
     }
     
+    route.activate({});
+    
+    if (!route.resolvedPath) {
+        return true;
+    }
+    
     var path = '/' + route.resolvedPath.join('/').replace(/([^\/])$/, '$1/');
     
     if (supportsPopState) {
@@ -384,8 +399,6 @@ function matchID(route, push?: boolean) {
         noResolve = true;
         window.location.hash = path;
     }
-    
-    route.activate({});
     
     return true;
 }
