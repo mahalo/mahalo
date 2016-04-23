@@ -40,7 +40,7 @@ export default class Anchor extends Component {
     init() {
         var href = this.href;
         
-        if (!href || URL.test(href) || href[0] === '#' && supportsPopState) {
+        if (!href || URL.test(href)) {
             return;
         }
         
@@ -52,11 +52,13 @@ export default class Anchor extends Component {
             return;
         }
         
-        var path = href[0] === '/' ? href : relativePath(this.controller, href);
+        var parts = (href[0] === '/' ? href : relativePath(this.controller, href)).split('#');
         
-        path = supportsPopState ? config.basePath.replace(/\/$/, '') + path : '#' + path;
+        if (parts[0] !== '/') {
+            parts[0] = parts[0].replace(/([^\/])$/, '$1/');
+        }
         
-        this.path = path === '/' ? path : path.replace(/\/$/, '');
+        this.path = supportsPopState ? config.basePath.replace(/\/$/, '') + parts.join('#') : '#' + parts.join('#');
         
         this.element.setAttribute('href', this.path);
     }
@@ -100,7 +102,6 @@ function relativePath(controller: ComponentController, path: string) {
             }
             
             return parts.join('/');
-            // return path;
         }
         
         parent = parent.parent;
@@ -110,11 +111,13 @@ function relativePath(controller: ComponentController, path: string) {
 }
 
 function click(event: Event) {
-    if (this.path) {
-        setByPath(this.path);
-    } else {
-        window.location.hash = window.location.hash.split('#')[0] + this.href;
+    var path = this.path || this.href;
+    
+    if (!supportsPopState && path[0] === '#') {
+        path = window.location.hash.split('#').shift() + path;
     }
+    
+    setByPath(path);
     
     event.preventDefault();
     event.stopPropagation();

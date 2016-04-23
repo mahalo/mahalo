@@ -7,7 +7,9 @@
  * If window.postMessage is available it will take precedence
  * otherwise MessageChannel is used as a fallback.
  */
-export default supportsPostMessage() ? getPostMessage() : getFallback();
+var asap = supportsPostMessage() ? getPostMessage() : getFallback();
+
+export default asap;
 
 
 //////////
@@ -25,6 +27,10 @@ function supportsPostMessage() {
     
     return support;
     
+    
+    //////////
+    
+    
     function callback() {
         support = false;
     }
@@ -41,12 +47,10 @@ function getPostMessage() {
         event.stopImmediatePropagation();
     });
     
-    function asap(callback: Function, thisArg?) {
+    return function asap(callback: Function, thisArg?) {
         queue.push(callback.bind(thisArg));
         queue.length === 1 && window.postMessage(MESSAGE, '*');
     }
-    
-    return asap;
 }
 
 function getFallback() {
@@ -54,12 +58,10 @@ function getFallback() {
     
     channel.port1.onmessage = () => runQueue();
     
-    function asap(callback: Function, thisArg?) {
+    return function asap(callback: Function, thisArg?) {
         queue.push(callback.bind(thisArg));
         queue.length === 1 && channel.port2.postMessage('*');
     }
-    
-    return asap;
 }
 
 function runQueue() {

@@ -9,7 +9,7 @@ import asap from '../utils/asap';
 import enter from '../animation/enter';
 
 /**
- * @alias {CRoute} from mahalo
+ * @alias {Route} from mahalo
  */
 export default class Route extends Component {
     static inject = {
@@ -85,6 +85,9 @@ export default class Route extends Component {
         this.resolvedPath = path.replace(/^\//, '').split('/');
         
         id && (this.resolvedID = id);
+        
+        this.match(currentPath);
+        matchID(this);
     }
     
     match(path: Array<string>) {
@@ -117,7 +120,7 @@ export default class Route extends Component {
         this.activate(routeParams);
     }
     
-    activate(routeParams: Object = {}, id?: string) {
+    activate(routeParams: Object = {}) {
         var parts = Object.keys(routeParams),
             i = parts.length,
             part;
@@ -133,12 +136,12 @@ export default class Route extends Component {
         
         if (typeof this.resolve === 'function') {
             Promise.resolve(this.resolve()).then(() => {
-                this._createController(id);
+                this._createController();
             });
             return;
         }
         
-        this._createController(id);
+        this._createController();
     }
     
     canActivate() {
@@ -164,7 +167,7 @@ export default class Route extends Component {
         this.child = null;
     }
     
-    _createController(id?: string) {
+    _createController() {
         if (this.child) {
             return;
         }
@@ -176,46 +179,44 @@ export default class Route extends Component {
         
         this.child = childController;
         
-        this._ensureTemplate(id);
+        this._ensureTemplate();
         
         return childController;
     }
     
-    _ensureTemplate(id?: string) {
+    _ensureTemplate() {
         var Constructor = this.constructor;
         
         if (!('view' in Constructor)) {
-            return this._initController(void 0, id);
+            return this._initController(void 0);
         }
         
         var view = Constructor['view'];
         
-        if (typeof view === 'function') {
-            Promise.resolve(view()).then((template) => {
-                setTimeout(() => this._initTemplate(template.default, id));
-            });
+        if (typeof view !== 'function') {
+            return this._initTemplate(view);
         }
         
-        this._initTemplate(view, id);
+        Promise.resolve(view()).then((template) => {
+            setTimeout(() => this._initTemplate(template.default));
+        });
     }
     
-    _initTemplate(template, id?: string) {
+    _initTemplate(template: Template) {
         var Constructor = this.constructor;
         
         template = template instanceof Template ? template : void 0;
         
         Constructor['view'] = template;
         
-        this._initController(template, id);
+        this._initController(template);
     }
     
-    _initController(template?: Template, id?: string) {
+    _initController(template?: Template) {
         var controller = this.controller,
             childController = this.child;
         
         enter(controller, controller.parent.node, true);
-        
-        document.querySelector('body').scrollTop = 0;
         
         childController.component = this;
         
@@ -223,45 +224,22 @@ export default class Route extends Component {
         
         this.child = childController;
         
-        if (id && this.resolvedID) {
-            setByID(id, true);
-        } else if (this.resolvedPath) {
-            resolve();
-        }
+        goto();
     }
 }
 
 /**
  * 
  */
-export function setByID(id, replace?: boolean) {
-    // @todo: Fix setByID before 1.0
+export function setByID(id) {
     var match = false;
     
-    routes.forEach(route => {
-        var resolvedID = route.resolvedID;
-        
-        if (!resolvedID || resolvedID !== id.substr(0, resolvedID.length)) {
-            route._detachController();
-            return;
-        }
-        
-        if (route.child) {
-            return;
-        }
-        
-        var path = '/' + route.resolvedPath.join('/').replace(/\/$/, '');
-        
-        if (supportsPopState) {
-            window.history[replace ? 'replaceState' : 'pushState']({}, '', path);
-        } else {
-            noResolve = true;
-            window.location.hash = path;
-        }
-        
-        match = true;
-        
-        route.activate({}, id);
+    currentID = id;
+    
+    document.querySelector('body').scrollTop = 0;
+    
+    routes.forEach((route) => {
+        matchID(route, !match) && (match = true);
     });
     
     return match;
@@ -290,6 +268,8 @@ export var installed;
 var BASE_PATH = new RegExp(config.basePath),
     supportsPopState = 'onpopstate' in window && !/file/.test(window.location.protocol),
     routes = new Set(),
+    currentPath = [],
+    currentID = '',
     noResolve;
 
 function install() {
@@ -297,13 +277,23 @@ function install() {
         return;
     }
     
+    var hash = window.location.hash.substr(1);
+    
     installed = true;
     
-    supportsPopState && (window.onpopstate = popstate);
+    if (supportsPopState) {
+        hash[0] === '/' && window.history.replaceState({}, '', hash);
+        
+        window.onpopstate = popstate;
+    } else {
+        hash = hash[0] === '/' ? hash : window.location.pathname + (hash ? '#' + hash : '');
+        
+        window.location.pathname !== config.basePath && (window.location.href = config.basePath + (hash ? '#' + hash : ''));
+        
+        window.onhashchange = hashchange;
+    }
     
-    window.onhashchange = hashchange;
-    
-    setTimeout(resolve);
+    resolve();
     
     
     //////////
@@ -316,63 +306,86 @@ function install() {
     }
     
     function hashchange(event: Event) {
+        event.preventDefault();
+        
         if (noResolve) {
             noResolve = false;
-            event.preventDefault();
             return;
         }
-        
-        var hash = window.location.hash;
-        
-        if (hash[1] && hash[1] !== '/') {
-            supportsPopState || goto(hash.substr(1));
-            return;
-        }
-        
-        supportsPopState && window.history.replaceState({}, '', hash.substr(1).split('#').shift());
         
         resolve();
-        
-        event.preventDefault();
     }
 }
 
 function resolve() {
-    var parts = normalize().split('/');
+    var parts = currentPath = normalize().split('/');
     
     routes.forEach(route => route.match(parts));
 }
 
 function normalize() {
-    var path,
-        hash;
-    
-    if (supportsPopState) {
-        path = window.location.pathname;
-        path = path.replace(BASE_PATH, '');
+    var path = window.location.pathname.replace(BASE_PATH, ''),
         hash = window.location.hash.substr(1);
-        
-        if (hash) {
-            goto(hash);
-        }
-    } else {
-        hash = window.location.hash.substr(1).split('#');
-        path = hash.shift();
-        
-        if (hash.length) {
-            goto(hash.join('#'));
-        }
+    
+    if (!supportsPopState && hash[0] === '/') {
+        path = hash.split('#').shift();
     }
+    
+    goto() || window.scrollTo(0, 0);
     
     return path.replace(/\/$/, '').replace(/^\//, '');
 }
 
-// @todo: Improve scrolling by taking scroll containers into account and make it work in IE
-function goto(name: string) {
-    setTimeout(() => {
-        var anchor = document.querySelector('[name="' + name + '"]'),
-            rect = anchor && anchor.getBoundingClientRect();
+// @todo: Improve scrolling by taking scroll containers into account
+function goto() {
+    var name = window.location.hash.substr(1);
+    
+    if (!supportsPopState) {
+        name = name.substr(name.split('#').shift().length + 1);
+    }
+    
+    if (!name) {
+        return;
+    }
+    
+    var anchor = document.querySelector('[name="' + name + '"]'),
+        rect = anchor && anchor.getBoundingClientRect();
         
-        rect && window.scrollTo(rect.left + window.scrollX, rect.top + window.scrollY);
-    });
+    if (!rect) {
+        return;
+    }
+    
+    var doc = document.documentElement,
+        left = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0),
+        top = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
+    
+    window.scrollTo(rect.left + left, rect.top + top);
+    
+    return true;
+}
+
+function matchID(route, push?: boolean) {
+    var resolvedID = route.resolvedID;
+    
+    if (!resolvedID || resolvedID !== currentID.substr(0, resolvedID.length)) {
+        route._detachController();
+        return;
+    }
+    
+    if (route.child) {
+        return true;
+    }
+    
+    var path = '/' + route.resolvedPath.join('/').replace(/([^\/])$/, '$1/');
+    
+    if (supportsPopState) {
+        window.history[push ? 'pushState' : 'replaceState']({}, '', path);
+    } else {
+        noResolve = true;
+        window.location.hash = path;
+    }
+    
+    route.activate({});
+    
+    return true;
 }

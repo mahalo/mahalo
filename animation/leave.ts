@@ -27,7 +27,10 @@ export default function leave(controller: IComponentController) {
     nextSibling = siblings[siblings.length - controller.position];
     
     // Stop maybe existing enter animation
-    controller.isEntering && removeClass(element, ENTER_CLASS);
+    if (controller.isEntering) {
+        controller.isEntering = false;
+        removeClass(element, ENTER_CLASS);
+    }
     
     // Insert the element in its old place
     parentNode.insertBefore(element, nextSibling);

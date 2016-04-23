@@ -22,6 +22,7 @@ export var config = {
     LINK_ATTRIBUTE: 'link',
     
     basePath: '/',
+    environment: 'development',
     
     dateFormat: 'MM/DD/YYYY hh:mm',
     numberFormat: '1,000.00'

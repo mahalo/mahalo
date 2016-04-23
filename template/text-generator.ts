@@ -32,6 +32,7 @@ export default class TextGenerator implements ITextGenerator {
             textNode = textNode.cloneNode();
             
             parentNode.appendChild(textNode);
+            
             parent.children.add(
                 new TextController(textNode, scope, parent, part)
             );
@@ -56,23 +57,35 @@ export default class TextGenerator implements ITextGenerator {
             
         while (char) {
             if (text[++i] === '{' && char === '$') {
+                
                 part && parts.push({text: part});
                 part = '';
                 expression = true;
                 i++;
+                
             } else if (char === '{' && expression) {
+                
                 nested++;
+                
             } else if (char === '}' && expression) {
+                
                 if (nested) {
+                    
                     nested--;
+                    
                 } else {
+                    
                     part = part.trim();
                     part && parts.push({text: part, expression: true});
                     part = '';
                     expression = false;
+                    
                 }
+                
             } else {
+                
                 part += char;
+                
             }
             
             char = text[i];

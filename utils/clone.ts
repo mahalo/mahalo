@@ -2,6 +2,10 @@
  * 
  */
 
+/***/
+
+import {config} from '../index';
+
 /**
  * 
  */
@@ -54,15 +58,14 @@ export default function clone(x) {
     }
     
     // Every other object
-    return DEVELOPMENT ? tryCatch(x) : cloneObject(x);
+    return config.environment === 'development' ? tryCatch(x) : cloneObject(x);
 }
 
 
 //////////
 
 
-var DEVELOPMENT = true,
-    FN_NAME = /^function ([^(]*)/;
+var FN_NAME = /^function ([^(]*)/;
 
 function tryCatch(x) {
     try {

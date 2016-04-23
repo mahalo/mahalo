@@ -146,8 +146,6 @@ export default class Template implements ITemplate {
             attribute = attributes[++i];
         }
         
-        creationAllowed = false;
-        
         generator.children = childNodes.length ? this._parseChildNodes(childNodes) : [];
         
         return generator;
@@ -192,8 +190,7 @@ export default class Template implements ITemplate {
 //////////
 
 
-var TEXT_NODE = Node.TEXT_NODE,
-    creationAllowed;
+var TEXT_NODE = Node.TEXT_NODE;
 
 /**
  * 
@@ -201,7 +198,7 @@ var TEXT_NODE = Node.TEXT_NODE,
 function parseHTML(html: string) {
     var container = document.createElement('div');
     
-    container.innerHTML = html || '';
+    html && (container.innerHTML = html);
     
     return container.childNodes;
 }

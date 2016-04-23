@@ -10,7 +10,7 @@ import Parser from '../expression/parser';
 /**
  * 
  */
-export default class TextController implements TextController {
+export default class TextController implements IController {
     node: Node;
     
     parent: IComponentController;

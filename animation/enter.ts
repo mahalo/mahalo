@@ -17,7 +17,10 @@ export default function enter(controller: IComponentController, parentNode: Elem
     ensure || parentNode.appendChild(element);
     
     // If the element is already entering stop it
-    controller.isEntering && removeClass(element, ENTER_CLASS);
+    if (controller.isEntering) {
+        controller.isEntering = false;
+        removeClass(element, ENTER_CLASS);
+    }
     
     // Only continue when the controller is new or ensured
     if (!ensure && controller.compiled) {

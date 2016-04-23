@@ -32,7 +32,7 @@ export default function compileBranch(branch: IExpressionBranch, ctx: Object) {
             return compileBranch(branch.content, ctx);
         
         case types.MEMBER:
-            return compileMember(branch, ctx, true);
+            return compileMember(branch, ctx);
             
         case types.OBJECT:
             return compileObject(branch, ctx);

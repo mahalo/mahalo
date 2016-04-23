@@ -142,10 +142,6 @@ export default class ComponentController implements IComponentController {
     //////////
     
     
-    _removeBindings() {
-        // @todo: remove if unneeded
-    }
-    
     _compileChildren(children) {
         var node = this.node,
             element = node instanceof Element && node,
