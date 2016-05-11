@@ -15,7 +15,7 @@ import asap from '../utils/asap';
  * some kind of functionality that can be added to every component
  * by setting an attribute to the defining DOM element. The name of
  * the attribute is derived from the file name but can also be
- * specified in the template that uses the bahvior.
+ * specified in the template that uses the behavior.
  * 
  * All custom behaviors that you create in your Mahalo application
  * must extend this class. It handles dependency injection for and
