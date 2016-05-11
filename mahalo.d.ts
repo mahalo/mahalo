@@ -150,6 +150,18 @@ interface IComponent {
     remove?();
 }
 
+// interface IInjectDescriptor {
+//     [property: string]: any;
+// }
+
+// interface IAttributesDescriptor {
+//     [property: string]: string;
+// }
+
+// interface IBindingsDescriptor {
+//     [path: string]: string;
+// }
+
 /**
  * Interface for Mahalo behaviors
  * 

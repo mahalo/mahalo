@@ -1,5 +1,6 @@
 /**
- * 
+ * This module is responsible for binding expression results to text
+ * inside the DOM.
  */
 
 /***/
@@ -8,7 +9,8 @@ import {Expression} from '../index';
 import Parser from '../expression/parser';
 
 /**
- * 
+ * A controller for text nodes that checks for outputs in the textContent
+ * and creates bindings for them.
  */
 export default class TextController implements IController {
     node: Node;
@@ -54,6 +56,9 @@ export default class TextController implements IController {
 //////////
 
 
+/**
+ * A listener for changes of expression results
+ */
 function update(newValue) {
     this.node.textContent = newValue || '';
 }

@@ -1,5 +1,6 @@
 /**
- * 
+ * This module is responsible for dealing with component's
+ * controllers.
  */
 
 /***/
@@ -12,33 +13,86 @@ import enter from '../animation/enter';
 import leave from '../animation/leave';
 
 /**
+ * This class is mainly working behind the scenes. Every component in
+ * a Mahalo application has its controller. The controller is responsible
+ * for knowing how a component relates to other components and also
+ * for managing its attached behaviors.
+ * 
+ * The most common use for this class is to inject the correct controller
+ * into a [[mahalo.Component]] or a [[mahalo.Behavior]]. You can then use
+ * it to traverse the tree of controllers and find relevant parents or
+ * children.
+ * 
+ * You can also use it to create children inside of your component on the fly.
+ * Have a look at the source of [[mahalo.Show]] for a simple example of this.
+ * 
  * @alias {ComponentController} from mahalo
  */
 export default class ComponentController implements IComponentController {
+    /**
+     * The defining element of the template.
+     */
     node: Element|DocumentFragment;
     
+    /**
+     * The scope inside which the component was defined.
+     */
     scope: Scope|Component;
     
+    /**
+     * The keys that should be available in the local scope.
+     */
     locals: Array<string>;
     
+    /**
+     * The controller's localScope.
+     */
     localScope: Scope|Component;
     
+    /**
+     * The parent controller.
+     */
     parent: ComponentController;
     
+    /**
+     * The component instance of the controller.
+     */
     component: Component;
     
+    /**
+     * The component's behaviors.
+     */
     behaviors: Set<IBehavior>;
     
+    /**
+     * The child controllers.
+     */
     children: Set<IController>;
     
+    /**
+     * A flag that indicates if the controller was already compiled.
+     */
     compiled: boolean;
     
+    /**
+     * The current postion of the controller inside its parent.
+     */
     position: number;
     
+    /**
+     * This flag indicates if the controller is currently running its entering animation.
+     */
     isEntering: boolean;
     
+    /**
+     * This flag indicates if the controller is currently running its leaving animation.
+     */
     isLeaving: boolean;
     
+    /**
+     * Prepares the controler for beeing initialized. This means it will set the correct
+     * dependencies for injection and create the component.
+     */
     constructor(Constructor, node: Element|DocumentFragment, scope: Scope|Component, parent?: ComponentController, locals?: Array<string>) {
         this.node = node;
         this.parent = parent;
@@ -56,6 +110,11 @@ export default class ComponentController implements IComponentController {
         this.locals = locals;	
     }
     
+    /**
+     * This method will create the local scope, compile the controller's children
+     * with the correct dependencies and after that initialize the controller's
+     * behaviors.
+     */
     init(parentNode: Element|DocumentFragment, children: Array<IGenerator>, behaviors: Object, template?: Template) {
         var component = this.component,
             scope = this.scope,
@@ -86,6 +145,10 @@ export default class ComponentController implements IComponentController {
         typeof component['ready'] === 'function' && component['ready']();
     }
     
+    /**
+     * Appends the controller's element to the DOM and performs an
+     * optional entering animation.
+     */
     append(parentNode: Element|DocumentFragment) {
         if (parentNode instanceof Element && this.node instanceof Element) {
             return enter(this, parentNode);
@@ -96,6 +159,9 @@ export default class ComponentController implements IComponentController {
         parentNode.appendChild(this.node);
     }
     
+    /**
+     * Runs an optional leaving animation and executes the remove method.
+     */
     detach() {
         if (this.node instanceof Element) {
             return leave(this);
@@ -104,6 +170,10 @@ export default class ComponentController implements IComponentController {
         this.remove();
     }
     
+    /**
+     * Removes all bindings that were made by the controller's component or its children
+     * and removes the controller's element from the DOM.
+     */
     remove() {
         var	node = this.node;
         
@@ -112,6 +182,9 @@ export default class ComponentController implements IComponentController {
         node.parentNode && node.parentNode.removeChild(node);
     }
     
+    /**
+     * Recursively destroys the controller's children.
+     */
     removeChildren() {
         var component = this.component;
         

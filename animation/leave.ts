@@ -58,7 +58,7 @@ function startAnimation(controller: IComponentController, element: Element) {
     addClass(element, LEAVE_CLASS);
     
     /**
-     * Event listener to clean up the element and remove the controller
+     * Event listener to clean up the element and remove the controller.
      */
     function end(event: Event) {
         controller.isLeaving = false;

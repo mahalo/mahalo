@@ -101,7 +101,7 @@ export default class Template implements ITemplate {
             component;
         
         if (name === 'PRE') {
-            return new ComponentGenerator(element, {});
+            return new ComponentGenerator(element, {template: new Template('')});
         }
         
         if (components.hasOwnProperty(name)) {

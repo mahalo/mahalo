@@ -30,7 +30,7 @@ export default class For extends Component {
     
     each: string;
     
-    of: Object;
+    of: Object|Array<any>;
     
     template: Element;
     

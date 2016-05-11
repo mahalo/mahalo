@@ -16,6 +16,18 @@
  * Installs the polyfill
  */
 function polyfill() {
+    Object.defineProperty(Object, 'setPrototypeOf', {
+        enumerable: false,
+        value: setPrototypeOf
+    });
+    
+    
+    //////////
+    
+    
+    var skip = ['length', 'name', 'arguments', 'caller', 'prototype'];
+    
+    
     /**
      * Sets the prototype of an object
      */
@@ -55,17 +67,6 @@ function polyfill() {
         
         proto && setPrototypeOf(obj, proto);
     }
-    
-    
-    //////////
-    
-    
-    var skip = ['length', 'name', 'arguments', 'caller', 'prototype'];
-    
-    Object.defineProperty(Object, 'setPrototypeOf', {
-        enumerable: false,
-        value: setPrototypeOf
-    });
     
     /**
      * 

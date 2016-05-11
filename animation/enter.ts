@@ -7,7 +7,7 @@ import asap from '../utils/asap';
  * an enter animation has finished or instantly when no animation
  * was defined.
  * 
- * @param ensure When true even already compiled controllers will be entered but not appended
+ * @param ensure When true even already compiled controllers will be entered but not appended.
  */
 export default function enter(controller: IComponentController, parentNode: Element|DocumentFragment, ensure?: boolean) {
     var node = controller.node,
@@ -62,7 +62,7 @@ function startAnimation(controller: IComponentController, element: Element) {
     
     /**
      * Event listener to clean up the element and call the
-     * component's enter method
+     * component's enter method.
      */
     function end(event: Event) {
         controller.isEntering = false;

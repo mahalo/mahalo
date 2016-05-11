@@ -24,10 +24,6 @@ export default class ComponentGenerator implements IComponentGenerator {
     constructor(node: Element, desc: {Component?: typeof Component, template?: Template} = {}) {
         var Constructor = desc.Component || Component;
         
-        if (desc.Component instanceof Template) {
-            throw Error('Not possible');
-        }
-        
         this.node = node;
         this.Constructor = Constructor;
         this.behaviors = {};

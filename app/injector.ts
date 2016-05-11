@@ -1,5 +1,5 @@
 /**
- * 
+ * This module is responsible for Mahalo's dependency injection.
  */
 
 /***/
@@ -7,7 +7,9 @@
 import {Component, ComponentController, Behavior} from '../index';
 
 /**
+ * Injects dependencies into a component or behavior.
  * 
+ * @param Constructor The class that has the static inject property.
  */
 export function injectDependencies(component: Component|Behavior, Constructor) {
     var dependencies = Constructor.inject;
@@ -27,16 +29,16 @@ export function injectDependencies(component: Component|Behavior, Constructor) {
 }
 
 /**
- * 
+ * Returns the dependency for a given class.
  */
 export function getDependency(Constructor: Function) {
     return dependencies.get(Constructor);
 }
 
 /**
- * 
+ * Sets the dependency for given class.
  */
-export function setDependency(Constructor, dependency) {
+export function setDependency(Constructor: Function, dependency) {
     dependencies.set(Constructor, dependency);
 }
 
@@ -46,14 +48,17 @@ export function setDependency(Constructor, dependency) {
 
 var dependencies = new WeakMap();
 
-function inject(obj, key, Constructor) {
+/**
+ * Ensures the correct dependency is set on the component or behavior.
+ */
+function inject(obj: Component|Behavior, key: string, Constructor) {
     var dependency = dependencies.get(Constructor),
         prototype;
     
     if (!dependency) {
         prototype = Constructor.prototype;
         
-        if (prototype instanceof Component || prototype instanceof Behavior) {
+        if (prototype instanceof Component) {
             dependency = getDependency(ComponentController).parent;
             
             while (dependency && !(dependency.component instanceof Constructor)) {

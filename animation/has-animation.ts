@@ -40,20 +40,9 @@ export default function hasAnimation(controller: IComponentController, className
  */
 function getAnimations(element: Element) {
     var style = getComputedStyle(element),
-        vendor,
-        animations;
+        animations = style.getPropertyValue('animation-name')
+            || style.getPropertyValue('-webkit-animation-name')
+            || style.getPropertyValue('-moz-animation-name');
     
-    if (style.getPropertyValue('animation-name')) {
-        vendor = '';
-    } else if (style.getPropertyValue('-webkit-animation-name')) {
-        vendor = '-webkit-';
-    } else if (style.getPropertyValue('-moz-animation-name')) {
-        vendor = '-moz-';
-    } else {
-        return [];
-    }
-    
-    animations = style.getPropertyValue(vendor + 'animation-name').replace('none', '');
-    
-    return animations ? animations.split(' ').sort() : [];
+    return animations ? animations.replace('none', '').split(' ').sort() : [];
 }
