@@ -27,8 +27,14 @@ export default class AttributeBehavior extends Behavior {
     
     static update = 'update';
     
+    /**
+     * The components element.
+     */
     element: Element;
     
+    /**
+     * The name of the attribute that will be changed.
+     */
     name: string;
     
     constructor(value, name) {
@@ -36,7 +42,11 @@ export default class AttributeBehavior extends Behavior {
         
         this.name = name.substr(1);
     }
-    
+
+    /**
+     * Updates the attribute when the result of the expression
+     * has changed.
+     */
     update(newValue) {
         this.element.setAttribute(this.name, newValue || '');
     }

@@ -104,6 +104,7 @@ export default class Template implements ITemplate {
             return new ComponentGenerator(element, {template: new Template('')});
         }
         
+        // @todo: Treat name as selector and try to match element
         if (components.hasOwnProperty(name)) {
             
             component = components[name];
@@ -156,7 +157,6 @@ export default class Template implements ITemplate {
             name = attribute.name,
             Behavior;
         
-        // @todo: Add attribute push behavior before 1.0
         if (/^@/.test(name)) {
             Behavior = EventBehavior;
         } else if (/^#/.test(name)) {

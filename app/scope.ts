@@ -6,12 +6,12 @@
  * Scopes are a rather advanced concept in Mahalo and in general you
  * don't have to deal with them at all.
  * 
- * If you really need them it is recommended to use [[mahalo.keyPath]]
+ * If you really need them it is recommended to use [[mahalo#keyPath]]
  * for retrieving values and [[mahalo.Expression]] for more complex
  * evaluation.
  * 
  * A scope is just a proxy object that is connected to its parent
- * scope and the local component. In combination with [[mahalo/app/scope#getcomponent]]
+ * scope and the local component. In combination with [[mahalo/app/scope#getComponent]]
  * you can get the correct component for looking up a key in the scope.
  * 
  * @alias {Scope} from mahalo

@@ -360,7 +360,7 @@ function goto() {
     
     var anchor = document.querySelector('[name="' + name + '"]'),
         rect = anchor && anchor.getBoundingClientRect();
-        
+    
     if (!rect) {
         return;
     }
