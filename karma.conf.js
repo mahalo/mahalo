@@ -1,27 +1,35 @@
+const query = {
+    presets: ['es2015'],
+    plugins: [
+        'transform-class-properties',
+        'transform-flow-strip-types',
+        'transform-runtime'
+    ]
+};
+
 module.exports = function (config) {
     config.set({
         frameworks: ['jasmine'],
         browsers: ['Chrome'],
         files: [
-            'test/index.ts'
+            'test/index.js'
         ],
         preprocessors: {
-            'test/index.ts': ['webpack']
+            'test/index.js': ['webpack']
         },
         webpack: {
             module: {
                 loaders: [
                     {
-                        test: /\.(t|j)s$/,
+                        test: /\.js$/,
                         loader: 'babel',
-                        query: {
-                            presets: ['es2015'],
-                            plugins: [
-                                'transform-class-properties',
-                                'transform-flow-strip-types',
-                                'transform-runtime'
-                            ]
-                        }
+                        include: /test/,
+                        query: query
+                    },
+                    {
+                        test: /\.ts$/,
+                        loader: 'babel',
+                        query: query
                     }
                 ]
             },
