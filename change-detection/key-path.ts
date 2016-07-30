@@ -88,7 +88,7 @@ var callbacks = new WeakMap(),
  * 
  */
 function watchKeys(obj: Object, pathTo: string, keys: Array<string>) {
-    var key = keys.shift() || '',
+    var key = keys.shift() || null,
         value = !pathTo ? obj : keyPath(obj, pathTo),
         interceptor;
     
@@ -96,37 +96,29 @@ function watchKeys(obj: Object, pathTo: string, keys: Array<string>) {
         return;
     }
     
-    pathTo = pathTo + (pathTo && key ? '.' : '') + toKeyPath(key);
+    pathTo = pathTo + (pathTo && key ? '.' : '') + (key === null ? '' : toKeyPath(key));
     interceptor = getInterceptor(obj, pathTo, toKeyPath(keys));
     
-    if (!key) {
-        return observe(value, key, interceptor);
-    }
-    
     observe(value, key, interceptor);
-    watchKeys(obj, pathTo, keys);
+    key && watchKeys(obj, pathTo, keys);
 }
 
 /**
  * 
  */
 function unwatchKeys(obj: Object, pathTo: string, keys: Array<string>, value) {
-    var key = keys.shift() || '',
+    var key = keys.shift() || null,
         interceptor;
     
     if (!(value instanceof Object)) {
         return;
     }
     
-    pathTo = pathTo + (pathTo && key ? '.' : '') + toKeyPath(key);
+    pathTo = pathTo + (pathTo && key ? '.' : '') + (key === null ? '' : toKeyPath(key));
     interceptor = getInterceptor(obj, pathTo, toKeyPath(keys));
     
-    if (!key) {
-        return unobserve(value, key, interceptor);
-    }
-    
     unobserve(value, key, interceptor);
-    unwatchKeys(obj, pathTo, keys, value[key]);
+    key && unwatchKeys(obj, pathTo, keys, value[key]);
 }
 
 /**
@@ -148,7 +140,7 @@ function getInterceptor(obj: Object, pathTo: string, pathFrom: string) {
  * 
  */
 function interceptor(pathTo: string, pathFrom: string, obj: Object, key: string, value) {
-    var oldValue = !pathFrom ? value : keyPath(value, pathFrom.substr(key.length)),
+    var oldValue = !pathFrom || key === null ? value : keyPath(value, pathFrom.substr(key.length)),
         keys = toKeys(pathFrom);
     
     unwatchKeys(this, pathTo, keys.slice(), value);

@@ -96,41 +96,45 @@ export default class Template implements ITemplate {
     }
     
     _checkComponent(element: Element) {
-        var name = element.tagName,
-            components = this.components,
-            component;
-        
-        if (name === 'PRE') {
+        if (element.tagName === 'PRE') {
             return new ComponentGenerator(element, {template: new Template('')});
         }
+
+        var components = this.components,
+            selector,
+            component;
         
-        // @todo: Treat name as selector and try to match element
-        if (components.hasOwnProperty(name)) {
-            
-            component = components[name];
-            
-        } else if (name === config.FOR_TAG) {
-            
-            component = {Component: For};
-            
-        } else if (name === config.SHOW_TAG) {
-            
-            component = {Component: Show};
-            
-        } else if (name === config.ROUTE_TAG) {
-            
-            component = {Component: Route};
-            
-        } else if (name === 'FORM') {
-            
-            component = {Component: Form};
-            
-        } else if (name === 'A') {
-            
-            component = {Component: Anchor};
-            
+        for (selector in components) {
+            if (element[MATCHES](selector)) {
+                component = components[selector];
+                break;
+            }
         }
-        
+
+        if (!component) {
+            if (element[MATCHES](config.FOR_SELECTOR)) {
+                
+                component = {Component: For};
+                
+            } else if (element[MATCHES](config.SHOW_SELECTOR)) {
+                
+                component = {Component: Show};
+                
+            } else if (element[MATCHES](config.ROUTE_SELECTOR)) {
+                
+                component = {Component: Route};
+                
+            } else if (element[MATCHES]('form')) {
+                
+                component = {Component: Form};
+                
+            } else if (element[MATCHES]('a')) {
+                
+                component = {Component: Anchor};
+                
+            }
+        }
+
         return this._checkBehaviors(element, component);
     }
     
@@ -158,21 +162,37 @@ export default class Template implements ITemplate {
             Behavior;
         
         if (/^@/.test(name)) {
+
             Behavior = EventBehavior;
+
         } else if (/^#/.test(name)) {
+            
             Behavior = AttributeBehavior;
+        
         } else if (behaviors.hasOwnProperty(name)) {
+            
             Behavior = behaviors[name];
+        
         } else if (name === config.CLASSES_ATTRIBUTE) {
+            
             Behavior = Classes;
+        
         } else if (name === config.STYLES_ATTRIBUTE) {
+            
             Behavior = Styles;
+        
         } else if (name === config.CONTENT_ATTRIBUTE) {
+            
             Behavior = Content;
+        
         } else if (name === config.MODEL_ATTRIBUTE) {
+            
             Behavior = Model;
+        
         } else if (name === config.LINK_ATTRIBUTE) {
+            
             Behavior = Link;
+        
         }
         
         if (!Behavior) {
@@ -190,7 +210,8 @@ export default class Template implements ITemplate {
 //////////
 
 
-var TEXT_NODE = Node.TEXT_NODE;
+var TEXT_NODE = Node.TEXT_NODE,
+    MATCHES = 'matches' in Element.prototype ? 'matches' : 'msMatchesSelector';
 
 /**
  * 

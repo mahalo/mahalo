@@ -15,21 +15,22 @@ export function observe(obj: Object|Scope, key: string|number, callback: Functio
     obj = obj instanceof Scope ? getComponent.call(obj, key) : obj;
     
     var keys = callbacksByKeys.get(obj),
+        use = key === null ? MUTATION_KEY : key,
         callbacks;
     
     if (!keys) {
         keys = {};
         callbacksByKeys.set(obj, keys);
     }
-    
-    if (!keys.hasOwnProperty(key)) {
+
+    if (!keys.hasOwnProperty(use)) {
         callbacks = new Set();
-        keys[key] = callbacks;
+        keys[use] = callbacks;
     } else {
-        callbacks = keys[key];
+        callbacks = keys[use];
     }
     
-    key && !callbacks.size && isComputed(obj, key) && observeComputed(obj, key);
+    key !== null && !callbacks.size && isComputed(obj, key) && observeComputed(obj, key);
     
     callbacks.add(callback);
 }
@@ -41,35 +42,35 @@ export function unobserve(obj: Object, key: string|number, callback: Function) {
     obj = obj instanceof Scope ? getComponent.call(obj, key) : obj;
     
     var keys = callbacksByKeys.get(obj),
+        use = key === null ? MUTATION_KEY : key,
         callbacks;
     
-    if (!keys || !keys.hasOwnProperty(key)) {
+    if (!keys || !keys.hasOwnProperty(use)) {
         return;
     }
     
-    callbacks = keys[key];
+    callbacks = keys[use];
     
     callbacks.delete(callback);
     
-    key !== '' && !callbacks.size && isComputed(obj, key) && unobserveComputed(obj, key);
+    key !== null && !callbacks.size && isComputed(obj, key) && unobserveComputed(obj, key);
 }
 
 /**
  * 
  */
 export function executeCallbacks(obj: Object, key: string|number, oldValue) {
-    // asap(() => {
-        var keys = callbacksByKeys.get(obj),
-            newValue = obj[key];
-        
-        if (!keys || !keys.hasOwnProperty(key) || newValue === oldValue) {
-            return;
-        }
-        
-        keys[key].forEach(callback => {
-            callback(obj, key, oldValue);
-        });
-    // });
+    var keys = callbacksByKeys.get(obj),
+        use = key === null ? MUTATION_KEY : key,
+        newValue = key === null ? obj : obj[key];
+    
+    if (!keys || !keys.hasOwnProperty(use) || newValue === oldValue) {
+        return;
+    }
+    
+    keys[use].forEach(callback => {
+        callback(obj, key, oldValue);
+    });
 }
 
 /**
@@ -102,6 +103,7 @@ var callbacksByKeys = new WeakMap(),
     _defineProperties = Object.defineProperties,
     arrayPrototype = Array.prototype,
     methods = ['push', 'pop', 'shift', 'unshift', 'splice', 'reverse', 'sort'],
+    MUTATION_KEY = Symbol('mahalo-mutation-key'),
     counter = 0,
     scheduled;
 
@@ -182,7 +184,7 @@ function checkComputed() {
             }
         }
         
-        executeCallbacks(obj, '', oldObj);
+        executeCallbacks(obj, null, oldObj);
     });
     
     if (scheduled) {
@@ -191,7 +193,6 @@ function checkComputed() {
         }
     } else {
         counter = 0;
-        // console.log('Mahalo Debug: ' + counter + ' update cycles run');
     }
 }
 
@@ -227,7 +228,7 @@ function defineProperty(obj: Object, key: string|number, desc: PropertyDescripto
     
     if (callbacksByKeys.has(obj)) {
         executeCallbacks(obj, key, oldValue);
-        executeCallbacks(obj, '', oldObj);
+        executeCallbacks(obj, null, oldObj);
     }
     
     return result;
@@ -256,7 +257,7 @@ function defineProperties(obj: Object, map: PropertyDescriptorMap) {
         }
     }
     
-    executeCallbacks(obj, '', oldObj);
+    executeCallbacks(obj, null, oldObj);
     
     return result;
 }
@@ -288,5 +289,5 @@ function arrayChanges(arr: Array<any>, oldArr: Array<any>) {
         executeCallbacks(arr, 'length', len);
     }
     
-    executeCallbacks(arr, '', oldArr);
+    executeCallbacks(arr, null, oldArr);
 }
