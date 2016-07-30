@@ -56,6 +56,7 @@ export default function compileBranch(branch: IExpressionBranch, ctx: Object) {
             if (ctx instanceof Object) {
                 return compileMemberAccess(ctx, branch.name);
             }
+            break;
         
         case types.BRACKET_IDENT:
             if (ctx instanceof Object) {
@@ -73,7 +74,7 @@ function compileComparison(branch: IExpressionBranch, ctx: Object) {
         right = compileBranch(branch.right, ctx);
         
     switch (branch.op) {
-        case '=':
+        case '==':
             return left == right;
             
         case '<=':
@@ -82,7 +83,7 @@ function compileComparison(branch: IExpressionBranch, ctx: Object) {
         case '>=':
             return left >= right;
             
-        case '<>':
+        case '!=':
             return left != right;
             
         case '<':

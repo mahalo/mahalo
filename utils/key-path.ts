@@ -1,5 +1,6 @@
 /**
- * Lorem
+ * This module contains utility functions to deal with paths
+ * inside of objects.
  */
 
 /***/
@@ -9,7 +10,7 @@ import {assign} from '../index';
 
 /**
  * Finds a value along a given path or sets a value in the given path
- * when called with a second argument.
+ * when called with a third argument.
  * 
  * @alias {keyPath} from mahalo
  */
@@ -23,6 +24,8 @@ export default function keyPath(obj: Object, path: string, val?) {
         len = keys.length - 1,
         i = 0,
         args = arguments.length;
+    
+    obj instanceof Scope && (obj = getComponent.call(obj, key));
 
     while (i < len) {
         key = keys[i++];
@@ -40,15 +43,13 @@ export default function keyPath(obj: Object, path: string, val?) {
         if (!(obj instanceof Object)) {
             return;
         }
+
+        obj instanceof Scope && (obj = getComponent.call(obj, key));
     }
     
     key = keys[i];
 
     if (args > 2) {
-        if (obj instanceof Scope) {
-            obj = getComponent.call(obj, key);
-        }
-        
         return assign(obj, key, val);
     }
 
@@ -56,7 +57,16 @@ export default function keyPath(obj: Object, path: string, val?) {
 }
 
 /**
+ * Parses a path string into an array of keys
+ * for the given path.
  * 
+ * ### Example
+ * 
+ * ```javascript
+ * toKeys('user.name'); // ['user', 'name']
+ * toKeys('user^.name'); // ['user.name']
+ * toKeys('user^^.name'); // ['user^', 'name']
+ * ```
  */
 export function toKeys(str: string) {
     var keys = [],
@@ -86,7 +96,8 @@ export function toKeys(str: string) {
 }
 
 /**
- * 
+ * Transforms either an array of keys or a single key into
+ * a valid path with escaped dots.
  */
 export function toKeyPath(keys: Array<string>|string) {
     var _keys = typeof keys === 'string' ? [keys] : keys,

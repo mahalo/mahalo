@@ -88,7 +88,7 @@ var callbacks = new WeakMap(),
  * 
  */
 function watchKeys(obj: Object, pathTo: string, keys: Array<string>) {
-    var key = keys.shift() || null,
+    var key = keys.length ? keys.shift() : null,
         value = !pathTo ? obj : keyPath(obj, pathTo),
         interceptor;
     
@@ -107,7 +107,7 @@ function watchKeys(obj: Object, pathTo: string, keys: Array<string>) {
  * 
  */
 function unwatchKeys(obj: Object, pathTo: string, keys: Array<string>, value) {
-    var key = keys.shift() || null,
+    var key = keys.length ? keys.shift() : null,
         interceptor;
     
     if (!(value instanceof Object)) {

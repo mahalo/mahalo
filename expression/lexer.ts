@@ -31,15 +31,12 @@ export function nextSymbol() {
     } else if (COMPARISON.test(char)) {
         
         type = symbols.COMPARISON;
-        char = expression[this.i + 1];
         
-        if (COMPARISON.test(char)) {
-            if (str == '=') {
-                throw Error('Unexpected character in colum ' + this.i + ': ' + char);
-            }
-            
-            str += char;
+        if (expression[this.i + 1] === '=') {
+            str += '=';
             this.i++;
+        } else if (str === '=') {
+            type = void 0;
         }
         
     } else if (LITERAL.test(char)) {
@@ -105,8 +102,14 @@ export function nextSymbol() {
     
     } else if (char === NEGATION) {
         
-        type = symbols.NEGATION;
-    
+        if (expression[this.i + 1] === '=') {
+            type = symbols.COMPARISON;
+            str += '=';
+            this.i++;
+        } else {
+            type = symbols.NEGATION;
+        }
+
     } else if (char === MEMBER) {
         
         type = symbols.MEMBER;

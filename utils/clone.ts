@@ -15,11 +15,6 @@ export default function clone(x) {
         return x;
     }
     
-    // Arraylike objects will be turned to arrays
-    if (x instanceof NodeList || x instanceof HTMLCollection) {
-        
-    }
-    
     // DOM Element
     if (x instanceof Node) {
         return x.cloneNode(true);
