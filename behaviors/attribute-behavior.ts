@@ -13,7 +13,7 @@ import {Behavior} from '../index';
  * To make use of them you can prefix the attribute you want to set with
  * a **#** symbol.
  * 
- * ##### Example
+ * ### Example
  * 
  * This simple example sets the id of a div element to the value of **myProperty**
  * which is looked up in the local scope.
@@ -28,7 +28,7 @@ export default class AttributeBehavior extends Behavior {
     static update = 'update';
     
     /**
-     * The components element.
+     * The element the behavior was attached to.
      */
     element: Element;
     

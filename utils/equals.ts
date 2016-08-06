@@ -1,24 +1,26 @@
 /**
- * 
+ * This module exports the equals function.
  */
 
 /**
- * 
+ * Checks if two provided values are equal to each other. This is different
+ * from '===' in that it checks objects for equal own properties. This allows
+ * for checking objects against their clones created with [[mahalo/utils/clone.default]]. 
  */
 export default function equals(x, y) {
     var key;
     
-    // If both x and y are null or undefined and exactly the same
+    // If both x and y are the same.
     if (x === y) {
         return true;
     }
     
-    // If they are not strictly equal they both need to be objects
+    // Make sure that both are objects.
     if (!(x instanceof Object) || !(y instanceof Object)) {
         return false;
     }
     
-    // They must have the exact same prototype
+    // Check if both have the same prototype.
     if (Object.getPrototypeOf(x) !== Object.getPrototypeOf(y)) {
         return false;
     }
@@ -30,13 +32,13 @@ export default function equals(x, y) {
     while (i--) {
         key = keys[i];
         
-        // Allows comparing x[p] and y[p] when set to undefined
+        // Check for properties of x that are not own properties of y.
         if (!y.hasOwnProperty(key)) {
             return false;
         }
 
-        // If they have the same strict value or identity then they are equal
-        if (x[key] !== y[key]) {
+        // Check that both values are equal or self references.
+        if (x[key] !== y[key] && (x[key] !== x || y[key] === y)) {
             return false;
         }
     }
@@ -45,7 +47,7 @@ export default function equals(x, y) {
     i = keys.length;
     
     while (i--) {
-        // allows x[p] to be set to undefined
+        // Check for properties of y that are not own properties of x.
         if (!x.hasOwnProperty(keys[i])) {
             return false;
         }

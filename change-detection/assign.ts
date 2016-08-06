@@ -14,7 +14,7 @@ import clone from '../utils/clone';
  * when writing your application in TypeScript you don't have to take
  * care of this yourself and won't need to use this function at all.
  * 
- * ### Example
+ * ##### Example
  * 
  * In the following examples you can see different assignments an their
  * counterparts using assign.

@@ -1,5 +1,6 @@
 /**
- * 
+ * This module exports a utility function for postponing execution
+ * of provided callbacks.
  */
 
 /**

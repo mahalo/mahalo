@@ -1,9 +1,10 @@
 /**
- * 
+ * This module exports utility functions for adding and removing
+ * classes of element's.
  */
 
 /**
- * 
+ * Adds a class name to an element's class list.
  */
 export function addClass(element: Element, className) {
     var classNames = element.className ? element.className.split(SPLIT_CLASS_NAMES) : [];
@@ -18,7 +19,7 @@ export function addClass(element: Element, className) {
 }
 
 /**
- * 
+ * Removes a class name from an element's class list.
  */
 export function removeClass(element: Element, className) {
     var classNames = element.className ? element.className.split(SPLIT_CLASS_NAMES) : [],

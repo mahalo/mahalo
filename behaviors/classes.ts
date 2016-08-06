@@ -13,7 +13,7 @@ import {addClass, removeClass} from '../utils/element-classes';
  * be an expression that results to an object where the keys are the
  * relevant class names and their values any valid [[mahalo.Expression]].
  * 
- * ##### Example
+ * ### Example
  * 
  * This simple example adds the bold class to an h1 element whenever the
  * value of **isBold** in the local scope is truthy.
@@ -30,13 +30,12 @@ export default class Classes extends Behavior {
     static update = 'update';
     
     /**
-     * The component's element.
+     * The element the behavior was attached to.
      */
     element: Element;
     
     /**
-     * Updates the class list when the result of the expression
-     * has changed.
+     * Updates the class list of the element.
      */
     update(classes) {
         if (!(classes instanceof Object)) {

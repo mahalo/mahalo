@@ -12,7 +12,7 @@ import {Behavior} from '../index';
  * where the keys are the relevant CSS property names and their values
  * any valid [[mahalo.Expression]] that results to the desired value.
  * 
- * ##### Example
+ * ### Example
  * 
  * This simple example sets the color of an h1 element to the value of
  * **textColor** which is looked up in the local scope.
@@ -29,13 +29,12 @@ export default class Styles extends Behavior {
     static update = 'update';
     
     /**
-     * The components element.
+     * The element the behavior was attached to.
      */
     element: Element;
     
     /**
-     * Updates the styles when the result of the expression
-     * has changed.
+     * Updates the styles of the element.
      */
     update(styles: Object) {
         if (!(styles instanceof Object)) {

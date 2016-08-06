@@ -13,7 +13,7 @@
     "browser",
     "framework"
   ],
-  "license": "SEE LICENSE IN LICENSE.md",
+  "license": "MIT",
   "devDependencies": {
     "babel-core": "^6.11.4",
     "babel-loader": "^6.2.4",

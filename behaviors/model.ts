@@ -24,6 +24,9 @@ export default class Model extends Behavior {
         'component.value': 'updateModel'
     };
     
+    /**
+     * The element the behavior was attached to.
+     */
     element: Element;
     
     component: Component;

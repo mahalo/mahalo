@@ -60,7 +60,7 @@ export default function keyPath(obj: Object, path: string, val?) {
  * Parses a path string into an array of keys
  * for the given path.
  * 
- * ### Example
+ * ##### Example
  * 
  * ```javascript
  * toKeys('user.name'); // ['user', 'name']
@@ -69,7 +69,7 @@ export default function keyPath(obj: Object, path: string, val?) {
  * ```
  */
 export function toKeys(str: string) {
-    var keys = [],
+    var keys: Array<string> = [],
         key = '',
         char = str[0],
         i = 0,

@@ -1,0 +1,7 @@
+<show id="marlo-brando"
+      if=' user.firstName + user.lastName == "Marlo Brando" '>
+    
+    ${ user.firstName + false + 0.9 + 'ttt'} ${ user.lastName }
+
+    <button @click='addUser()'></button>
+</show>

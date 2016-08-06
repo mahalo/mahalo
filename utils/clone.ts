@@ -1,5 +1,5 @@
 /**
- * 
+ * This module exports a utility function for cloning objects or other values.
  */
 
 /***/
@@ -7,7 +7,8 @@
 import {config} from '../index';
 
 /**
- * 
+ * Creates an exact clone of any value that can later be
+ * checked for equality to its original by using [[mahalo/utils/equals.default]].
  */
 export default function clone(x) {
     // Not an object

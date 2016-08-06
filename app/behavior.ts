@@ -49,7 +49,7 @@ import asap from '../utils/asap';
  * 
  * ```maml
  * <use component="./my-component"/>
- * <use behavior="./my-behavior" as="awesome-behavior"/>
+ * <use behavior="./my-behavior" select="awesome-behavior"/>
  * 
  * <my-component awesome-behavior=""></my-component>
  * ```
