@@ -1,5 +1,5 @@
 /**
- * 
+ * This module is responsible for text output.
  */
 
 /***/
@@ -9,11 +9,18 @@ import TextController from '../app/text-controller';
 import {Component} from '../index';
 
 /**
- * 
+ * The TextGenerator finds output expressions in text nodes
+ * of a template and can be used to compile them for view.
  */
 export default class TextGenerator implements ITextGenerator {
+    /**
+     * The node to clone from.
+     */
     node: Node;
     
+    /**
+     * A list of parts that make up the text content.
+     */
     parts: Array<{text: string, expression: boolean}>;
     
     constructor(textNode: Node) {
@@ -22,6 +29,10 @@ export default class TextGenerator implements ITextGenerator {
         this._parseText(textNode.textContent);
     }
     
+    /**
+     * Compiles the node by creating a [[mahalo/app/text-controller.TextController]]
+     * for each of its parts.
+     */
     compile(parentNode: DocumentFragment, scope: IScope|Component, parent: IComponentController) {
         var textNode = this.node,
             parts = this.parts,
@@ -45,6 +56,9 @@ export default class TextGenerator implements ITextGenerator {
     //////////
     
     
+    /**
+     * Parses text content to find output expressions.
+     */
     _parseText(text: string) {
         var parts = [],
             char = text[0],

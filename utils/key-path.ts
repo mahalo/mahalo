@@ -12,6 +12,11 @@ import {assign} from '../index';
  * Finds a value along a given path or sets a value in the given path
  * when called with a third argument.
  * 
+ * A key path is a chain of keys to follow inside of an object. They are
+ * separeted by a dot. If your key actually contains a dot you can
+ * escape it with the **^** symbol. If you need an actual **^** symbol
+ * in a key you can use **^^**. You get the idea.
+ * 
  * @alias {keyPath} from mahalo
  */
 export default function keyPath(obj: Object, path: string, val?) {

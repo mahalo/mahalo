@@ -1,5 +1,5 @@
 /**
- * 
+ * This module is responsible for generating components.
  */
 
 /***/
@@ -8,17 +8,37 @@ import {Template, Component, ComponentController} from '../index';
 import {setDependency} from '../app/injector';
 
 /**
+ * The ComponentGenerator hold information about a node from
+ * a template. It can be used to create component instances
+ * for a certain scope and parent.
+ * 
  * @alias {ComponentGenerator} from mahalo
  */
 export default class ComponentGenerator implements IComponentGenerator {
+    /**
+     * The node to clone from.
+     */
     node: Node;
     
+    /**
+     * The template that components will use.
+     */
     template: Template;
     
+    /**
+     * The constructor function of the component.
+     */
     Constructor: typeof Component;
     
+    /**
+     * A map of behaviors that the component will use.
+     */
     behaviors: Object;
     
+    /**
+     * A list of children that will be created inside
+     * of the template's children element.
+     */
     children: Array<IGenerator>;
     
     constructor(node: Element, desc: {Component?: typeof Component, template?: Template} = {}) {
@@ -42,6 +62,10 @@ export default class ComponentGenerator implements IComponentGenerator {
         }
     }
     
+    /**
+     * Compiles the node in a given scope and appends it to
+     * a parent node as well as the parent controller.
+     */
     compile(parentNode: Element|DocumentFragment, scope: IScope|Component, parent: ComponentController) {
         var Constructor = this.Constructor,
             node = this.node,

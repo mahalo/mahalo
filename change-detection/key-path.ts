@@ -1,5 +1,5 @@
 /**
- * 
+ * This module contains logic for watching key paths inside of objects.
  */
 
 /***/
@@ -9,6 +9,11 @@ import {observe, unobserve} from './key';
 import equals from '../utils/equals';
 
 /**
+ * Watch a key path inside of an object and execute a given
+ * callback when the value changes.
+ * 
+ * See [[mahalo#keyPath]] for more information about valid key paths.
+ * 
  * @alias {watch} from mahalo
  */
 export function watch(obj: Object, path: string, callback: Function) {
@@ -33,6 +38,11 @@ export function watch(obj: Object, path: string, callback: Function) {
 }
 
 /**
+ * Remove a callback for a key path, remove all callbacks for a key path
+ * inside of an object or unwatch the object entirely.
+ * 
+ * See [[mahalo#keyPath]] for more information about valid key paths.
+ * 
  * @alias {unwatch} from mahalo
  */
 export function unwatch(obj: Object, path?: string, callback?: Function) {
@@ -85,7 +95,7 @@ var callbacks = new WeakMap(),
     interceptors = new WeakMap();
 
 /**
- * 
+ * Recursively observes every key in a list of keys for a path.
  */
 function watchKeys(obj: Object, pathTo: string, keys: Array<string>) {
     var key = keys.length ? keys.shift() : null,
@@ -104,7 +114,7 @@ function watchKeys(obj: Object, pathTo: string, keys: Array<string>) {
 }
 
 /**
- * 
+ * Recursively unwobserves every key in a list of keys for a path.
  */
 function unwatchKeys(obj: Object, pathTo: string, keys: Array<string>, value) {
     var key = keys.length ? keys.shift() : null,
@@ -122,7 +132,7 @@ function unwatchKeys(obj: Object, pathTo: string, keys: Array<string>, value) {
 }
 
 /**
- * 
+ * Grabs the cached interceptor for a location inside of an object.
  */
 function getInterceptor(obj: Object, pathTo: string, pathFrom: string) {
     var paths = interceptors.get(obj);
@@ -137,7 +147,8 @@ function getInterceptor(obj: Object, pathTo: string, pathFrom: string) {
 }
 
 /**
- * 
+ * A callback that intercepts the change of an observed object's property
+ * and executes the callbacks for changed values inside paths.
  */
 function interceptor(pathTo: string, pathFrom: string, obj: Object, key: string, value) {
     var oldValue = !pathFrom || key === null ? value : keyPath(value, pathFrom.substr(key.length)),
@@ -150,7 +161,7 @@ function interceptor(pathTo: string, pathFrom: string, obj: Object, key: string,
 }
 
 /**
- * 
+ * Executes all callbacks for a path when the value at that path has changed.
  */
 function executeCallbacks(obj: Object, path: string, oldValue) {
     var newValue = keyPath(obj, path);

@@ -53,23 +53,24 @@ export default class Route extends Component {
         }
         
         var path = this.path && this.path.replace(/^([^\/])/, '/$1'),
-            id = this.id,
-            visited = new Set(),
-            parent;
+            id = this.id;
         
         if (!path && !id) {
             return;
         }
         
+        var parent = this.controller.parent,
+            visited = new Set(),
+            component,
+            route;
+        
         install();
         
         routes.add(this);
-        
-        parent = this.controller.parent;
-        
+
         while (parent) {
-            var component = parent.component,
-                route = component instanceof Route && component;
+            component = parent.component;
+            route = component instanceof Route && component;
             
             if (route && !visited.has(route)) {
                 visited.add(route);
@@ -96,18 +97,15 @@ export default class Route extends Component {
     }
     
     match(path: Array<string>) {
-        var resolvedPath = this.resolvedPath,
-            routeParams,
-            part,
-            i;
+        var resolvedPath = this.resolvedPath;
         
         if (!resolvedPath) {
             return this._detachController();
         }
         
-        routeParams = {};
-        part = resolvedPath[0];
-        i = 0;
+        var routeParams = {},
+            part = resolvedPath[0],
+            i = 0;
         
         while (typeof part === 'string') {
             
@@ -304,27 +302,23 @@ function install() {
     }
     
     resolve();
+}
+
+function popstate(event: Event) {
+    resolve();
     
+    event.preventDefault();
+}
+
+function hashchange(event: Event) {
+    event.preventDefault();
     
-    //////////
-    
-    
-    function popstate(event: Event) {
-        resolve();
-        
-        event.preventDefault();
+    if (noResolve) {
+        noResolve = false;
+        return;
     }
     
-    function hashchange(event: Event) {
-        event.preventDefault();
-        
-        if (noResolve) {
-            noResolve = false;
-            return;
-        }
-        
-        resolve();
-    }
+    resolve();
 }
 
 function resolve() {

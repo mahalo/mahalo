@@ -1,5 +1,5 @@
 /**
- * 
+ * This module holds logic for observing keys of objects.
  */
 
 /***/
@@ -9,7 +9,8 @@ import clone from '../utils/clone';
 import {default as Scope, getComponent} from '../app/scope';
 
 /**
- * 
+ * Makes sure a provided key is observed inside of an object and
+ * adds a callback for that key.
  */
 export function observe(obj: Object|Scope, key: string|number, callback: Function) {
     obj = obj instanceof Scope ? getComponent.call(obj, key) : obj;
@@ -36,7 +37,7 @@ export function observe(obj: Object|Scope, key: string|number, callback: Functio
 }
 
 /**
- * 
+ * Removes a callback for a provided key from an object.
  */
 export function unobserve(obj: Object, key: string|number, callback: Function) {
     obj = obj instanceof Scope ? getComponent.call(obj, key) : obj;
@@ -57,7 +58,8 @@ export function unobserve(obj: Object, key: string|number, callback: Function) {
 }
 
 /**
- * 
+ * Execute all callbacks that were registered for a provided object
+ * and key.
  */
 export function executeCallbacks(obj: Object, key: string|number, oldValue) {
     var keys = callbacksByKeys.get(obj),
@@ -74,14 +76,14 @@ export function executeCallbacks(obj: Object, key: string|number, oldValue) {
 }
 
 /**
- * 
+ * Checks if an object is observed.
  */
 export function hasCallbacks(obj) {
     return callbacksByKeys.has(obj);
 }
 
 /**
- * 
+ * Schedules dirty checking of computed properties.
  */
 export function scheduleCheck() {
     if (scheduled) {
@@ -115,7 +117,7 @@ Object.defineProperty = defineProperty;
 Object.defineProperties = defineProperties;
 
 /**
- * 
+ * Checks if a property is computed.
  */
 function isComputed(obj: Object, key: string|number) {
     while (obj instanceof Object && !obj.hasOwnProperty(key)) {
@@ -128,7 +130,7 @@ function isComputed(obj: Object, key: string|number) {
 }
 
 /**
- * 
+ * Adds a computed key for beeing dirty checked.
  */
 function observeComputed(obj: Object, key: string|number) {
     var map = computedKeys.get(obj);
@@ -142,7 +144,7 @@ function observeComputed(obj: Object, key: string|number) {
 }
 
 /**
- * 
+ * Removes a computed key from beeing dirty checked.
  */
 function unobserveComputed(obj: Object, key: string|number) {
     var map = computedKeys.get(obj);
@@ -159,7 +161,7 @@ function unobserveComputed(obj: Object, key: string|number) {
 }
 
 /**
- * 
+ * Dirty checks if computed properties have changed.
  */
 function checkComputed() {
     scheduled = false;
@@ -197,7 +199,8 @@ function checkComputed() {
 }
 
 /**
- * 
+ * A helper function that wraps native mutation methods
+ * of arrays.
  */
 function wrapMethod(name: string, method: Function) {
     _defineProperty(arrayPrototype, name, {
@@ -219,7 +222,7 @@ function wrapMethod(name: string, method: Function) {
 }
 
 /**
- * 
+ * A wrapper for Object's native defineProperty method.
  */
 function defineProperty(obj: Object, key: string|number, desc: PropertyDescriptor) {
     var oldValue = obj[key],
@@ -235,7 +238,7 @@ function defineProperty(obj: Object, key: string|number, desc: PropertyDescripto
 }
 
 /**
- * 
+ * A wrapper for Object's native defineProperties method.
  */
 function defineProperties(obj: Object, map: PropertyDescriptorMap) {
     var oldObj = clone(obj),
@@ -263,7 +266,8 @@ function defineProperties(obj: Object, map: PropertyDescriptorMap) {
 }
 
 /**
- * 
+ * Executes callbacks for changes to arrays made
+ * by the mutation methods of Array's prototype.
  */
 function arrayChanges(arr: Array<any>, oldArr: Array<any>) {
     var val = arr[0],

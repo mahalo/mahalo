@@ -56,20 +56,31 @@ function inject(obj: Component|Behavior, key: string, Constructor) {
         prototype;
     
     if (!dependency) {
-        prototype = Constructor.prototype;
-        
-        if (prototype instanceof Component) {
-            dependency = getDependency(ComponentController).parent;
-            
-            while (dependency && !(dependency.component instanceof Constructor)) {
-                dependency = dependency.parent;
-            }
-            
-            dependency = dependency && dependency.component;
-        } else {
-            dependencies.set(Constructor, dependency = new Constructor());
-        }
+        dependency = create(Constructor);
     }
     
     obj[key] = dependency;
+}
+
+/**
+ * Finds a parent component in case the argument inherits from [[mahalo.Component]]
+ * or creates a new singleton instance.
+ */
+function create(Constructor) {
+    var prototype = Constructor.prototype,
+        dependency;
+        
+    if (prototype instanceof Component) {
+        dependency = getDependency(ComponentController).parent;
+        
+        while (dependency && !(dependency.component instanceof Constructor)) {
+            dependency = dependency.parent;
+        }
+        
+        dependency = dependency && dependency.component;
+    } else {
+        dependencies.set(Constructor, dependency = new Constructor());
+    }
+
+    return dependency;
 }

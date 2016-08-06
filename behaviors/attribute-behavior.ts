@@ -1,5 +1,6 @@
 /**
  * This module is responsible for attribute behaviors.
+ */
 
 /***/
 
@@ -21,6 +22,8 @@ import {Behavior} from '../index';
  * ```html
  * <div #id="myProperty"></div>
  * ```
+ * 
+ * @alias {AttributeBehavior} from mahalo
  */
 export default class AttributeBehavior extends Behavior {
     static inject = {element: Element};
