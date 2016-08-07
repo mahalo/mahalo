@@ -34,7 +34,7 @@ export {default as Content} from './behaviors/content';
 export {default as Model} from './behaviors/model';
 export {default as Link} from './behaviors/link';
 export {default as Styles} from './behaviors/styles';
-export {default as filters} from './expression/filters';
+export {filters} from './expression/filters';
 export {default as assign} from './change-detection/assign';
 export {default as keyPath} from './utils/key-path';
 export {watch, unwatch} from './change-detection/key-path';

@@ -1,3 +1,11 @@
+To get started developing with Mahalo without waiting for a proper guide to arrive a good start
+are the following pages:
+
+* [Component](http://mahalo.github.io/documentation/latest/mahalo/component)
+* [Template](http://mahalo.github.io/documentation/latest/mahalo/template)
+* [Expression](http://mahalo.github.io/documentation/latest/mahalo/expression)
+* [Behavior](http://mahalo.github.io/documentation/latest/mahalo/behavior)
+
 ### Requirements
 The easiest way to get started with Mahalo is by starting from the
 **mahalo-seed** package. This is a pre-configured starte-kit

@@ -1,5 +1,5 @@
 /**
- * 
+ * The module hold the For component for looping over objects.
  */
 
 /***/
@@ -7,6 +7,26 @@
 import {Component, ComponentController, ComponentGenerator, assign} from '../index';
 
 /**
+ * The For component can be used to loop over objects inside of templates.
+ * It creates a new local variable available for every iteration. It can be
+ * defined in the **each** attribute. The object to loop over is retrieved
+ * from evaluating the expression defined in the **of** attribute.
+ * 
+ * In the local scope of each item there are also two special properties
+ * available: **$index** and **$key**. The names speak for themselves.
+ * 
+ * ### Example
+ * 
+ * A simple example that loops over a list of users.
+ * 
+ * ```html
+ * <for each="user" of="users">
+ *     <user>
+ *         <h3>${ user.name }</h3>
+ *     </user>
+ * </for>
+ * ```
+ * 
  * @alias {For} from mahalo
  */
 export default class For extends Component {
@@ -22,18 +42,40 @@ export default class For extends Component {
     
     static template = '';
     
+    /**
+     * The component's element.
+     */
     element: Element;
     
+    /**
+     * The component's controller.
+     */
     controller: ComponentController;
     
+    /**
+     * The generator used to create the component.
+     */
     generator: ComponentGenerator;
     
+    /**
+     * The name of the local property.
+     */
     each: string;
     
+    /**
+     * The object that is looped over.
+     */
     of: Object|Array<any>;
     
+    /**
+     * The template for creating items.
+     */
     template: Element;
     
+    /**
+     * A list of child controllers created for each item curently
+     * in the list.
+     */
     children: Array<ComponentController>;
     
     constructor() {
@@ -58,6 +100,9 @@ export default class For extends Component {
         this.update(this.of);
     }
     
+    /**
+     * Updates the DOM when the list of items has changed.
+     */
     update(obj) {
         this.controller.children.forEach(
             (controller: ComponentController) => controller.isLeaving && controller.remove()

@@ -15,7 +15,7 @@ import {config} from '../index';
  * 
  * @alias {filters} from mahalo
  */
-export default {
+export var filters = {
     lower: lower,
     upper: upper,
     camel: camel,

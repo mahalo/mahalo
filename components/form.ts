@@ -1,5 +1,5 @@
 /**
- * 
+ * This module is responsible for forms.
  */
 
 /***/
@@ -7,6 +7,9 @@
 import {Component, ComponentController} from '../index';
 
 /**
+ * The Form component provides simple validation for
+ * form field components.
+ * 
  * @alias {Form} from mahalo
  */
 export default class Form extends Component {
@@ -16,12 +19,25 @@ export default class Form extends Component {
     
     element: Element;
     
+    /**
+     * A map of fields used in this form.
+     */
     $fields = {};
     
+    /**
+     * A flag that indicates if the form is currently valid.
+     */
     $valid = true;
     
+    /**
+     * A flag that indicated if the form has been changed.
+     */
     $dirty = false;
     
+    /**
+     * An interceptor for the submit event that prevents invalid
+     * forms from beeing submited.
+     */
     submit: EventListener;
     
     constructor() {
@@ -44,6 +60,9 @@ export default class Form extends Component {
         this.element.removeEventListener('submit', this.submit);
     }
     
+    /**
+     * Updates the value of field.
+     */
     setValue(name: string, value) {
         if (!this._validateField(name, value)) {
             return false;

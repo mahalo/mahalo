@@ -1,5 +1,5 @@
 /**
- * 
+ * This module contains the Show component.
  */
 
 /***/
@@ -9,6 +9,21 @@ import enter from '../animation/enter';
 import asap from '../utils/asap';
 
 /**
+ * The Show component shows or hides its content depending
+ * on the evaluation of an expression defined in the **if**
+ * attribute.
+ * 
+ * ### Example
+ * 
+ * This simple example only shows a user item when the property
+ * **isMember** of an object **user** from the local scope is truthy.
+ * 
+ * ```html
+ * <show if="user.isMember">
+ *     <h3>${ user.fullName }</h3>
+ * </show>
+ * ```
+ * 
  * @alias {Show} from mahalo
  */
 export default class Show extends Component {
@@ -24,14 +39,29 @@ export default class Show extends Component {
     
     static template = '';
     
+    /**
+     * The component's element.
+     */
     element: Element;
     
+    /**
+     * The generator used to create the component.
+     */
     generator: ComponentGenerator;
     
+    /**
+     * The controller of the component.
+     */
     controller: ComponentController;
     
+    /**
+     * The current result of the expression.
+     */
     if: boolean;
     
+    /**
+     * The child controller that is shown or hidden.
+     */
     child: ComponentController;
     
     constructor() {
@@ -40,6 +70,9 @@ export default class Show extends Component {
         asap(() => this.update(this.if));
     }
     
+    /**
+     * Removes or appends the content when the expression result has changed.
+     */
     update(value) {
         if (value) {
             return this._createController();

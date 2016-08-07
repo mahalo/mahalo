@@ -46,11 +46,17 @@ import equals from '../utils/equals';
  * All comparisons will be strictly equal on evaluation but the syntax
  * only knows loose operators (**==**, **!=**, **<=**, **>=**, **<**, **>**).
  * 
+ * ### Filters
+ * 
+ * You can use the **|** symbol to apply a filter to the expression left
+ * to it. See the [[mahalo#filters]] A list of available 
+ * 
  * #### Unallowed stuff
  * 
  * Statements like **if**, **for**, **while**, **try** are not allowed.
  * Also there are no declarations or assignments of any kind possible in
- * Mahalo expression.
+ * Mahalo expression. You can only use single line statements. The **;**
+ * symbol is also invalid.
  * 
  * @alias {Expression} from mahalo
  */

@@ -1,5 +1,5 @@
 /**
- * 
+ * This module is responsible for routing.
  */
 
 /***/
@@ -9,6 +9,51 @@ import asap from '../utils/asap';
 import enter from '../animation/enter';
 
 /**
+ * In Mahalo routes are similar to rules. While it is important
+ * to have rules, a ruler is an unnecessary evil. Just like
+ * a router would be in Mahalo. We only need individual routes.
+ * 
+ * ### Simple usage
+ * 
+ * A route is simply defined in a template like below. This route would
+ * only render its contents into the DOM when the url relative to the base
+ * path is **about**.
+ * 
+ * ```html
+ * <route path="/about">
+ *     <h2>About</h2>
+ * </route>
+ * ``` 
+ * 
+ * Easy, isn't it. But it's not exactly true. Routes can be nested and
+ * then become relative to their parent. Let's look at an example. The
+ * following shows an about page with three child routes.
+ * 
+ * ```html
+ * <route path="/about">
+ *     <h2>About</h2>
+ * 
+ *     <route path="/">
+ *         Please choose:
+ * 
+ *         <a href="/history">History</a>
+ *         <a href="/team">Team</a>
+ *     </route>
+ * 
+ *     <route path="/history">
+ *         <h3>Team</h3>
+ *     </route>
+ * 
+ *     <route path="/team">
+ *         <h3>Team</h3>
+ *     </route>
+ * </route>
+ * ```
+ * 
+ * The first child route will render when the url relative to the base path
+ * is **about**. Just like its parent. However when the url is **about/team**
+ * only the third child route will be rendered.
+ * 
  * @alias {Route} from mahalo
  */
 export default class Route extends Component {
@@ -22,24 +67,58 @@ export default class Route extends Component {
     
     static template = '';
     
+    /**
+     * When inheriting from Route you can use this static attribute to provide
+     * either a template or a path to a template file. When providing a path
+     * Mahalo automatically creates a split point during packaging for lazy
+     * loading of routes.
+     */
     static view: string|Template|Function;
     
+    /**
+     * The components element.
+     */
     element: Element;
     
+    /**
+     * The generator used to create the component.
+     */
     generator: ComponentGenerator;
     
+    /**
+     * The component's controller.
+     */
     controller: ComponentController;
     
+    /**
+     * The path of the route relative to its parent or the
+     * base path.
+     */
     path: string;
     
+    /**
+     * The id by which to address the route relative to its parent.
+     */
     id: string;
     
+    /**
+     * A list of resolved parts of the route's path. 
+     */
     resolvedPath: Array<string>;
     
+    /**
+     * The resolved id.
+     */
     resolvedID: string;
     
+    /**
+     * The child controller to render when the route's path is met.
+     */
     child: ComponentController;
     
+    /**
+     * The params provided by the url.
+     */
     $params = {};
     
     constructor() {
@@ -49,7 +128,7 @@ export default class Route extends Component {
         
         // Make sure contructor is a direct sub class of Route		
         if (Constructor !== Route && Object.getPrototypeOf(Constructor) !== Route) {
-            throw Error('It is not possible to extend classes that are derived from Route');
+            throw Error('It is not possible to extend classes that are inherited from Route');
         }
         
         var path = this.path && this.path.replace(/^([^\/])/, '/$1'),
@@ -96,6 +175,9 @@ export default class Route extends Component {
         matchID(this);
     }
     
+    /**
+     * Checks if the route should render.
+     */
     match(path: Array<string>) {
         var resolvedPath = this.resolvedPath;
         
@@ -127,6 +209,9 @@ export default class Route extends Component {
         this.activate(routeParams);
     }
     
+    /**
+     * Triggers rendering of the route.
+     */
     activate(routeParams: Object = {}) {
         var parts = Object.keys(routeParams),
             i = parts.length,
@@ -151,6 +236,9 @@ export default class Route extends Component {
         this._createController();
     }
     
+    /**
+     * Can be overwritten to check conditions before activation.
+     */
     canActivate() {
         return true;
     }
@@ -159,6 +247,9 @@ export default class Route extends Component {
         routes.delete(this);
     }
     
+    /**
+     * Can return a promise that must be resolved before activating the route.
+     */
     resolve() {}
     
     
@@ -236,7 +327,7 @@ export default class Route extends Component {
 }
 
 /**
- * 
+ * Navigate to a route by its ID.
  */
 export function setByID(id) {
     var match = false;
@@ -253,7 +344,7 @@ export function setByID(id) {
 }
 
 /**
- * 
+ * Navigate to a route by its path. 
  */
 export function setByPath(path: string) {
     if (supportsPopState) {
