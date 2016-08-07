@@ -5,7 +5,7 @@
 /***/
 
 import * as types from './types';
-import filters from './filters';
+import {filters} from './filters';
 import {default as Scope, getComponent} from '../app/scope';
 
 /**
