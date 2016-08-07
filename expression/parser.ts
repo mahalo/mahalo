@@ -1,5 +1,5 @@
 /**
- * 
+ * This module contains the expression parser.
  */
 
 /***/
@@ -11,17 +11,33 @@ import compileBranch from './compiler';
 import {toKeyPath} from '../utils/key-path';
 
 /**
- * 
+ * A simple parser for Mahalo expressions.
  */
 export default class Parser {
+    /**
+     * The expression string.
+     */
     expression: string;
     
+    /**
+     * The current character index.
+     */
     i: number;
     
+    /**
+     * A set of key paths that are used in
+     * the expression.
+     */
     paths: Set<string>;
     
+    /**
+     * The AST for the expression string.
+     */
     ast: IExpressionBranch;
     
+    /**
+     * The current symbol.
+     */
     symbol: IExpressionSymbol;
     
     constructor(expression: string) {
@@ -40,6 +56,9 @@ export default class Parser {
         parsers[expression] = this;
     }
     
+    /**
+     * Compiles the AST with a given scope.
+     */
     compile(scope: Object) {
         return compileBranch(this.ast, scope);
     }

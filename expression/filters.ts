@@ -1,5 +1,5 @@
 /**
- * 
+ * This module exports the filters object.
  */
 
 /***/

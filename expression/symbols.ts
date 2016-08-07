@@ -1,5 +1,5 @@
 /**
- * 
+ * This module exports symbol identifiers for the lexer and parser.
  */
 
 /***/

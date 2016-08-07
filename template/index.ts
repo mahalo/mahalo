@@ -35,6 +35,19 @@ import {Classes, Styles, Content, Model, Link} from '../index';
  * instance. Which class and template are used to instantiate that component is
  * defined with a special tags at top of your template file as explained below.
  * 
+ * ### Outputting computed text
+ * 
+ * For outputting the evaluated result of an expression you can use the special
+ * output tag that start with **${** and ends with **}**. For example like
+ * seen below.
+ * 
+ * ```html
+ * ${ user.points + 100 }
+ * ```
+ * 
+ * This text will automatically change when the data in your scope changes which
+ * leads to a different result for the used expression.
+ * 
  * ### Including components
  * 
  * To use components inside of each other you have to include them first. This
@@ -85,7 +98,7 @@ import {Classes, Styles, Content, Model, Link} from '../index';
  * As you can see we change the attribute to use for our behavior to **data-draggable**.
  * Otherwise the file name would be used again.
  * 
- * ### Built-in components/behaviors
+ * ### Built-in components and behaviors
  * 
  * Of course there is always an exeption to the rule. Mahalo ships with a few
  * built-in components and behaviors that are very commonly needed. These

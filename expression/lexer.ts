@@ -1,5 +1,5 @@
 /**
- * 
+ * This module contains the lexer for Mahalo expressions.
  */
 
 /***/
@@ -7,7 +7,9 @@
 import * as symbols from './symbols';
 
 /**
- * 
+ * This method should be called with a parser instance
+ * as its context. It moves the parser forward one symbol
+ * and assigns it to the parser's **symbol** property.
  */
 export function nextSymbol() {
     var expression = this.expression,

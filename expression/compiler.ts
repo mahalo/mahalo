@@ -1,5 +1,5 @@
 /**
- * 
+ * This module contains the compiler for Mahalo expressions.
  */
 
 /***/
@@ -9,7 +9,8 @@ import filters from './filters';
 import {default as Scope, getComponent} from '../app/scope';
 
 /**
- * 
+ * Compiles a given branch inside of a provided context
+ * and returns the result.
  */
 export default function compileBranch(branch: IExpressionBranch, ctx: Object) {
     switch (branch.type) {

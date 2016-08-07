@@ -1,5 +1,5 @@
 /**
- * 
+ * This module exports types identifiers for the parser and compiler.
  */
 
 /***/
