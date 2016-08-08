@@ -1,7 +1,7 @@
 {
   "name": "mahalo",
   "description": "Mahalo framework core package",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "author": {
     "name": "Markus Schmidt",
     "email": "m.schmidt@makuko.de"
