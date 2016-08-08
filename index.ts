@@ -46,8 +46,8 @@ export function bootstrap(component: Component, template: ITemplate, node: Eleme
     asap(() => {
         var controller = new ComponentController(Component, node, component);
         
-        console.log(controller);
-        
+        node.innerHTML = '';
+
         template.compile(node, component, controller);
     });
 }
