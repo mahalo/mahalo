@@ -5,6 +5,10 @@ import equals from '../utils/equals';
  * Checks a controller for an existing CSS animations for a given class name.
  */
 export default function hasAnimation(controller: IComponentController, className: string) {
+    if (isPhantomJS) {
+        return false;
+    }
+
     var parent = controller.parent;
     
     // Check if a parent is still animating and prevent animations in such a case
@@ -33,6 +37,8 @@ export default function hasAnimation(controller: IComponentController, className
 
 //////////
 
+
+var isPhantomJS = /PhantomJS/.test(navigator.userAgent);
 
 /**
  * Returns a list with names of all CSS animations currently set
