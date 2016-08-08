@@ -52,7 +52,7 @@ function polyfill() {
                 if (!descriptor) {
                     parentDescriptor = Object.getOwnPropertyDescriptor(parent, key);
                     
-                    if (typeof parentDescriptor.get === 'function') {
+                    if (parentDescriptor && typeof parentDescriptor.get === 'function') {
                         bindKey(obj, key, parentDescriptor);
                     } else if (typeof parent[key] === 'function') {
                         obj[key] = bindMethod(parent[key]);

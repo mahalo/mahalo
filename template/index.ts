@@ -338,7 +338,7 @@ export default class Template implements ITemplate {
 
 
 var TEXT_NODE = Node.TEXT_NODE,
-    MATCHES = 'matches' in Element.prototype ? 'matches' : 'msMatchesSelector';
+    MATCHES = 'matches' in Element.prototype ? 'matches' : 'webkitMatchesSelector' in Element.prototype ? 'webkitMatchesSelector' : 'msMatchesSelector';
 
 /**
  * Parses an HTML string into a NodeList.
