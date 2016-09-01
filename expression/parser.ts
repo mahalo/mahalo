@@ -357,7 +357,7 @@ export default class Parser {
     
     private expect(type: number) {
         if (this.symbol.type !== type) {
-            throw Error('Unexpected symbol in column ' + this.symbol.start);
+            throw Error('Unexpected symbol in column ' + this.symbol.start + ': ' + this.symbol.str);
         }
     }
     

@@ -168,7 +168,7 @@ export function nextSymbol() {
     
     }
     
-    if (!type) {
+    if (typeof type !== 'number') {
         throw Error('Unexpected character in column ' + this.i + ': ' + char);
     }
     
