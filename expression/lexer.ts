@@ -16,8 +16,8 @@ const literal = /['"]/;
 const identStart = /[a-z_$]/i;
 const ident = /[\w_$]/;
 const number = /\d/;
-const lParen = '(';
-const rParen = ')';
+const lParenthesis = '(';
+const rParenthesis = ')';
 const lBracket = '[';
 const rBracket = ']';
 const lBrace = '{';
@@ -134,11 +134,11 @@ export function nextSymbol() {
         
         type = symbols.Member;
     
-    } else if (char === lParen) {
+    } else if (char === lParenthesis) {
         
         type = symbols.LParenthesis;
     
-    } else if (char === rParen) {
+    } else if (char === rParenthesis) {
         
         type = symbols.RParenthesis;
     
