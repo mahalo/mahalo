@@ -2,6 +2,14 @@
  * This module is responsible for dealing with scopes.
  */
 
+/***/
+
+import {Component} from '../index';
+
+const scopes: WeakMap<Scope, Scope|Component> = new WeakMap();
+const components: WeakMap<Scope, Component> = new WeakMap();
+const localKeys: WeakMap<Scope, (string|number)[]> = new WeakMap();
+
 /**
  * Scopes are a rather advanced concept in Mahalo and in general you
  * don't have to deal with them at all.
@@ -16,8 +24,8 @@
  * 
  * @alias {Scope} from mahalo
  */
-export default class Scope implements IScope {
-    constructor(scope: Scope|IComponent, component: IComponent, keys: Object) {		
+export default class Scope {
+    constructor(scope: Scope|Component, component: Component, keys: string[]) {		
         scopes.set(this, scope);
         components.set(this, component);
         localKeys.set(this, keys);
@@ -37,12 +45,12 @@ export default class Scope implements IScope {
  * ##### Example
  * 
  * ```javascript
- * var component = getComponent.call(scope, 'myProperty'),
- *     value = component.myProperty;
+ * let component = getComponent.call(scope, 'myProperty');
+ * let value = component.myProperty;
  * ```
  */
-export function getComponent(key: string|number): IComponent {
-    var scope = scopes.get(this);
+export function getComponent(key: string|number): Component {
+    let scope = scopes.get(this);
     
     if (localKeys.get(this).indexOf(key) > -1) {
         return components.get(this);
@@ -50,11 +58,3 @@ export function getComponent(key: string|number): IComponent {
     
     return scope instanceof Scope ? getComponent.call(scope, key) : scope;
 }
-
-
-//////////
-
-
-var scopes = new WeakMap(),
-    components = new WeakMap(),
-    localKeys = new WeakMap();

@@ -4,7 +4,7 @@
 
 /***/
 
-import {Scope, Behavior, Expression, assign} from '../index';
+import {Scope, Component, Behavior, Expression, assign} from '../index';
 
 /**
  * The EventBehavior can be used to attach user events to a
@@ -42,7 +42,7 @@ export default class EventBehavior extends Behavior {
      * A reference to the local scope of the [[mahalo.Component]]
      * that the event was attached to.
      */
-    scope: Scope|IComponent;
+    scope: Scope|Component;
     
     /**
      * The event to capture.
@@ -79,7 +79,7 @@ export default class EventBehavior extends Behavior {
 //////////
 
 
-function interceptor(event) {
+function interceptor(event: Event) {
     assign(this.scope, '$event', event);
     
     this.expression.compile();

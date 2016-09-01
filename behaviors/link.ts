@@ -36,7 +36,7 @@ export default class Link extends Behavior {
      */
     listener: EventListener;
     
-    constructor(id) {
+    constructor(id: string) {
         super(id);
         
         this.listener = event => {

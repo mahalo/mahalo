@@ -10,6 +10,8 @@ import {Expression, Scope, watch} from '../index';
 import {injectDependencies, getDependency} from './injector';
 import asap from '../utils/asap';
 
+const expressions: WeakMap<Behavior, Expression> = new WeakMap();
+
 /**
  * Behaviors are one of the core concepts in Mahalo. A behavior is
  * some kind of functionality that can be added to every component
@@ -56,7 +58,7 @@ import asap from '../utils/asap';
  * 
  * @alias {Behavior} from mahalo
  */
-export default class Behavior implements IBehavior {
+export default class Behavior {
     /**
      * This static property defines dependencies that will be injected into
      * your behavior instance. It should be a map of property names as keys and
@@ -91,7 +93,7 @@ export default class Behavior implements IBehavior {
      * }
      * ```
      */
-    static inject: Object;
+    static inject: {[property: string]: any};
     
     /**
      * This static property defines the name of an instance method that
@@ -160,7 +162,8 @@ export default class Behavior implements IBehavior {
      * @param value The actual string literal of the attribute used for the current behavior instance.
      */
     constructor(value: string) {
-        var Constructor = this.constructor;
+        let prototype = Object.getPrototypeOf(this);
+        let Constructor = prototype.constructor;
         
         createBinding(this, value, Constructor);
         
@@ -168,9 +171,12 @@ export default class Behavior implements IBehavior {
             injectDependencies(this, Constructor);
             createBindings(this, Constructor);
             
-            Constructor = Object.getPrototypeOf(Constructor);
+            prototype = Object.getPrototypeOf(prototype);
+            Constructor = prototype.constructor;
         }
     }
+
+    remove() {}
 }
 
 /**
@@ -187,20 +193,18 @@ export function removeBinding(behavior: Behavior) {
 //////////
 
 
-var expressions = new WeakMap();
-
 /**
  * Creates a binding to the bahavior's value that
  * executes the specified instance method.
  */
-function createBinding(behavior: Behavior, value: string, Constructor) {
-    var update = Constructor.update;
+function createBinding(behavior: Behavior, value: string, Constructor: typeof Behavior) {
+    let update = Constructor.update;
     
     if (!update || typeof update !== 'string' || typeof behavior[update] !== 'function') {
         return;
     }
     
-    var expression = new Expression(value, getDependency(Scope));
+    let expression = new Expression(value, getDependency(Scope));
     
     expression.watch(newValue => behavior[update](newValue));
     
@@ -213,19 +217,19 @@ function createBinding(behavior: Behavior, value: string, Constructor) {
  * Creates defined bindings to paths of the instance that
  * execute the given instance methods.
  */
-function createBindings(behavior: Behavior, Constructor) {
-    var bindings = Constructor.bindings;
+function createBindings(behavior: Behavior, Constructor: typeof Behavior) {
+    let bindings = Constructor.bindings;
     
     if (!(bindings instanceof Object)) {
         return;
     }
     
-    var keys = Object.keys(bindings),
-        i = keys.length,
-        key;
+    let keys = Object.keys(bindings);
+    let i = keys.length;
     
     while (i--) {
-        key = keys[i];
+        let key = keys[i];
+        
         watch(behavior, key, behavior[bindings[key]].bind(behavior));
     }
 }

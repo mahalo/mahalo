@@ -2,11 +2,11 @@ import {assign} from '../../index';
 import {observe, unobserve} from '../../change-detection/key';
 
 describe('change detection: key:', function() {
-    var obj = {
-            key: 0
-        },
-        local = 10,
-        called = 0;
+    let obj = {
+        key: 0
+    };
+    let local = 10;
+    let called = 0;
     
     Object.defineProperty(obj, 'computed', {
         get: function() {

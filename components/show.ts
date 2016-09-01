@@ -75,7 +75,7 @@ export default class Show extends Component {
      */
     update(value) {
         if (value) {
-            return this._createController();
+            return this.createController();
         }
         
         this.child && this.child.detach();
@@ -86,10 +86,10 @@ export default class Show extends Component {
     //////////
     
     
-    _createController() {
-        var controller = this.controller,
-            element = document.createDocumentFragment(),
-            childController = new ComponentController(Component, element, controller.scope, controller);
+    private createController() {
+        let controller = this.controller;
+        let element = document.createDocumentFragment();
+        let childController = new ComponentController(Component, element, controller.scope, controller);
         
         enter(controller, controller.parent.node, true);
         

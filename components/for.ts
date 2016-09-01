@@ -65,7 +65,7 @@ export default class For extends Component {
     /**
      * The object that is looped over.
      */
-    of: Object|Array<any>;
+    of: Object|any[];
     
     /**
      * The template for creating items.
@@ -76,19 +76,19 @@ export default class For extends Component {
      * A list of child controllers created for each item curently
      * in the list.
      */
-    children: Array<ComponentController>;
+    children: ComponentController[];
     
     constructor() {
         super();
         
-        var template = document.createElement(this.each),
-            attributes = this.element.attributes,
-            attribute = attributes[0],
-            i = 0,
-            name;
+        let template = document.createElement(this.each);
+        let attributes = this.element.attributes;
+        let attribute = attributes[0];
+        let i = 0;
         
         while (attribute) {
-            name = attribute.name;
+            let name = attribute.name;
+            
             name === 'each' || name === 'of' || template.setAttribute(name, attribute.value);
             attribute = attributes[++i];
         }
@@ -109,11 +109,11 @@ export default class For extends Component {
         );
         
         if (Array.isArray(obj)) {
-            return this._prepareArray(obj);
+            return this.prepareArray(obj);
         }
         
         if (obj instanceof Object) {
-            return this._prepareObject(obj);
+            return this.prepareObject(obj);
         }
     }
     
@@ -121,56 +121,61 @@ export default class For extends Component {
     //////////
     
     
-    _prepareArray(arr: Array<any>) {
-        var children = [],
-            len = arr.length,
-            i = 0;
+    private prepareArray(arr: any[]) {
+        let children = [];
+        let len = arr.length;
+        let i = 0;
         
         while (i < len) {
-            children.push(this._hasPrevious(arr, i, i++));
+            children.push(this.hasPrevious(arr, i, i++));
         }
         
-        this._setPrevious(children);
+        this.setPrevious(children);
     }
     
-    _prepareObject(obj: Object) {
-        var children = [],
-            keys = Object.keys(obj),
-            len = keys.length,
-            i = 0;
+    private prepareObject(obj: Object) {
+        let children = [];
+        let keys = Object.keys(obj);
+        let len = keys.length;
+        let i = 0;
         
         while (i < len) {
-            children.push(this._hasPrevious(obj, keys[i], i++));
+            children.push(this.hasPrevious(obj, keys[i], i++));
         }
         
-        this._setPrevious(children);
+        this.setPrevious(children);
     }
     
-    _hasPrevious(obj, key, i) {
-        var children = this.children,
-            each = this.each,
-            value = obj[key],
-            controller = children.find(
-                childController => childController.component[each] === value
-            );
+    private hasPrevious(obj, key, i) {
+        let children = this.children;
+        let each = this.each;
+        let value = obj[key];
+        let j = 0;
+        let controller;
+            
+        while (controller = children[j++]) {
+            if (controller.component[each] === value) {
+                break;
+            }
+        }
         
         if (controller) {
             children.splice(children.indexOf(controller), 1);
             
-            var component = controller.component;
+            let component = controller.component;
                         
             assign(component, '$key', key);
             assign(component, '$index', i);
             controller.append(this.element);
         } else {
-            controller = this._createController(obj, key, i);
+            controller = this.createController(obj, key, i);
         }
         
         return controller;
     }
 
-    _setPrevious(children: Array<ComponentController>) {
-        var len = children.length;
+    private setPrevious(children: ComponentController[]) {
+        let len = children.length;
         
         this.children.reverse();
         this.children.forEach(controller => controller.detach());
@@ -179,19 +184,18 @@ export default class For extends Component {
         children.forEach((controller, i) => controller.position = len - i);
     }
     
-    _createController(obj: Object, key: string|number, index: number) {
-        var each = this.each,
-            element = this.template.cloneNode(),
-            controller = this.controller,
-            generator = this.generator,
-            itemController = new ComponentController(
-                Component,
-                element instanceof Element && element,
-                controller.scope,
-                controller,
-                [each, '$key', '$index']
-            ),
-            component = itemController.component;
+    private createController(obj: Object, key: string|number, index: number) {
+        let each = this.each;
+        let controller = this.controller;
+        let generator = this.generator;
+        let itemController = new ComponentController(
+            Component,
+            <Element>this.template.cloneNode(),
+            controller.scope,
+            controller,
+            [each, '$key', '$index']
+        );
+        let component = itemController.component;
         
         component[each] = obj[key];
         component['$key'] = key;

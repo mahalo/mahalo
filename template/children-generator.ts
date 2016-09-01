@@ -2,6 +2,10 @@
  * This module is responsible for handling children tags.
  */
 
+/***/
+
+import {IGenerator} from './generator';
+
 /**
  * A generator that handles the special children tag. It ensures
  * that it has no own contents.

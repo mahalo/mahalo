@@ -8,12 +8,11 @@
  * could change in the future. 
  */
 
-/// <reference path="mahalo.d.ts" />
-
 /***/
 
 import Component from './app/component';
 import ComponentController from './app/component-controller';
+import Template from './template';
 import asap from './utils/asap';
 
 export {config} from './config';
@@ -42,14 +41,12 @@ export {watch, unwatch} from './change-detection/key-path';
 /**
  * Bootstraps a Mahalo application
  */
-export function bootstrap(component: Component, template: ITemplate, node: Element) {
+export function bootstrap(component: Component, template: Template, node: Element) {
     asap(() => {
-        var controller = new ComponentController(Component, node, component);
-        
         while (node.firstChild) {
             node.removeChild(node.firstChild);
         }
 
-        template.compile(node, component, controller);
+        template.compile(node, component, new ComponentController(Component, node, component));
     });
 }

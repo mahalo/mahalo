@@ -24,11 +24,11 @@ export default function keyPath(obj: Object, path: string, val?) {
         return;
     }
     
-    var keys = toKeys(path),
-        key = keys[0],
-        len = keys.length - 1,
-        i = 0,
-        args = arguments.length;
+    let keys = toKeys(path);
+    let key = keys[0];
+    let len = keys.length - 1;
+    let i = 0;
+    let args = arguments.length;
     
     obj instanceof Scope && (obj = getComponent.call(obj, key));
 
@@ -74,11 +74,11 @@ export default function keyPath(obj: Object, path: string, val?) {
  * ```
  */
 export function toKeys(str: string) {
-    var keys: Array<string> = [],
-        key = '',
-        char = str[0],
-        i = 0,
-        esc = false;
+    let keys: string[] = [];
+    let key = '';
+    let char = str[0];
+    let i = 0;
+    let esc = false;
 
     while (char) {
         if (char === '^' && !esc) {
@@ -104,12 +104,12 @@ export function toKeys(str: string) {
  * Transforms either an array of keys or a single key into
  * a valid path with escaped dots.
  */
-export function toKeyPath(keys: Array<string>|string) {
-    var _keys = typeof keys === 'string' ? [keys] : keys,
-        i = _keys.length;
+export function toKeyPath(keys: string[]|string) {
+    let _keys = typeof keys === 'string' ? [keys] : keys;
+    let len = _keys.length;
     
-    while (i--) {
-        _keys[i] = _keys[i].replace('^', '^^').replace('.', '^.');
+    while (len--) {
+        _keys[len] = _keys[len].replace('^', '^^').replace('.', '^.');
     }
     
     return _keys.join('.');

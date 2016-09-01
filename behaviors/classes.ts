@@ -37,18 +37,17 @@ export default class Classes extends Behavior {
     /**
      * Updates the class list of the element.
      */
-    update(classes) {
+    update(classes: Object) {
         if (!(classes instanceof Object)) {
             return;
         }
         
-        var element = this.element,
-            names = Object.keys(classes),
-            i = names.length,
-            name;
+        let element = this.element;
+        let names = Object.keys(classes);
+        let i = names.length;
         
         while (i--) {
-            name = names[i];
+            let name = names[i];
             
             if (classes[name]) {
                 addClass(element, name);

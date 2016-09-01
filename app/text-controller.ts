@@ -5,7 +5,8 @@
 
 /***/
 
-import {Expression} from '../index';
+import {IController} from './controller';
+import {Component, ComponentController, Scope, Expression} from '../index';
 import Parser from '../expression/parser';
 
 /**
@@ -15,22 +16,22 @@ import Parser from '../expression/parser';
 export default class TextController implements IController {
     node: Node;
     
-    parent: IComponentController;
+    parent: ComponentController;
     
     expression: Expression;
     
     update: Function;
     
-    constructor(node: Node, scope: IScope|IComponent, parent: IComponentController, desc: {text: string, expression: boolean}) {
-        var text = desc.text,
-            expression;
+    constructor(node: Node, scope: Scope|Component, parent: ComponentController, desc: {text: string, expression: boolean}) {
+        let text = desc.text;
         
         this.node = node;
         this.parent = parent;
         this.update = update.bind(this);
         
         if (desc.expression) {
-            expression = this.expression = new Expression(text, scope);
+            let expression = this.expression = new Expression(text, scope);
+
             expression.watch(this.update);
             
             text = expression.compile() || '';

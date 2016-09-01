@@ -8,54 +8,54 @@
  * 
  * @alias {config} from mahalo
  */
-export var config = {
+export const config = {
     /**
      * The selector that will be used to select elements that
      * should use the [[mahalo.For]] component.
      */
-    FOR_SELECTOR: 'for',
+    forSelector: 'for',
 
     /**
      * The selector that will be used to select elements that
      * should use the [[mahalo.Show]] component.
      */
-    SHOW_SELECTOR: 'show',
+    showSelector: 'show',
     
     /**
      * The selector that will be used to select elements that
      * should represent a [[mahalo.Route]].
      */
-    ROUTE_SELECTOR: 'route',
+    routeSelector: 'route',
     
     /**
      * The attribute name that will be used to attach the [[mahalo.Classes]]
      * behavior to elements with that attribute.
      */
-    CLASSES_ATTRIBUTE: 'classes',
+    classesAttribute: 'classes',
     
     /**
      * The attribute name that will be used to attach the [[mahalo.Styles]]
      * behavior to elements with that attribute.
      */
-    STYLES_ATTRIBUTE: 'styles',
+    stylesAttribute: 'styles',
     
     /**
      * The attribute name that will be used to attach the [[mahalo.Content]]
      * behavior to elements with that attribute.
      */
-    CONTENT_ATTRIBUTE: 'content',
+    contentAttribute: 'content',
     
     /**
      * The attribute name that will be used to attach the [[mahalo.Model]]
      * behavior to elements with that attribute.
      */
-    MODEL_ATTRIBUTE: 'model',
+    modelAttribute: 'model',
     
     /**
      * The attribute name that will be used to attach the [[mahalo.Link]]
      * behavior to elements with that attribute.
      */
-    LINK_ATTRIBUTE: 'link',
+    linkAttribute: 'link',
     
     /**
      * The path to your application where '/' is the web root.

@@ -7,7 +7,8 @@
 import {config} from '../index';
 
 // Generators
-import {ComponentGenerator} from '../index';
+import {Scope, Component, ComponentController, ComponentGenerator} from '../index';
+import {IGenerator} from './generator';
 import TextGenerator from './text-generator';
 import ChildrenGenerator from './children-generator';
 
@@ -18,6 +19,9 @@ import {Show, For, Route, Anchor, Form} from '../index';
 import EventBehavior from '../behaviors/event-behavior';
 import AttributeBehavior from '../behaviors/attribute-behavior';
 import {Classes, Styles, Content, Model, Link} from '../index';
+
+const textNodeValue = Node.TEXT_NODE;
+const matches = 'matches' in Element.prototype ? 'matches' : 'webkitMatchesSelector' in Element.prototype ? 'webkitMatchesSelector' : 'msMatchesSelector';
 
 /**
  * The template class parses an HTML string into a tree of node generators.
@@ -111,7 +115,7 @@ import {Classes, Styles, Content, Model, Link} from '../index';
  * 
  * @alias {Template} from mahalo
  */
-export default class Template implements ITemplate {
+export default class Template {
     /**
      * A map of components used in this template where the key is
      * a selector and the value is a description of the component.
@@ -127,24 +131,24 @@ export default class Template implements ITemplate {
     /**
      * A list of generator to create the templates view elements.
      */
-    children: Array<IGenerator>;
+    children: IGenerator[];
     
     constructor(html?: string, components?: Object, behaviors?: Object) {
         this.components = components || {};
         
         this.behaviors = behaviors || {};
         
-        this.children = this._parseChildNodes(parseHTML(html));
+        this.children = this.parseChildNodes(parseHTML(html));
     }
     
     /**
      * Compiles the template inside of a given scope and parent and
      * appends it to a parent node.
      */
-    compile(parentNode: Element|DocumentFragment, scope: IScope|IComponent, controller: IComponentController) {
-        var children = this.children,
-            child = children[0],
-            i = 0;
+    compile(parentNode: Element|DocumentFragment, scope: Scope|Component, controller: ComponentController) {
+        let children = this.children;
+        let child = children[0];
+        let i = 0;
         
         while (child) {
             child.compile(parentNode, scope, controller);
@@ -161,14 +165,14 @@ export default class Template implements ITemplate {
      * Creates a generator for every node in a NodeList and adds it
      * to an array that is returned.
      */
-    _parseChildNodes(childNodes: NodeList) {
-        var children: Array<IGenerator> = [],
-            child = childNodes[0],
-            i = 0,
-            generator;
+    private parseChildNodes(childNodes: NodeList) {
+        let children: IGenerator[] = [];
+        let child = childNodes[0];
+        let i = 0;
             
         while (child) {
-            generator = this._checkNode(child);
+            let generator = this.checkNode(child);
+            
             generator && children.push(generator);
             
             child = childNodes[++i];
@@ -180,29 +184,27 @@ export default class Template implements ITemplate {
     /**
      * Checks a node for its type to create the proper generator.
      */
-    _checkNode(node: Node): IGenerator {
-        if (node.nodeType === TEXT_NODE) {
-            return this._checkText(node);
+    private checkNode(node: Node): IGenerator {
+        if (node.nodeType === textNodeValue) {
+            return this.checkText(node);
         }
         
-        var element = node instanceof Element && node;
-        
-        if (!element) {
+        if (!(node instanceof Element)) {
             return;
         }
         
-        if (element.tagName === 'CHILDREN') {
-            return new ChildrenGenerator(element.cloneNode());
+        if ((<Element>node).tagName === 'CHILDREN') {
+            return new ChildrenGenerator(node.cloneNode());
         }
         
-        return this._checkComponent(element);
+        return this.checkComponent(<Element>node);
     }
     
     /**
      * Creates and returns a [[mahalo/template/text-generator.TextGenerator]] for a
      * text node.
      */
-    _checkText(textNode: Node) {
+    private checkText(textNode: Node) {
         if (!textNode.textContent.trim()) {
             return;
         }
@@ -214,67 +216,66 @@ export default class Template implements ITemplate {
      * Returns a generator for a DOM element that instantiates the proper
      * [[mahalo.Component]] when compiling the template.
      */
-    _checkComponent(element: Element) {
-        if (element.tagName === 'PRE') {
+    private checkComponent(element: Element) {
+        if (/^(PRE|SCRIPT|TEXTAREA)$/.test(element.tagName)) {
             return new ComponentGenerator(element, {template: new Template('')});
         }
 
-        var components = this.components,
-            selector,
-            component;
+        let components = this.components;
+        let component;
         
-        for (selector in components) {
-            if (element[MATCHES](selector)) {
+        for (let selector in components) {
+            if (element[matches](selector)) {
                 component = components[selector];
                 break;
             }
         }
 
         if (!component) {
-            if (element[MATCHES](config.FOR_SELECTOR)) {
+            if (element[matches](config.forSelector)) {
                 
                 component = {Component: For};
                 
-            } else if (element[MATCHES](config.SHOW_SELECTOR)) {
+            } else if (element[matches](config.showSelector)) {
                 
                 component = {Component: Show};
                 
-            } else if (element[MATCHES](config.ROUTE_SELECTOR)) {
+            } else if (element[matches](config.routeSelector)) {
                 
                 component = {Component: Route};
                 
-            } else if (element[MATCHES]('form')) {
+            } else if (element[matches]('form')) {
                 
                 component = {Component: Form};
                 
-            } else if (element[MATCHES]('a')) {
+            } else if (element[matches]('a')) {
                 
                 component = {Component: Anchor};
                 
             }
         }
 
-        return this._checkBehaviors(element, component);
+        return this.checkBehaviors(element, component);
     }
     
     /**
      * Creates and returns a generator for a [[mahalo.Component]] so
      * it can be instantiated when the template is compiled.
      */
-    _checkBehaviors(element: Element, component: Object) {
-        var childNodes = element.childNodes,
-            generator = new ComponentGenerator(element, component),
-            attributes = element.attributes,
-            attribute = attributes[0],
-            i = 0;
+    private checkBehaviors(element: Element, component: Object) {
+        let childNodes = element.childNodes;
+        let generator = new ComponentGenerator(element, component);
+        let attributes = element.attributes;
+        let attribute = attributes[0];
+        let i = 0;
         
         while (attribute) {
-            this._checkBehavior(attribute, generator);
+            this.checkBehavior(attribute, generator);
             
             attribute = attributes[++i];
         }
         
-        generator.children = childNodes.length ? this._parseChildNodes(childNodes) : [];
+        generator.children = childNodes.length ? this.parseChildNodes(childNodes) : [];
         
         return generator;
     }
@@ -283,10 +284,10 @@ export default class Template implements ITemplate {
      * Aattaches the desired behaviors to a generator so they can be instantiated
      * when the template is compiled.
      */
-    _checkBehavior(attribute: Attr, generator: ComponentGenerator) {
-        var behaviors = this.behaviors,
-            name = attribute.name,
-            Behavior;
+    private checkBehavior(attribute: Attr, generator: ComponentGenerator) {
+        let behaviors = this.behaviors;
+        let name = attribute.name;
+        let Behavior;
         
         if (/^@/.test(name)) {
 
@@ -300,23 +301,23 @@ export default class Template implements ITemplate {
             
             Behavior = behaviors[name];
         
-        } else if (name === config.CLASSES_ATTRIBUTE) {
+        } else if (name === config.classesAttribute) {
             
             Behavior = Classes;
         
-        } else if (name === config.STYLES_ATTRIBUTE) {
+        } else if (name === config.stylesAttribute) {
             
             Behavior = Styles;
         
-        } else if (name === config.CONTENT_ATTRIBUTE) {
+        } else if (name === config.contentAttribute) {
             
             Behavior = Content;
         
-        } else if (name === config.MODEL_ATTRIBUTE) {
+        } else if (name === config.modelAttribute) {
             
             Behavior = Model;
         
-        } else if (name === config.LINK_ATTRIBUTE) {
+        } else if (name === config.linkAttribute) {
             
             Behavior = Link;
         
@@ -337,14 +338,11 @@ export default class Template implements ITemplate {
 //////////
 
 
-var TEXT_NODE = Node.TEXT_NODE,
-    MATCHES = 'matches' in Element.prototype ? 'matches' : 'webkitMatchesSelector' in Element.prototype ? 'webkitMatchesSelector' : 'msMatchesSelector';
-
 /**
  * Parses an HTML string into a NodeList.
  */
 function parseHTML(html: string) {
-    var container = document.createElement('div');
+    let container = document.createElement('div');
     
     html && (container.innerHTML = html);
     

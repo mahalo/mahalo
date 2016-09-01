@@ -8,8 +8,6 @@
  * for checking objects against their clones created with [[mahalo/utils/clone.default]]. 
  */
 export default function equals(x, y) {
-    var key;
-    
     // If both x and y are the same.
     if (x === y) {
         return true;
@@ -25,12 +23,11 @@ export default function equals(x, y) {
         return false;
     }
     
-    var keys = Object.keys(x),
-        i = keys.length,
-        key;
+    let keys = Object.keys(x);
+    let i = keys.length;
     
     while (i--) {
-        key = keys[i];
+        let key = keys[i];
         
         // Check for properties of x that are not own properties of y.
         if (!y.hasOwnProperty(key)) {

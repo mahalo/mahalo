@@ -2,13 +2,13 @@ import {Expression} from '../../index';
 
 describe('Expression', function() {
     it('should be able to access members', function() {
-        var exp1 = new Expression('x.y.z + 1 * 2', {x: {y: {z: 1}}}),
-            exp2 = new Expression('{foo: "bar", bar: "baz"}', {}),
-            exp3 = new Expression('.["bar ]"] + .["baz"]', {'bar ]': 'bar', baz: 'baz'}),
-            exp4 = new Expression('[1, 2, 3].length', {}),
-            exp5 = new Expression('(true)', {}),
-            exp6 = new Expression('foo | date: true', {foo: '12/1/84'}),
-            exp7 = new Expression('foo(bar)', {foo: bar => {return bar}, bar: 'bar'});
+        let exp1 = new Expression('x.y.z + 1 * 2', {x: {y: {z: 1}}});
+        let exp2 = new Expression('{foo: "bar", bar: "baz"}', {});
+        let exp3 = new Expression('.["bar ]"] + .["baz"]', {'bar ]': 'bar', baz: 'baz'});
+        let exp4 = new Expression('[1, 2, 3].length', {});
+        let exp5 = new Expression('(true)', {});
+        let exp6 = new Expression('foo | date: true', {foo: '12/1/84'});
+        let exp7 = new Expression('foo(bar)', {foo: bar => {return bar}, bar: 'bar'});
         
         expect(exp1.compile()).toBe(3);
         expect(exp2.compile()).toEqual({foo: 'bar', bar: 'baz'});

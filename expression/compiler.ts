@@ -4,7 +4,8 @@
 
 /***/
 
-import * as types from './types';
+import {IExpressionBranch} from './parser';
+import types from './types';
 import {filters} from './filters';
 import {default as Scope, getComponent} from '../app/scope';
 
@@ -14,52 +15,52 @@ import {default as Scope, getComponent} from '../app/scope';
  */
 export default function compileBranch(branch: IExpressionBranch, ctx: Object) {
     switch (branch.type) {
-        case types.COMPARISON:
+        case types.Comparison:
             return compileComparison(branch, ctx);
         
-        case types.SUM:
+        case types.Sum:
             return compileSum(branch, ctx);
         
-        case types.MULTIPLY:
+        case types.Multiply:
             return compileMultiply(branch, ctx);
             
-        case types.FILTER:
+        case types.Filter:
             return compileFilter(branch, ctx);
         
-        case types.UNARY:
+        case types.Unary:
             return compileUnary(branch, ctx);
         
-        case types.PAREN:
+        case types.Parenthesis:
             return compileBranch(branch.content, ctx);
         
-        case types.MEMBER:
+        case types.Member:
             return compileMember(branch, ctx);
             
-        case types.OBJECT:
+        case types.Object:
             return compileObject(branch, ctx);
             
-        case types.ARRAY:
+        case types.Array:
             return compileArray(branch, ctx);
             
-        case types.CALL:
+        case types.Call:
             return compileCall(branch, ctx);
             
-        case types.RESERVED:
+        case types.Reserved:
             return compileReserved(branch, ctx);
         
-        case types.LITERAL:
+        case types.Literal:
             return branch.str;
         
-        case types.NUMBER:
+        case types.Number:
             return parseFloat(branch.num);
         
-        case types.IDENT:
+        case types.Identifier:
             if (ctx instanceof Object) {
                 return compileMemberAccess(ctx, branch.name);
             }
             break;
         
-        case types.BRACKET_IDENT:
+        case types.BracketIdentifier:
             if (ctx instanceof Object) {
                 return compileMemberAccess(ctx, compileBranch(branch.prop, ctx));
             }
@@ -71,8 +72,8 @@ export default function compileBranch(branch: IExpressionBranch, ctx: Object) {
 
 
 function compileComparison(branch: IExpressionBranch, ctx: Object) {
-    var left = compileBranch(branch.left, ctx),
-        right = compileBranch(branch.right, ctx);
+    let left = compileBranch(branch.left, ctx);
+    let right = compileBranch(branch.right, ctx);
         
     switch (branch.op) {
         case '==':
@@ -96,8 +97,8 @@ function compileComparison(branch: IExpressionBranch, ctx: Object) {
 }
 
 function compileSum(branch: IExpressionBranch, ctx: Object) {
-    var left = compileBranch(branch.left, ctx),
-        right = compileBranch(branch.right, ctx);
+    let left = compileBranch(branch.left, ctx);
+    let right = compileBranch(branch.right, ctx);
     
     if (branch.op === '+') {
         return left + right;
@@ -107,9 +108,9 @@ function compileSum(branch: IExpressionBranch, ctx: Object) {
 }
 
 function compileMultiply(branch: IExpressionBranch, ctx: Object): number {
-    var op = branch.op,
-        left = compileBranch(branch.left, ctx),
-        right = compileBranch(branch.right, ctx);
+    let op = branch.op;
+    let left = compileBranch(branch.left, ctx);
+    let right = compileBranch(branch.right, ctx);
     
     if (op === '*') {
         return left * right;
@@ -123,16 +124,16 @@ function compileMultiply(branch: IExpressionBranch, ctx: Object): number {
 }
 
 function compileFilter(branch: IExpressionBranch, ctx: Object) {
-    var filter = filters[branch.filter];
+    let filter = filters[branch.filter];
     
     if (typeof filter !== 'function') {
         throw Error('Missing filter ' + branch.filter);
     }
     
-    var args = [compileBranch(branch.arg, ctx)],
-        branches = branch.args,
-        len = branches.length,
-        i = 0;
+    let args = [compileBranch(branch.arg, ctx)];
+    let branches = branch.args;
+    let len = branches.length;
+    let i = 0;
     
     if (len) {
         while (i < len) {
@@ -144,8 +145,8 @@ function compileFilter(branch: IExpressionBranch, ctx: Object) {
 }
 
 function compileUnary(branch: IExpressionBranch, ctx: Object): any {
-    var op = branch.op,
-        arg = compileBranch(branch.arg, ctx);
+    let op = branch.op;
+    let arg = compileBranch(branch.arg, ctx);
     
     if (op === '!') {
         return !arg;
@@ -163,13 +164,13 @@ function compileMember(branch: IExpressionBranch, ctx: Object, scope?: Object) {
         return;
     }
     
-    var obj;
+    let obj;
     
-    if (branch.obj.type === types.IDENT) {
+    if (branch.obj.type === types.Identifier) {
         
         obj = compileMemberAccess(ctx, branch.obj.name);
         
-    } else if (branch.obj.type === types.BRACKET_IDENT) {
+    } else if (branch.obj.type === types.BracketIdentifier) {
         
         obj = compileMemberAccess(ctx, compileBranch(branch.obj.prop, scope || ctx));
         
@@ -183,17 +184,17 @@ function compileMember(branch: IExpressionBranch, ctx: Object, scope?: Object) {
         return;
     }
     
-    var prop = branch.prop;
+    let prop = branch.prop;
     
-    if (prop.type === types.MEMBER) {
+    if (prop.type === types.Member) {
         return compileMember(prop, obj, scope);
     }
     
-    if (prop.type === types.BRACKET_IDENT) {
+    if (prop.type === types.BracketIdentifier) {
         return obj[compileBranch(prop.prop, scope || ctx)];
     }
     
-    if (prop.type === types.CALL) {
+    if (prop.type === types.Call) {
         return compileCall(prop, ctx, obj);
     }
     
@@ -201,15 +202,15 @@ function compileMember(branch: IExpressionBranch, ctx: Object, scope?: Object) {
 }
 
 function compileObject(branch: IExpressionBranch, ctx: Object) {
-    var obj = {},
-        map = branch.keys,
-        keys = Object.keys(map),
-        len = keys.length,
-        i = 0,
-        key;
+    let obj = {};
+    let map = branch.keys;
+    let keys = Object.keys(map);
+    let len = keys.length;
+    let i = 0;;
     
     while (i < len) {
-        key = keys[i++];
+        let key = keys[i++];
+        
         obj[key] = compileBranch(map[key], ctx);
     }
     
@@ -217,10 +218,10 @@ function compileObject(branch: IExpressionBranch, ctx: Object) {
 }
 
 function compileArray(branch: IExpressionBranch, ctx: Object) {
-    var arr = [],
-        items = branch.items,
-        item = items[0],
-        i = 0;
+    let arr = [];
+    let items = branch.items;
+    let item = items[0];
+    let i = 0;
     
     while (item) {
         arr.push(compileBranch(item, ctx));
@@ -232,16 +233,16 @@ function compileArray(branch: IExpressionBranch, ctx: Object) {
 }
 
 function compileCall(branch: IExpressionBranch, ctx: Object, obj?: Object) {
-    var method = compileBranch(branch.prop, ctx);
+    let method = compileBranch(branch.prop, ctx);
     
     if (typeof method !== 'function') {
         return;
     }
     
-    var items = branch.args,
-        item = items[0],
-        i = 0,
-        args = [];
+    let items = branch.args;
+    let item = items[0];
+    let i = 0;
+    let args = [];
     
     while (item) {
         args.push(compileBranch(item, ctx));

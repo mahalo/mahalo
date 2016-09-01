@@ -5,7 +5,9 @@
 
 /***/
 
-import {Scope, Component, Template, unwatch} from '../index';
+import {IController} from './controller';
+import {IGenerator} from '../template/generator';
+import {Scope, Component, Behavior, Template, unwatch} from '../index';
 import {removeAttributeBindings} from './component';
 import {removeBinding} from './behavior';
 import {setDependency} from './injector';
@@ -28,7 +30,7 @@ import leave from '../animation/leave';
  * 
  * @alias {ComponentController} from mahalo
  */
-export default class ComponentController implements IComponentController {
+export default class ComponentController implements IController {
     /**
      * The defining element of the template.
      */
@@ -42,7 +44,7 @@ export default class ComponentController implements IComponentController {
     /**
      * The keys that should be available in the local scope.
      */
-    locals: Array<string>;
+    locals: string[];
     
     /**
      * The controller's localScope.
@@ -62,7 +64,7 @@ export default class ComponentController implements IComponentController {
     /**
      * The component's behaviors.
      */
-    behaviors: Set<IBehavior>;
+    behaviors: Set<Behavior>;
     
     /**
      * The child controllers.
@@ -93,7 +95,7 @@ export default class ComponentController implements IComponentController {
      * Prepares the controler for beeing initialized. This means it will set the correct
      * dependencies for injection and create the component.
      */
-    constructor(Constructor, node: Element|DocumentFragment, scope: Scope|Component, parent?: ComponentController, locals?: Array<string>) {
+    constructor(Constructor, node: Element|DocumentFragment, scope: Scope|Component, parent?: ComponentController, locals?: string[]) {
         this.node = node;
         this.parent = parent;
         this.children = new Set();
@@ -115,12 +117,12 @@ export default class ComponentController implements IComponentController {
      * with the correct dependencies and after that initialize the controller's
      * behaviors.
      */
-    init(parentNode: Element|DocumentFragment, children: Array<IGenerator>, behaviors: Object, template?: Template) {
-        var component = this.component,
-            scope = this.scope,
-            locals = this.locals,
-            node = this.node,
-            useScope = Object.getPrototypeOf(component) === Component.prototype;
+    init(parentNode: Element|DocumentFragment, children: IGenerator[], behaviors: Object, template?: Template) {
+        let component = this.component;
+        let scope = this.scope;
+        let locals = this.locals;
+        let node = this.node;
+        let useScope = Object.getPrototypeOf(component) === Component.prototype;
         
         template = template || new Template('<children></children>');
         
@@ -128,7 +130,7 @@ export default class ComponentController implements IComponentController {
         
         this.localScope = locals ? new Scope(scope, component, locals) : scope;
         
-        this._compileChildren(children);
+        this.compileChildren(children);
         
         this.parent.children.add(this);
         
@@ -140,9 +142,9 @@ export default class ComponentController implements IComponentController {
         setDependency(ComponentController, this);
         setDependency(Component, component);
         
-        this._initBehaviors(behaviors);
+        this.initBehaviors(behaviors);
         
-        typeof component['ready'] === 'function' && component['ready']();
+        component.ready();
     }
     
     /**
@@ -175,24 +177,25 @@ export default class ComponentController implements IComponentController {
      * and removes the controller's element from the DOM.
      */
     remove() {
-        var	node = this.node;
+        let	node = this.node;
+        let parentNode = node.parentNode;
         
         this.removeChildren();
         
-        node.parentNode && node.parentNode.removeChild(node);
+        parentNode && parentNode.removeChild(node);
     }
     
     /**
      * Recursively destroys the controller's children.
      */
     removeChildren() {
-        var component = this.component;
+        let component = this.component;
         
         unwatch(component);
         
         removeAttributeBindings(component);
         
-        typeof component['remove'] === 'function' && component['remove']();
+        component.remove();
         
         if (this.node.parentNode) {
             this.children.forEach(controller => controller.removeChildren());
@@ -207,7 +210,7 @@ export default class ComponentController implements IComponentController {
             
             removeBinding(behavior);
             
-            typeof behavior.remove === 'function' && behavior.remove();
+            behavior.remove();
         });
     }
     
@@ -215,19 +218,18 @@ export default class ComponentController implements IComponentController {
     //////////
     
     
-    _compileChildren(children) {
-        var node = this.node,
-            element = node instanceof Element && node,
-            container = node.querySelector('children');
+    private compileChildren(children: IGenerator[]) {
+        let element = <Element>this.node;
+        let container = element.querySelector('children');
         
-        if (!container || element.tagName === 'PRE') {
+        if (!container || /^(PRE|SCRIPT|TEXTAREA)$/.test(element.tagName)) {
             return;
         }
         
-        var parent = container.parentNode,
-            fragment = document.createDocumentFragment(),
-            child = children[0],
-            i = 0;
+        let parent = container.parentNode;
+        let fragment = document.createDocumentFragment();
+        let child = children[0];
+        let i = 0;
         
         while (child) {
             // Set dependency
@@ -236,23 +238,20 @@ export default class ComponentController implements IComponentController {
             child.compile(fragment, this.localScope, this);
             
             child = children[++i];
-        }	
+        }
         
         parent.replaceChild(fragment, container);
     }
     
-    _initBehaviors(behaviors: Object) {
-        var names = Object.keys(behaviors),
-            i = names.length,
-            name,
-            desc,
-            Behavior;
+    private initBehaviors(behaviors: Object) {
+        let names = Object.keys(behaviors);
+        let i = names.length;
         
         while (i--) {
-            name = names[i];
-            desc = behaviors[name],
-            Behavior = desc.Behavior;
-                
+            let name = names[i];
+            let desc = behaviors[name];
+            let Behavior = desc.Behavior;
+            
             this.behaviors.add(new Behavior(desc.value, name));
         }
     }

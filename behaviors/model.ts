@@ -7,6 +7,10 @@
 import {Component, ComponentController, Behavior, assign, keyPath} from '../index';
 import Form from '../components/form';
 
+// @todo: Add more validators
+const isNumber = /^\s*\d+(\.\d+)?\s*$/;
+const isEmail = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+
 /**
  * The Model behavior connects a component to a parent [[mahalo.Form]].
  * It also sets up a two way binding to the path inside the local scope
@@ -87,12 +91,12 @@ export default class Model extends Behavior {
     constructor(path: string) {
         super(path);
         
-        var element = this.element,
-            component = this.component,
-            form = this.form,
-            scope = this.controller.localScope,
-            value = keyPath(scope, path),
-            name = element.getAttribute('name');
+        let element = this.element;
+        let component = this.component;
+        let form = this.form;
+        let scope = this.controller.localScope;
+        let value = keyPath(scope, path);
+        let name = element.getAttribute('name');
         
         this.path = path;
         this.name = name;
@@ -106,7 +110,7 @@ export default class Model extends Behavior {
             form.setValue(name, value);
         }
         
-        this._initElement(value);
+        this.initElement(value);
         
         component['value'] = value;
     }
@@ -122,7 +126,7 @@ export default class Model extends Behavior {
             return;
         }
         
-        var input = getInput(this.element);
+        let input = getInput(this.element);
         
         this.component['value'] = value;
         
@@ -134,8 +138,8 @@ export default class Model extends Behavior {
      * the component has changed.
      */
     updateModel(value) {
-        var form = this.form,
-            name = this.name;
+        let form = this.form;
+        let name = this.name;
         
         this.skip = !this.skip;
         
@@ -154,11 +158,10 @@ export default class Model extends Behavior {
      * Initializes native form elements by adding
      * required validators.
      */
-    _initElement(value) {
-        var element = this.element,
-            form = this.form,
-            input = getInput(element),
-            validators;
+    private initElement(value) {
+        let element = this.element;
+        let form = this.form;
+        let input = getInput(element);
         
         if (!input) {
             return;
@@ -174,7 +177,7 @@ export default class Model extends Behavior {
             return;
         }
         
-        validators = form.$fields[this.name].validators;
+        let validators = form.$fields[this.name].validators;
         
         switch(input.type) {
             case 'number':
@@ -194,10 +197,6 @@ export default class Model extends Behavior {
 //////////
 
 
-// @todo: Add more validators
-var NUMBER = /^\s*\d+(\.\d+)?\s*$/,
-    EMAIL = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
-
 function getInput(element: Element) {
     return (
         element instanceof HTMLInputElement ||
@@ -207,33 +206,31 @@ function getInput(element: Element) {
 }
 
 function numberValidator(value: string) {
-    return NUMBER.test(value);
+    return isNumber.test(value);
 }
 
 function emailValidator(value: string) {
-    return EMAIL.test(value);
+    return isEmail.test(value);
 }
 
 function dateValidator(value: string) {
-    var date = new Date(value),
-        dateString = [
-            pad(date.getFullYear(), 4),
-            pad(date.getMonth() + 1, 2),
-            pad(date.getDate(), 2)
-        ].join('-');
+    let date = new Date(value);
+    let dateString = [
+        pad(date.getFullYear(), 4),
+        pad(date.getMonth() + 1, 2),
+        pad(date.getDate(), 2)
+    ].join('-');
     
     return dateString === value; 
 }
 
-function pad(value, amount) {
-    var str = value + '',
-        i = 0;
+function pad(value: string|number, length: number) {
+    value = value + '';
+    length -= (<string>value).length;
     
-    amount -= str.length;
-    
-    while (i++ < amount) {
-        str = '0' + str;
+    while (length--) {
+        value = '0' + value;
     }
     
-    return str;
+    return <string>value;
 }

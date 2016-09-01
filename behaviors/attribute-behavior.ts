@@ -40,7 +40,7 @@ export default class AttributeBehavior extends Behavior {
      */
     name: string;
     
-    constructor(value, name) {
+    constructor(value: string, name: string) {
         super(value);
         
         this.name = name.substr(1);

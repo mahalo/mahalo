@@ -20,9 +20,9 @@ import clone from '../utils/clone';
  * counterparts using assign.
  * 
  * ```javascript
- * var foo = 0,
- *     bar = 0,
- *     baz = {x: 0};
+ * let foo = 0;
+ * let bar = 0;
+ * let baz = {x: 0};
  * 
  * // Variable assignments are just wrapped
  * ++foo; // 1
@@ -65,8 +65,8 @@ window.onresize = assign;
 function memberAssignment(obj: Object, key: string|number, value?) {
     obj = obj instanceof Scope ? getComponent.call(obj, key) : obj;
     
-    var oldValue = obj[key],
-        oldObj = clone(obj);
+    let oldValue = obj[key];
+    let oldObj = clone(obj);
     
     if (arguments.length === 2) {
         delete obj[key];

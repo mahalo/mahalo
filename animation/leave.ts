@@ -1,35 +1,36 @@
+import {ComponentController} from '../index';
 import hasAnimation from './has-animation';
 import {addClass, removeClass} from '../utils/element-classes';
 import asap from '../utils/asap';
+
+const enterClass = 'mh-enter';
+const leaveClass = 'mh-leave';
 
 /**
  * Makes sure that a leave is called on a controller's component and
  * that it is removed after a leave animation has finished or instantly
  * if none is available.
  */
-export default function leave(controller: IComponentController) {
-    var node = controller.node,
-        element = node instanceof Element && node,
-        parentNode = element.parentNode,
-        siblings,
-        nextSibling;
+export default function leave(controller: ComponentController) {
+    let element = <Element>controller.node;
+    let parentNode = element.parentNode;
     
-    typeof controller.component.leave === 'function' && controller.component.leave();
+    controller.component.leave();
     
     // When the element is not in the DOM or has no animation end here
-    if (!parentNode || !hasAnimation(controller, LEAVE_CLASS)) {
+    if (!parentNode || !hasAnimation(controller, leaveClass)) {
         controller.remove();
         return;
     }
     
     // Find the sibling before which the element should be inserted
-    siblings = parentNode.childNodes,
-    nextSibling = siblings[siblings.length - controller.position];
+    let siblings = parentNode.childNodes;
+    let nextSibling = siblings[siblings.length - controller.position];
     
     // Stop maybe existing enter animation
     if (controller.isEntering) {
         controller.isEntering = false;
-        removeClass(element, ENTER_CLASS);
+        removeClass(element, enterClass);
     }
     
     // Insert the element in its old place
@@ -42,20 +43,17 @@ export default function leave(controller: IComponentController) {
 //////////
 
 
-var ENTER_CLASS = 'mh-enter',
-    LEAVE_CLASS = 'mh-leave';
-
 /**
  * Adds event listeners to the element, starts its leave animation
  * and removes the controller after the animation is done.
  */
-function startAnimation(controller: IComponentController, element: Element) {
+function startAnimation(controller: ComponentController, element: Element) {
     controller.isLeaving = true;
     
     element.addEventListener('animationend', end);
     element.addEventListener('webkitAnimationEnd', end);
     
-    addClass(element, LEAVE_CLASS);
+    addClass(element, leaveClass);
     
     /**
      * Event listener to clean up the element and remove the controller.
@@ -66,7 +64,7 @@ function startAnimation(controller: IComponentController, element: Element) {
         element.removeEventListener('animationend', end);
         element.removeEventListener('webkitAnimationEnd', end);
         
-        removeClass(element, LEAVE_CLASS);
+        removeClass(element, leaveClass);
         
         controller.remove();
         

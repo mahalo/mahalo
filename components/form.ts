@@ -64,11 +64,11 @@ export default class Form extends Component {
      * Updates the value of field.
      */
     setValue(name: string, value) {
-        if (!this._validateField(name, value)) {
+        if (!this.validateField(name, value)) {
             return false;
         }
         
-        var field = this.$fields[name];
+        let field = this.$fields[name];
         
         if ('value' in field) {
             this.$dirty = true;
@@ -76,7 +76,7 @@ export default class Form extends Component {
         
         field.value = value;
         
-        this._validateForm();
+        this.validateForm();
         
         return true;
     }
@@ -85,9 +85,9 @@ export default class Form extends Component {
     //////////
     
     
-    _validateField(name: string, value) {
-        var field = this.$fields[name],
-            valid = true;
+    private validateField(name: string, value) {
+        let field = this.$fields[name];
+        let valid = true;
         
         field.validators.forEach(validator => {
             valid = validator(value);
@@ -97,11 +97,11 @@ export default class Form extends Component {
         
     }
     
-    _validateForm() {
-        var fields = this.$fields,
-            names = Object.keys(fields),
-            i = names.length,
-            valid = true;
+    private validateForm() {
+        let fields = this.$fields;
+        let names = Object.keys(fields);
+        let i = names.length;
+        let valid = true;
         
         while (i--) {
             if (!fields[names[i]].valid) {

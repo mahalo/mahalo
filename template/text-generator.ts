@@ -4,15 +4,16 @@
 
 /***/
 
+import {IGenerator} from './generator';
 import Parser from '../expression/parser';
 import TextController from '../app/text-controller';
-import {Component} from '../index';
+import {Scope, Component, ComponentController} from '../index';
 
 /**
  * The TextGenerator finds output expressions in text nodes
  * of a template and can be used to compile them for view.
  */
-export default class TextGenerator implements ITextGenerator {
+export default class TextGenerator implements IGenerator {
     /**
      * The node to clone from.
      */
@@ -21,23 +22,23 @@ export default class TextGenerator implements ITextGenerator {
     /**
      * A list of parts that make up the text content.
      */
-    parts: Array<{text: string, expression: boolean}>;
+    parts: {text: string, expression: boolean}[];
     
     constructor(textNode: Node) {
         this.node = textNode;
         
-        this._parseText(textNode.textContent);
+        this.parseText(textNode.textContent);
     }
     
     /**
      * Compiles the node by creating a [[mahalo/app/text-controller.TextController]]
      * for each of its parts.
      */
-    compile(parentNode: DocumentFragment, scope: IScope|Component, parent: IComponentController) {
-        var textNode = this.node,
-            parts = this.parts,
-            part = parts[0],
-            i = 0;
+    compile(parentNode: DocumentFragment, scope: Scope|Component, parent: ComponentController) {
+        let textNode = this.node;
+        let parts = this.parts;
+        let part = parts[0];
+        let i = 0;
         
         while (part) {
             textNode = textNode.cloneNode();
@@ -59,13 +60,13 @@ export default class TextGenerator implements ITextGenerator {
     /**
      * Parses text content to find output expressions.
      */
-    _parseText(text: string) {
-        var parts = [],
-            char = text[0],
-            i = 0,
-            part = '',
-            nested = 0,
-            expression;
+    private parseText(text: string) {
+        let parts = [];
+        let char = text[0];
+        let i = 0;
+        let part = '';
+        let nested = 0;
+        let expression;
         
         this.parts = parts;
             

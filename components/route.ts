@@ -8,6 +8,15 @@ import {Component, ComponentController, ComponentGenerator, Template, assign, co
 import asap from '../utils/asap';
 import enter from '../animation/enter';
 
+const basePath = new RegExp('^' + config.basePath);
+const fromFileSystem = /file/.test(window.location.protocol);
+const supportsPopState = 'onpopstate' in window && !fromFileSystem;
+const routes = new Set();
+
+let currentPath = [];
+let currentID = '';
+let noResolve;
+
 /**
  * In Mahalo routes are similar to rules. While it is important
  * to have rules, a ruler is an unnecessary evil. Just like
@@ -104,7 +113,7 @@ export default class Route extends Component {
     /**
      * A list of resolved parts of the route's path. 
      */
-    resolvedPath: Array<string>;
+    resolvedPath: string[];
     
     /**
      * The resolved id.
@@ -124,32 +133,23 @@ export default class Route extends Component {
     constructor() {
         super();
         
-        var Constructor = this.constructor;
-        
-        // Make sure contructor is a direct sub class of Route		
-        if (Constructor !== Route && Object.getPrototypeOf(Constructor) !== Route) {
-            throw Error('It is not possible to extend classes that are inherited from Route');
-        }
-        
-        var path = this.path && this.path.replace(/^([^\/])/, '/$1'),
-            id = this.id;
+        let path = this.path && this.path.replace(/^([^\/])/, '/$1');
+        let id = this.id;
         
         if (!path && !id) {
             return;
         }
         
-        var parent = this.controller.parent,
-            visited = new Set(),
-            component,
-            route;
+        let parent = this.controller.parent;
+        let visited = new Set();
         
         install();
         
         routes.add(this);
 
         while (parent) {
-            component = parent.component;
-            route = component instanceof Route && component;
+            let component = parent.component;
+            let route = component instanceof Route && component;
             
             if (route && !visited.has(route)) {
                 visited.add(route);
@@ -178,16 +178,16 @@ export default class Route extends Component {
     /**
      * Checks if the route should render.
      */
-    match(path: Array<string>) {
-        var resolvedPath = this.resolvedPath;
+    match(path: string[]) {
+        let resolvedPath = this.resolvedPath;
         
         if (!resolvedPath) {
-            return this._detachController();
+            return this.deactivate();
         }
         
-        var routeParams = {},
-            part = resolvedPath[0],
-            i = 0;
+        let routeParams = {};
+        let part = resolvedPath[0];
+        let i = 0;
         
         while (typeof part === 'string') {
             
@@ -200,7 +200,7 @@ export default class Route extends Component {
                 routeParams[part.substr(1)] = path[i];
                 
             } else if ((part !== '' || path[i]) && part !== path[i]) {
-                return this._detachController();
+                return this.deactivate();
             }
             
             part = resolvedPath[++i];
@@ -213,27 +213,28 @@ export default class Route extends Component {
      * Triggers rendering of the route.
      */
     activate(routeParams: Object = {}) {
-        var parts = Object.keys(routeParams),
-            i = parts.length,
-            part;
+        let parts = Object.keys(routeParams);
+        let i = parts.length;
         
         while (i--) {
-            part = parts[i];
+            let part = parts[i];
+            
             assign(this.$params, part, routeParams[part]);
         }
         
         if (typeof this.canActivate === 'function' && !this.canActivate()) {
-            return this._detachController();
+            return this.deactivate();
         }
         
         if (typeof this.resolve === 'function') {
             Promise.resolve(this.resolve()).then(() => {
-                this._createController();
+                this.createController();
             });
+            
             return;
         }
         
-        this._createController();
+        this.createController();
     }
     
     /**
@@ -243,6 +244,9 @@ export default class Route extends Component {
         return true;
     }
     
+    /**
+     * Implementation of Component.remove.
+     */
     remove() {
         routes.delete(this);
     }
@@ -252,11 +256,10 @@ export default class Route extends Component {
      */
     resolve() {}
     
-    
-    //////////
-    
-    
-    _detachController() {
+    /**
+     * Removes the route from the DOM.
+     */
+    deactivate() {
         if (this.child) {
             this.child.component = new Component();
             this.child.detach();
@@ -265,54 +268,59 @@ export default class Route extends Component {
         this.child = null;
     }
     
-    _createController() {
+    
+    //////////
+
+    
+    private createController() {
         if (this.child) {
             return;
         }
         
-        var controller = this.controller,
-            element = document.createDocumentFragment(),
-            childController = new ComponentController(Component, element, controller.scope, controller, ['$params']),
-            component = childController.component;
+        let controller = this.controller;
         
-        this.child = childController;
+        this.child = new ComponentController(
+            Component,
+            document.createDocumentFragment(),
+            controller.scope,
+            controller,
+            ['$params']
+        );
         
-        this._ensureTemplate();
+        this.ensureTemplate();
         
-        return childController;
+        return this.child;
     }
     
-    _ensureTemplate() {
-        var Constructor = this.constructor;
+    private ensureTemplate() {
+        let Constructor = this.constructor;
         
         if (!('view' in Constructor)) {
-            return this._initController(void 0);
+            return this.initController(void 0);
         }
         
-        var view = Constructor['view'];
+        let view = Constructor['view'];
         
         if (typeof view !== 'function') {
-            return this._initTemplate(view);
+            return this.initTemplate(view);
         }
         
         Promise.resolve(view()).then((template) => {
-            setTimeout(() => this._initTemplate(template.default));
+            setTimeout(() => this.initTemplate(template.default));
         });
     }
     
-    _initTemplate(template: Template) {
-        var Constructor = this.constructor;
+    private initTemplate(template: Template) {
+        let Constructor = this.constructor;
         
-        template = template instanceof Template ? template : void 0;
+        template = Constructor['view'] = template instanceof Template ? template : void 0;
         
-        Constructor['view'] = template;
-        
-        this._initController(template);
+        this.initController(template);
     }
     
-    _initController(template?: Template) {
-        var controller = this.controller,
-            childController = this.child;
+    private initController(template?: Template) {
+        let controller = this.controller;
+        let childController = this.child;
         
         enter(controller, controller.parent.node, true);
         
@@ -330,7 +338,7 @@ export default class Route extends Component {
  * Navigate to a route by its ID.
  */
 export function setByID(id) {
-    var match = false;
+    let match = false;
     
     currentID = id;
     
@@ -357,26 +365,18 @@ export function setByPath(path: string) {
     resolve();
 }
 
-export var installed;
+export let installed;
 
 
 //////////
 
-
-var BASE_PATH = new RegExp('^' + config.basePath),
-    fromFileSystem = /file/.test(window.location.protocol),
-    supportsPopState = 'onpopstate' in window && !fromFileSystem,
-    routes = new Set(),
-    currentPath = [],
-    currentID = '',
-    noResolve;
 
 function install() {
     if (installed) {
         return;
     }
     
-    var hash = window.location.hash.substr(1);
+    let hash = window.location.hash.substr(1);
     
     installed = true;
     
@@ -387,7 +387,9 @@ function install() {
     } else {
         hash = hash[0] === '/' ? hash : window.location.pathname + (hash ? '#' + hash : '');
         
-        !fromFileSystem && window.location.pathname !== config.basePath && (window.location.href = config.basePath + (hash ? '#' + hash : ''));
+        if (!fromFileSystem && window.location.pathname !== config.basePath) {
+            window.location.href = config.basePath + (hash ? '#' + hash : '');
+        }
         
         window.onhashchange = hashchange;
     }
@@ -413,14 +415,14 @@ function hashchange(event: Event) {
 }
 
 function resolve() {
-    var parts = currentPath = normalize().split('/');
+    let parts = currentPath = normalize().split('/');
     
     routes.forEach(route => route.match(parts));
 }
 
 function normalize() {
-    var path = window.location.pathname.replace(BASE_PATH, ''),
-        hash = window.location.hash.substr(1);
+    let path = window.location.pathname.replace(basePath, '');
+    let hash = window.location.hash.substr(1);
     
     if (!supportsPopState && (fromFileSystem || hash[0] === '/')) {
         path = hash.split('#').shift();
@@ -433,7 +435,7 @@ function normalize() {
 
 // @todo: Improve scrolling by taking scroll containers into account
 function goto() {
-    var name = window.location.hash.substr(1);
+    let name = window.location.hash.substr(1);
     
     if (!supportsPopState) {
         name = name.substr(name.split('#').shift().length + 1);
@@ -443,27 +445,27 @@ function goto() {
         return;
     }
     
-    var anchor = document.querySelector('[name="' + name + '"]'),
-        rect = anchor && anchor.getBoundingClientRect();
+    let anchor = document.querySelector('[name="' + name + '"]');
+    let rect = anchor && anchor.getBoundingClientRect();
     
     if (!rect) {
         return;
     }
     
-    var doc = document.documentElement,
-        left = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0),
-        top = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
+    let doc = document.documentElement;
+    let left = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+    let top = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
     
     window.scrollTo(rect.left + left, rect.top + top);
     
     return true;
 }
 
-function matchID(route, push?: boolean) {
-    var resolvedID = route.resolvedID;
+function matchID(route: Route, push?: boolean) {
+    let resolvedID = route.resolvedID;
     
     if (!resolvedID || resolvedID !== currentID.substr(0, resolvedID.length)) {
-        route._detachController();
+        route.deactivate();
         return;
     }
     
@@ -477,7 +479,7 @@ function matchID(route, push?: boolean) {
         return true;
     }
     
-    var path = '/' + route.resolvedPath.join('/').replace(/([^\/])$/, '$1/');
+    let path = '/' + route.resolvedPath.join('/').replace(/([^\/])$/, '$1/');
     
     if (supportsPopState) {
         window.history[push ? 'pushState' : 'replaceState']({}, '', path);

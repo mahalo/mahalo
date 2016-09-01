@@ -1,6 +1,9 @@
+import {ComponentController} from '../index';
 import hasAnimation from './has-animation';
 import {addClass, removeClass} from '../utils/element-classes';
 import asap from '../utils/asap';
+
+const enterClass = 'mh-enter';
 
 /**
  * Makes sure that enter is called on a controllers component when
@@ -9,9 +12,8 @@ import asap from '../utils/asap';
  * 
  * @param ensure When true even already compiled controllers will be entered but not appended.
  */
-export default function enter(controller: IComponentController, parentNode: Element|DocumentFragment, ensure?: boolean) {
-    var node = controller.node,
-        element = node instanceof Element && node;
+export default function enter(controller: ComponentController, parentNode: Element|DocumentFragment, ensure?: boolean) {
+    let element = <Element>controller.node;
     
     // When the animation is not ensured append element to parentNode
     ensure || parentNode.appendChild(element);
@@ -19,7 +21,7 @@ export default function enter(controller: IComponentController, parentNode: Elem
     // If the element is already entering stop it
     if (controller.isEntering) {
         controller.isEntering = false;
-        removeClass(element, ENTER_CLASS);
+        removeClass(element, enterClass);
     }
     
     // Only continue when the controller is new or ensured
@@ -30,31 +32,29 @@ export default function enter(controller: IComponentController, parentNode: Elem
     controller.compiled = true;
     
     // Check for existing animation and start it
-    if (hasAnimation(controller, ENTER_CLASS)) {
+    if (hasAnimation(controller, enterClass)) {
         return startAnimation(controller, element);
     }
     
     // No animation was found so just call enter
-    typeof controller.component.enter === 'function' && controller.component.enter();
+    controller.component.enter();
 }
 
 
 //////////
 
 
-var ENTER_CLASS = 'mh-enter';
-
 /**
  * Adds event listeners to the element, starts animatiing and
  * calls enter on the component when the animation has finished.
  */
-function startAnimation(controller: IComponentController, element: Element) {
+function startAnimation(controller: ComponentController, element: Element) {
     controller.isEntering = true;
     
     element.addEventListener('animationend', end);
     element.addEventListener('webkitAnimationEnd', end);
     
-    addClass(element, ENTER_CLASS);
+    addClass(element, enterClass);
     
     
     //////////
@@ -70,9 +70,9 @@ function startAnimation(controller: IComponentController, element: Element) {
         element.removeEventListener('animationend', end);
         element.removeEventListener('webkitAnimationEnd', end);
         
-        removeClass(element, ENTER_CLASS);
+        removeClass(element, enterClass);
         
-        typeof controller.component.enter === 'function' && controller.component.enter();
+        controller.component.enter();
         
         event.stopPropagation();
     }

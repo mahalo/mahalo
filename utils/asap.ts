@@ -3,12 +3,17 @@
  * of provided callbacks.
  */
 
+/***/
+
+const message = 'mahalo/utils/asap#' + Math.random();
+const queue: Function[] = [];
+
 /**
  * This function executes a callback after the current event loop.
  * If window.postMessage is available it will take precedence
  * otherwise MessageChannel is used as a fallback.
  */
-var asap = supportsPostMessage() ? getPostMessage() : getFallback();
+const asap = supportsPostMessage() ? getPostMessage() : getFallback();
 
 export default asap;
 
@@ -16,14 +21,11 @@ export default asap;
 //////////
 
 
-var MESSAGE = 'mahalo/utils/asap#' + Math.random(),
-    queue: Array<Function> = [];
-
 function supportsPostMessage() {
-    var support = true;
+    let support = true;
     
     window.addEventListener('message', callback);
-    window.postMessage(MESSAGE, '*');
+    window.postMessage(message, '*');
     window.removeEventListener('message', callback);
     
     return support;
@@ -39,7 +41,7 @@ function supportsPostMessage() {
 
 function getPostMessage() {
     window.addEventListener('message', event => {
-        if (event.source !== window || event.data !== MESSAGE) {
+        if (event.source !== window || event.data !== message) {
             return;
         }
         
@@ -50,12 +52,12 @@ function getPostMessage() {
     
     return function asap(callback: Function, thisArg?) {
         queue.push(callback.bind(thisArg));
-        queue.length === 1 && window.postMessage(MESSAGE, '*');
+        queue.length === 1 && window.postMessage(message, '*');
     }
 }
 
 function getFallback() {
-    var channel = new MessageChannel();
+    let channel = new MessageChannel();
     
     channel.port1.onmessage = () => runQueue();
     
@@ -66,8 +68,8 @@ function getFallback() {
 }
 
 function runQueue() {
-    var callback = queue[0],
-        i = 0;
+    let callback = queue[0];
+    let i = 0;
     
     while (callback) {
         callback();

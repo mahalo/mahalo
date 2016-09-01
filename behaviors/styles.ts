@@ -41,19 +41,19 @@ export default class Styles extends Behavior {
             return;
         }
         
-        var element = this.element,
-            style: CSSStyleDeclaration = 'style' in element && element['style'];
+        let element = this.element;
+        let style: CSSStyleDeclaration = 'style' in element && element['style'];
         
         if (!style) {
             return;
         }
         
-        var names = Object.keys(styles),
-            i = names.length,
-            name;
+        let names = Object.keys(styles);
+        let i = names.length;
         
         while (i--) {
-            name = names[i];
+            let name = names[i];
+            
             style[name] = styles[name];
         }
     }

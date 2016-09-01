@@ -8,6 +8,9 @@ import {Component, ComponentController, Route, config} from '../index';
 import {installed, setByPath} from './route';
 import asap from '../utils/asap';
 
+const isURL = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+const supportsPopState = 'onpopstate' in window && !/file/.test(window.location.protocol);
+
 /**
  * The Anchor component automatically handles anchor tags to
  * make them properly work with routing and still keep their
@@ -61,9 +64,9 @@ export default class Anchor extends Component {
      * but makes sure routing is active first.
      */
     init() {
-        var href = this.href;
+        let href = this.href;
         
-        if (!href || URL.test(href)) {
+        if (!href || isURL.test(href)) {
             return;
         }
         
@@ -75,7 +78,7 @@ export default class Anchor extends Component {
             return;
         }
         
-        var parts = (href[0] === '/' ? href : relativePath(this.controller, href)).split('#');
+        let parts = (href[0] === '/' ? href : relativePath(this.controller, href)).split('#');
         
         if (parts[0] !== '/') {
             parts[0] = parts[0].replace(/([^\/])$/, '$1/');
@@ -95,28 +98,21 @@ export default class Anchor extends Component {
 //////////
 
 
-var URL = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
-    supportsPopState = 'onpopstate' in window && !/file/.test(window.location.protocol);
-
 /**
  * Computes the relative path of the link.
  */
 function relativePath(controller: ComponentController, path: string) {
-    var parent = controller.parent,
-        route,
-        parts,
-        part,
-        i = 0;
+    let parent = controller.parent;
     
     while (parent) {
-        route = parent.component;
+        let route = parent.component;
         
         if (route instanceof Route) {
             path = '/' + route.resolvedPath.join('/').replace(/\/$/g, '') + '/' + path;
             
-            parts = path.split('/');
-            part = parts[0];
-            i = 0;
+            let parts = path.split('/');
+            let part = parts[0];
+            let i = 0;
             
             while (part) {
                 if (i && part === '..') {
@@ -140,7 +136,7 @@ function relativePath(controller: ComponentController, path: string) {
  * An interceptor for click events.
  */
 function click(event: Event) {
-    var path = this.path || this.href;
+    let path = this.path || this.href;
     
     if (!supportsPopState && path[0] === '#') {
         path = window.location.hash.split('#').shift() + path;

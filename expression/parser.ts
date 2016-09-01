@@ -4,11 +4,14 @@
 
 /***/
 
-import * as symbols from './symbols';
-import * as types from './types';
+import symbols from './symbols';
+import types from './types';
 import {nextSymbol} from './lexer';
 import compileBranch from './compiler';
 import {toKeyPath} from '../utils/key-path';
+
+const reserved = ['true', 'false', 'null'];
+const parsers = {};
 
 /**
  * A simple parser for Mahalo expressions.
@@ -38,7 +41,11 @@ export default class Parser {
     /**
      * The current symbol.
      */
-    symbol: IExpressionSymbol;
+    symbol: {
+        type: types   
+        str: string
+        start: number
+    };
     
     constructor(expression: string) {
         if (parsers.hasOwnProperty(expression)) {
@@ -48,10 +55,10 @@ export default class Parser {
         this.expression = expression;
         this.i = -1;
         this.paths = new Set();
-        this.ast = this._filter();
+        this.ast = this.filter();
         
-        this._nextSymbol();
-        this._expect(symbols.END);
+        this.nextSymbol();
+        this.expect(symbols.End);
         
         parsers[expression] = this;
     }
@@ -67,295 +74,295 @@ export default class Parser {
     //////////
     
     
-    _filter(): IExpressionBranch {
-        var arg = this._comparison();
+    private filter(): IExpressionBranch {
+        let arg = this.comparison();
         
-        if (!this._accept(symbols.FILTER)) {
+        if (!this.accept(symbols.Filter)) {
             return arg;
         }
         
-        var args = [],
-            branch: IExpressionBranch = {
-                type: types.FILTER,
-                arg: arg,
-                args: args
-            };
+        let args = [];
+        let branch: IExpressionBranch = {
+            type: types.Filter,
+            arg: arg,
+            args: args
+        };
         
-        this._nextSymbol();
-        this._expect(symbols.IDENT);
+        this.nextSymbol();
+        this.expect(symbols.Identifier);
         
         branch.filter = this.symbol.str;
         
-        if (this._accept(symbols.COLON)) {
-            args.push(this._filter());
+        if (this.accept(symbols.Colon)) {
+            args.push(this.filter());
             
-            while(this._accept(symbols.COMMA)) {
-                args.push(this._filter());
+            while(this.accept(symbols.Comma)) {
+                args.push(this.filter());
             }
         }
         
         return branch;
     }
     
-    _comparison(): IExpressionBranch {
-        var left = this._sum();
+    private comparison(): IExpressionBranch {
+        let left = this.sum();
         
-        if (this._accept(symbols.COMPARISON)) {
+        if (this.accept(symbols.Comparison)) {
             return {
-                type: types.COMPARISON,
+                type: types.Comparison,
                 op: this.symbol.str,
                 left: left,
-                right: this._filter()
+                right: this.filter()
             };
         }
 
         return left;
     }
     
-    _sum(): IExpressionBranch {
-        var left = this._multiply();
+    private sum(): IExpressionBranch {
+        let left = this.multiply();
         
-        if (this._accept(symbols.SUM)) {
+        if (this.accept(symbols.Sum)) {
             return {
-                type: types.SUM,
+                type: types.Sum,
                 op: this.symbol.str,
                 left: left,
-                right: this._sum()
+                right: this.sum()
             };
         }
         
         return left;
     }
     
-    _multiply(): IExpressionBranch {
-        var left = this._unary();
+    private multiply(): IExpressionBranch {
+        let left = this.unary();
         
-        if (this._accept(symbols.MULTIPLY)) {
+        if (this.accept(symbols.Multiply)) {
             return {
-                type: types.MULTIPLY,
+                type: types.Multiply,
                 op: this.symbol.str,
                 left: left,
-                right: this._multiply()
+                right: this.multiply()
             };
         }
         
         return left;
     }
     
-    _unary(): IExpressionBranch {
-        if (this._accept(symbols.SUM) || this._accept(symbols.NEGATION)) {
+    private unary(): IExpressionBranch {
+        if (this.accept(symbols.Sum) || this.accept(symbols.Negation)) {
             return {
-                type: types.UNARY,
+                type: types.Unary,
                 op: this.symbol.str,
-                arg: this._paren()
+                arg: this.paren()
             };
         }
         
-        return this._paren();
+        return this.paren();
     }
     
-    _paren(): IExpressionBranch {
-        if (this._accept(symbols.LPAREN)) {
-            var item = {
-                    type: types.PAREN,
-                    content: this._filter()
-                };
+    private paren(): IExpressionBranch {
+        if (this.accept(symbols.LParenthesis)) {
+            let item = {
+                type: types.Parenthesis,
+                content: this.filter()
+            };
             
-            this._nextSymbol();
-            this._expect(symbols.RPAREN);
+            this.nextSymbol();
+            this.expect(symbols.RParenthesis);
             
             return item;
         }
         
-        return this._operand();
+        return this.operand();
     }
     
-    _operand(): IExpressionBranch {
-        if (this._accept(symbols.LITERAL)) {
+    private operand(): IExpressionBranch {
+        if (this.accept(symbols.Literal)) {
             return {
-                type: types.LITERAL,
+                type: types.Literal,
                 str: this.symbol.str
             };
         }
         
-        if (this._accept(symbols.NUMBER)) {
+        if (this.accept(symbols.Number)) {
             return {
-                type: types.NUMBER,
+                type: types.Number,
                 num: this.symbol.str
             };
         }
         
-        return this._member();
+        return this.member();
     }
     
-    _member(): IExpressionBranch {
-        var member;
+    private member(): IExpressionBranch {
+        let member;
         
-        if (this._accept(symbols.LBRACE)) {
+        if (this.accept(symbols.LBrace)) {
             
             member = {
-                type: types.OBJECT,
-                keys: this._object()
+                type: types.Object,
+                keys: this.object()
             }
             
-        } else if (this._accept(symbols.LBRACKET)) {
+        } else if (this.accept(symbols.LBracket)) {
             
             member = {
-                type: types.ARRAY,
-                items: this._array()
+                type: types.Array,
+                items: this.array()
             }
             
-        } else if (this._accept(symbols.MEMBER)) {
+        } else if (this.accept(symbols.Member)) {
             
-            this._nextSymbol();
-            this._expect(symbols.LBRACKET);
+            this.nextSymbol();
+            this.expect(symbols.LBracket);
             
-            member = this._bracketIdentifier();
+            member = this.bracketIdentifier();
             
         } else {
             
-            member = this._identifier();
+            member = this.identifier();
             
         }
         
-        member = this._memberOrIdentifier(member);
+        member = this.memberOrIdentifier(member);
         
-        if (member.type === types.IDENT && RESERVED.indexOf(member.name) > -1) {
+        if (member.type === types.Identifier && reserved.indexOf(member.name) > -1) {
             return {
-                type: types.RESERVED,
+                type: types.Reserved,
                 str: member.name
             }
         }
         
-        this._addPath(member);
+        this.addPath(member);
         
         return member;
     }
     
-    _object() {
-        var keys = {},
-            desc = this._key();
+    private object() {
+        let keys = {};
+        let desc = this.key();
         
         while (desc) {
             keys[desc.key] = desc.value;
             
-            if (this._accept(symbols.COMMA)) {
-                desc = this._key();
-                desc || this._expect(symbols.RBRACE);
+            if (this.accept(symbols.Comma)) {
+                desc = this.key();
+                desc || this.expect(symbols.RBrace);
             } else {
                 desc = null;
             }
         }
         
-        this._nextSymbol();
-        this._expect(symbols.RBRACE);
+        this.nextSymbol();
+        this.expect(symbols.RBrace);
         
         return keys;
     }
     
-    _key() {
-        if (this._accept(symbols.LITERAL) || this._accept(symbols.NUMBER) || this._accept(symbols.IDENT)) {
+    private key() {
+        if (this.accept(symbols.Literal) || this.accept(symbols.Number) || this.accept(symbols.Identifier)) {
             return {
                 key: this.symbol.str,
-                value: this._nextSymbol() || this._expect(symbols.COLON) || this._filter()
+                value: this.nextSymbol() || this.expect(symbols.Colon) || this.filter()
             };
         }
     }
     
-    _array() {
-        if (this._accept(symbols.RBRACKET)) {
+    private array() {
+        if (this.accept(symbols.RBracket)) {
             return [];
         }
         
-        var items = [this._filter()];
+        let items = [this.filter()];
         
-        while (this._accept(symbols.COMMA)) {
-            items.push(this._filter());
+        while (this.accept(symbols.Comma)) {
+            items.push(this.filter());
         }
         
-        this._nextSymbol();
-        this._expect(symbols.RBRACKET);
+        this.nextSymbol();
+        this.expect(symbols.RBracket);
         
         return items;
     }
     
-    _memberOrIdentifier(ident): IExpressionBranch {
-        if (ident.type !== types.OBJECT && ident.type !== types.ARRAY && this._accept(symbols.LPAREN)) {
-            ident = this._call(ident);
+    private memberOrIdentifier(ident): IExpressionBranch {
+        if (ident.type !== types.Object && ident.type !== types.Array && this.accept(symbols.LParenthesis)) {
+            ident = this.call(ident);
         }
         
-        if (this._accept(symbols.LBRACKET)) {
+        if (this.accept(symbols.LBracket)) {
             return {
-                type: types.MEMBER,
+                type: types.Member,
                 obj: ident,
-                prop: this._memberOrIdentifier(this._bracketIdentifier())
+                prop: this.memberOrIdentifier(this.bracketIdentifier())
             }
         }
         
-        if (this._accept(symbols.MEMBER)) {
+        if (this.accept(symbols.Member)) {
             return {
-                type: types.MEMBER,
+                type: types.Member,
                 obj: ident,
-                prop: this._memberOrIdentifier(this._identifier())
+                prop: this.memberOrIdentifier(this.identifier())
             };
         }
         
         return ident;
     }
     
-    _call(member): IExpressionBranch {
-        var args = [];
+    private call(member): IExpressionBranch {
+        let args = [];
         
         this.paths = null;
         
-        if (!this._accept(symbols.RPAREN)) {
-            args.push(this._filter());
+        if (!this.accept(symbols.RParenthesis)) {
+            args.push(this.filter());
             
-            while (this._accept(symbols.COMMA)) {
-                args.push(this._filter());
+            while (this.accept(symbols.Comma)) {
+                args.push(this.filter());
             }
             
-            this._nextSymbol();
-            this._expect(symbols.RPAREN);
+            this.nextSymbol();
+            this.expect(symbols.RParenthesis);
         }
         
         return {
-            type: types.CALL,
+            type: types.Call,
             prop: member,
             args: args
         }
     }
     
-    _bracketIdentifier(): IExpressionBranch {
-        var prop = this._filter();
+    private bracketIdentifier(): IExpressionBranch {
+        let prop = this.filter();
         
-        this._nextSymbol();
-        this._expect(symbols.RBRACKET);
+        this.nextSymbol();
+        this.expect(symbols.RBracket);
         
         return {
-            type: types.BRACKET_IDENT,
+            type: types.BracketIdentifier,
             prop: prop
         };
     }
     
-    _identifier(): IExpressionBranch {
-        this._nextSymbol();
-        this._expect(symbols.IDENT);
+    private identifier(): IExpressionBranch {
+        this.nextSymbol();
+        this.expect(symbols.Identifier);
         
         return {
-            type: types.IDENT,
+            type: types.Identifier,
             name: this.symbol.str
         };
     }
     
-    _expect(type: number) {
+    private expect(type: number) {
         if (this.symbol.type !== type) {
             throw Error('Unexpected symbol in column ' + this.symbol.start);
         }
     }
     
-    _accept(type: number) {
-        this._nextSymbol();
+    private accept(type: number) {
+        this.nextSymbol();
         
         if (this.symbol.type === type) {
             return true;
@@ -366,52 +373,77 @@ export default class Parser {
         return false;
     }
     
-    _nextSymbol() {
+    private nextSymbol() {
         nextSymbol.call(this);
     }
     
-    _isBracketIdentifier(branch) {
-        return branch.type === types.BRACKET_IDENT && (branch.prop.type === types.LITERAL || branch.prop.type === types.NUMBER);
+    private isBracketIdentifier(branch) {
+        return branch.type === types.BracketIdentifier && (branch.prop.type === types.Literal || branch.prop.type === types.Number);
     }
     
-    _addPath(branch: IExpressionBranch, path?: string) {
+    private addPath(branch: IExpressionBranch, path?: string) {
         if (!this.paths) {
             return;
         }
         
         path = path ? path + '.' : '';
         
-        if (branch.type === types.MEMBER) {
-            path = this._resolvePath(branch.obj, path);
-            path && this._addPath(branch.prop, path);
+        if (branch.type === types.Member) {
+            path = this.resolvePath(branch.obj, path);
+            path && this.addPath(branch.prop, path);
             
             return;
         }
         
-        path = this._resolvePath(branch, path);
+        path = this.resolvePath(branch, path);
         path && this.paths.add(path);
     }
     
-    _resolvePath(branch, path) {
-        if (branch.type === types.IDENT) {
+    private resolvePath(branch, path) {
+        if (branch.type === types.Identifier) {
             return path + branch.name;
         }
         
-        if (this._isBracketIdentifier(branch)) {
-            var prop = branch.prop;
+        if (this.isBracketIdentifier(branch)) {
+            let prop = branch.prop;
             
             return path + toKeyPath(prop.str || prop.num);
         }
         
-        if (branch.type === types.BRACKET_IDENT) {
+        if (branch.type === types.BracketIdentifier) {
             this.paths = null;
         }
     }
 }
 
-
-//////////
-
-
-var RESERVED = ['true', 'false', 'null'],
-    parsers = {};
+export interface IExpressionBranch {
+    type: number;
+    
+    name?: string;
+    
+    arg?: IExpressionBranch;
+    
+    filter?: string;
+    
+    prop?: IExpressionBranch;
+    
+    obj?: IExpressionBranch;
+    
+    op?: string;
+    
+    left?: IExpressionBranch;
+    
+    right?: IExpressionBranch;
+    
+    str?: string;
+    
+    content?: IExpressionBranch;
+    
+    num?: string;
+    
+    keys?: Object;
+    
+    items?: any[];
+    
+    args?: IExpressionBranch[];
+}

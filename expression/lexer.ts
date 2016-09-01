@@ -4,7 +4,27 @@
 
 /***/
 
-import * as symbols from './symbols';
+import symbols from './symbols';
+
+const whitespace = /\s/;
+const sum = /[-+]/;
+const multiply = /[*/%]/;
+const negation = '!';
+const member = '.';
+const comparison = /[<>=]/;
+const literal = /['"]/;
+const identStart = /[a-z_$]/i;
+const ident = /[\w_$]/;
+const number = /\d/;
+const lParen = '(';
+const rParen = ')';
+const lBracket = '[';
+const rBracket = ']';
+const lBrace = '{';
+const rBrace = '}';
+const colon = ':';
+const comma = ',';
+const filter = '|';
 
 /**
  * This method should be called with a parser instance
@@ -12,27 +32,25 @@ import * as symbols from './symbols';
  * and assigns it to the parser's **symbol** property.
  */
 export function nextSymbol() {
-    var expression = this.expression,
-        char = expression[++this.i],
-        type,
-        str,
-        start;
+    let expression = this.expression;
+    let char = expression[++this.i];
     
-    while (char && WHITESPACE.test(char)) {
+    while (char && whitespace.test(char)) {
         char = expression[++this.i];
     }
     
-    str = char;
-    start = this.i;
+    let str = char;
+    let start = this.i;
+    let type;
     
     if (!char) {
         
-        type = symbols.END;
+        type = symbols.End;
         str = '';
         
-    } else if (COMPARISON.test(char)) {
+    } else if (comparison.test(char)) {
         
-        type = symbols.COMPARISON;
+        type = symbols.Comparison;
         
         if (expression[this.i + 1] === '=') {
             str += '=';
@@ -41,12 +59,12 @@ export function nextSymbol() {
             type = void 0;
         }
         
-    } else if (LITERAL.test(char)) {
+    } else if (literal.test(char)) {
         
-        var mark = char,
-            esc;
+        let mark = char;
+        let esc;
     
-        type = symbols.LITERAL;
+        type = symbols.Literal;
         str = '';
         char = expression[++this.i];
         
@@ -56,12 +74,12 @@ export function nextSymbol() {
             char = expression[++this.i];
         }
         
-    } else if (NUMBER.test(char)) {
+    } else if (number.test(char)) {
         
-        type = symbols.NUMBER;
+        type = symbols.Number;
         char = expression[++this.i];
         
-        while (char && NUMBER.test(char)) {
+        while (char && number.test(char)) {
             str += char;
             char = expression[++this.i];
         }
@@ -70,7 +88,7 @@ export function nextSymbol() {
             str += char;
             char = expression[++this.i];
             
-            while (char && NUMBER.test(char)) {
+            while (char && number.test(char)) {
                 str += char;
                 char = expression[++this.i];
             }
@@ -78,75 +96,75 @@ export function nextSymbol() {
         
         this.i--;
         
-    } else if (IDENT_START.test(char)) {
+    } else if (identStart.test(char)) {
         
-        type = symbols.IDENT;
+        type = symbols.Identifier;
         char = expression[++this.i];
         
-        while (char && IDENT.test(char)) {
+        while (char && ident.test(char)) {
             str += char;
             char = expression[++this.i];
         }
         
         this.i--;
     
-    } else if (char === FILTER) {
+    } else if (char === filter) {
         
-        type = symbols.FILTER;
+        type = symbols.Filter;
     
-    } else if (SUM.test(char)) {
+    } else if (sum.test(char)) {
         
-        type = symbols.SUM;
+        type = symbols.Sum;
     
-    } else if (MULTIPLY.test(char)) {
+    } else if (multiply.test(char)) {
         
-        type = symbols.MULTIPLY;
+        type = symbols.Multiply;
     
-    } else if (char === NEGATION) {
+    } else if (char === negation) {
         
         if (expression[this.i + 1] === '=') {
-            type = symbols.COMPARISON;
+            type = symbols.Comparison;
             str += '=';
             this.i++;
         } else {
-            type = symbols.NEGATION;
+            type = symbols.Negation;
         }
 
-    } else if (char === MEMBER) {
+    } else if (char === member) {
         
-        type = symbols.MEMBER;
+        type = symbols.Member;
     
-    } else if (char === LPAREN) {
+    } else if (char === lParen) {
         
-        type = symbols.LPAREN;
+        type = symbols.LParenthesis;
     
-    } else if (char === RPAREN) {
+    } else if (char === rParen) {
         
-        type = symbols.RPAREN;
+        type = symbols.RParenthesis;
     
-    } else if (char === LBRACKET) {
+    } else if (char === lBracket) {
             
-        type = symbols.LBRACKET;
+        type = symbols.LBracket;
     
-    } else if (char === RBRACKET) {
+    } else if (char === rBracket) {
         
-        type = symbols.RBRACKET;
+        type = symbols.RBracket;
     
-    } else if (char === LBRACE) {
+    } else if (char === lBrace) {
         
-        type = symbols.LBRACE;
+        type = symbols.LBrace;
     
-    } else if (char === RBRACE) {
+    } else if (char === rBrace) {
         
-        type = symbols.RBRACE;
+        type = symbols.RBrace;
     
-    } else if (char === COLON) {
+    } else if (char === colon) {
         
-        type = symbols.COLON;
+        type = symbols.Colon;
         
-    } else if (char === COMMA) {
+    } else if (char === comma) {
         
-        type = symbols.COMMA;
+        type = symbols.Comma;
     
     }
     
@@ -160,27 +178,3 @@ export function nextSymbol() {
         start: start
     };
 }
-
-
-//////////
-
-
-var WHITESPACE = /\s/,
-    SUM = /[-+]/,
-    MULTIPLY = /[*/%]/,
-    NEGATION = '!',
-    MEMBER = '.',
-    COMPARISON = /[<>=]/,
-    LITERAL = /['"]/,
-    IDENT_START = /[a-z_$]/i,
-    IDENT = /[\w_$]/,
-    NUMBER = /\d/,
-    LPAREN = '(',
-    RPAREN = ')',
-    LBRACKET = '[',
-    RBRACKET = ']',
-    LBRACE = '{',
-    RBRACE = '}',
-    COLON = ':',
-    COMMA = ',',
-    FILTER = '|';

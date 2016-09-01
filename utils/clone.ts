@@ -6,6 +6,8 @@
 
 import {config} from '../index';
 
+const matchFunctionName = /^function ([^(]*)/;
+
 /**
  * Creates an exact clone of any value that can later be
  * checked for equality to its original by using [[mahalo/utils/equals.default]].
@@ -23,7 +25,7 @@ export default function clone(x) {
     
     // Date
     if (x instanceof Date) {
-        copy = new Date(x.getTime());
+        return new Date(x.getTime());
     }
     
     // RegExp
@@ -31,7 +33,7 @@ export default function clone(x) {
         return new RegExp(x);
     }
     
-    var copy;
+    let copy;
     
     // Array
     if (Array.isArray(x)) {
@@ -44,8 +46,8 @@ export default function clone(x) {
     
     // Function
     if (x instanceof Function) {
-        var match = FN_NAME.exec(x),
-            name = match ? match[1] : '';
+        let match = matchFunctionName.exec(x);
+        let name = match ? match[1] : '';
         
         copy = Function('fn', 'return function ' + name + '() {\n\treturn fn.apply(this, arguments);\n}')(x);
         copy.prototype = x.prototype;
@@ -61,8 +63,6 @@ export default function clone(x) {
 //////////
 
 
-var FN_NAME = /^function ([^(]*)/;
-
 function tryCatch(x) {
     try {
         return cloneKeys(x);
@@ -72,14 +72,14 @@ function tryCatch(x) {
 }
 
 function cloneKeys(x) {
-    var copy = create(Object.getPrototypeOf(x)),
-        keys = Object.keys(x),
-        len = keys.length,
-        i = 0,
-        key;
+    let copy = create(Object.getPrototypeOf(x));
+    let keys = Object.keys(x);
+    let len = keys.length;
+    let i = 0;
     
     while (i < len) {
-        key = keys[i++];
+        let key = keys[i++];
+        
         copy[key] = x[key] === x ? copy : x[key];
     }
     
@@ -87,13 +87,12 @@ function cloneKeys(x) {
 }
 
 export function create(prototype) {
-    var Object,
-        name;
+    let Object;
     
     if (prototype.constructor instanceof Function) {
-        name = (name = FN_NAME.exec(prototype.constructor)) ? name[1] : '';
+        let match = matchFunctionName.exec(prototype.constructor);
         
-        Object = Function('return function ' + name + '() {}')();
+        Object = Function('return function ' + (match ? match[1] : '') + '() {}')();
     } else {
         Object = function() {};
     }

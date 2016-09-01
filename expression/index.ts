@@ -88,7 +88,7 @@ export default class Expression {
     value;
     
     constructor(expression: string, scope: Object) {
-        var parser = new Parser(expression);
+        let parser = new Parser(expression);
         
         this.parser = parser;
         this.scope = scope;
@@ -167,8 +167,8 @@ export default class Expression {
  * It is used for every key path of the expression.
  */
 function interceptor() {
-    var oldValue = this.value,
-        newValue = this.compile();
+    let oldValue = this.value;
+    let newValue = this.compile();
     
     if (equals(newValue, oldValue)) {
         return;
@@ -185,7 +185,7 @@ function interceptor() {
  * An interceptor for expressions that need dirty checking.
  */
 function computedInterceptor(newValue) {
-    var oldValue = this.value;
+    let oldValue = this.value;
     
     this.value = clone(newValue);
     

@@ -37,8 +37,8 @@ export default class Content extends Behavior {
     /**
      * Updates the HTML inside the element.
      */
-    update(html) {
-        var element = this.element;
+    update(html: string) {
+        let element = this.element;
         
         element instanceof HTMLElement && (element.innerHTML = html);
     }

@@ -4,7 +4,8 @@
 
 /***/
 
-import {Template, Component, ComponentController} from '../index';
+import {IGenerator} from './generator';
+import {Scope, Template, Component, ComponentController} from '../index';
 import {setDependency} from '../app/injector';
 
 /**
@@ -14,7 +15,7 @@ import {setDependency} from '../app/injector';
  * 
  * @alias {ComponentGenerator} from mahalo
  */
-export default class ComponentGenerator implements IComponentGenerator {
+export default class ComponentGenerator implements IGenerator {
     /**
      * The node to clone from.
      */
@@ -39,10 +40,10 @@ export default class ComponentGenerator implements IComponentGenerator {
      * A list of children that will be created inside
      * of the template's children element.
      */
-    children: Array<IGenerator>;
+    children: IGenerator[];
     
     constructor(node: Element, desc: {Component?: typeof Component, template?: Template} = {}) {
-        var Constructor = desc.Component || Component;
+        let Constructor = desc.Component || Component;
         
         this.node = node;
         this.Constructor = Constructor;
@@ -53,7 +54,7 @@ export default class ComponentGenerator implements IComponentGenerator {
             return;	
         }
         
-        var template = Constructor.template;
+        let template = Constructor.template;
         
         if (template instanceof Template) {
             this.template = template;
@@ -66,18 +67,15 @@ export default class ComponentGenerator implements IComponentGenerator {
      * Compiles the node in a given scope and appends it to
      * a parent node as well as the parent controller.
      */
-    compile(parentNode: Element|DocumentFragment, scope: IScope|Component, parent: ComponentController) {
-        var Constructor = this.Constructor,
-            node = this.node,
-            element = node instanceof Element && node,
-            controller;
+    compile(parentNode: Element|DocumentFragment, scope: Scope|Component, parent: ComponentController) {
+        let Constructor = this.Constructor;
+        let node = this.node;
             
-        node = node.cloneNode(element.tagName === 'PRE'),
-        element = node instanceof Element && node;
+        node = node.cloneNode(/^(PRE|SCRIPT|TEXTAREA)$/.test((<Element>node).tagName));
         
         setDependency(ComponentGenerator, this);
         
-        controller = new ComponentController(Constructor, element, scope, parent, Constructor.locals);
+        let controller = new ComponentController(Constructor, <Element>node, scope, parent, Constructor.locals);
         
         controller.init(parentNode, this.children, this.behaviors, this.template);
     }

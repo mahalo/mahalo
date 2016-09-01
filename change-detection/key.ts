@@ -8,6 +8,17 @@ import asap from '../utils/asap';
 import clone from '../utils/clone';
 import {default as Scope, getComponent} from '../app/scope';
 
+const mutationKey = Symbol('mahalo-mutation-key');
+const callbacksByKeys: WeakMap<Object, {[key: string]: Set<Function>}> = new WeakMap();
+const computedKeys: Map<Object, {[key: string]: any}> = new Map();
+const _defineProperty = Object.defineProperty;
+const _defineProperties = Object.defineProperties;
+const arrayPrototype = Array.prototype;
+const methods = ['push', 'pop', 'shift', 'unshift', 'splice', 'reverse', 'sort'];
+
+let counter = 0;
+let scheduled;
+
 /**
  * Makes sure a provided key is observed inside of an object and
  * adds a callback for that key.
@@ -15,20 +26,19 @@ import {default as Scope, getComponent} from '../app/scope';
 export function observe(obj: Object|Scope, key: string|number, callback: Function) {
     obj = obj instanceof Scope ? getComponent.call(obj, key) : obj;
     
-    var keys = callbacksByKeys.get(obj),
-        use = key === null ? MUTATION_KEY : key,
-        callbacks;
+    let keys = callbacksByKeys.get(obj);
+    let use = key === null ? mutationKey : key;
     
     if (!keys) {
         keys = {};
         callbacksByKeys.set(obj, keys);
     }
 
+    let callbacks = keys[use];
+
     if (!keys.hasOwnProperty(use)) {
         callbacks = new Set();
         keys[use] = callbacks;
-    } else {
-        callbacks = keys[use];
     }
     
     key !== null && !callbacks.size && isComputed(obj, key) && observeComputed(obj, key);
@@ -42,15 +52,14 @@ export function observe(obj: Object|Scope, key: string|number, callback: Functio
 export function unobserve(obj: Object, key: string|number, callback: Function) {
     obj = obj instanceof Scope ? getComponent.call(obj, key) : obj;
     
-    var keys = callbacksByKeys.get(obj),
-        use = key === null ? MUTATION_KEY : key,
-        callbacks;
+    let keys = callbacksByKeys.get(obj);
+    let use = key === null ? mutationKey : key;
     
     if (!keys || !keys.hasOwnProperty(use)) {
         return;
     }
     
-    callbacks = keys[use];
+    let callbacks = keys[use];
     
     callbacks.delete(callback);
     
@@ -62,9 +71,9 @@ export function unobserve(obj: Object, key: string|number, callback: Function) {
  * and key.
  */
 export function executeCallbacks(obj: Object, key: string|number, oldValue) {
-    var keys = callbacksByKeys.get(obj),
-        use = key === null ? MUTATION_KEY : key,
-        newValue = key === null ? obj : obj[key];
+    let keys = callbacksByKeys.get(obj);
+    let use = key === null ? mutationKey : key;
+    let newValue = key === null ? obj : obj[key];
     
     if (!keys || !keys.hasOwnProperty(use) || newValue === oldValue) {
         return;
@@ -95,26 +104,16 @@ export function scheduleCheck() {
     asap(checkComputed);
 }
 
-
-//////////
-
-
-var callbacksByKeys = new WeakMap(),
-    computedKeys = new Map(),
-    _defineProperty = Object.defineProperty,
-    _defineProperties = Object.defineProperties,
-    arrayPrototype = Array.prototype,
-    methods = ['push', 'pop', 'shift', 'unshift', 'splice', 'reverse', 'sort'],
-    MUTATION_KEY = Symbol('mahalo-mutation-key'),
-    counter = 0,
-    scheduled;
-
 // Wrap array methods
 methods.forEach(method => wrapMethod(method, arrayPrototype[method]));
 
 // Wrap define methods
 Object.defineProperty = defineProperty;
 Object.defineProperties = defineProperties;
+
+
+//////////
+
 
 /**
  * Checks if a property is computed.
@@ -124,7 +123,7 @@ function isComputed(obj: Object, key: string|number) {
         obj = Object.getPrototypeOf(obj);
     }
     
-    var desc = Object.getOwnPropertyDescriptor(obj, key);
+    let desc = Object.getOwnPropertyDescriptor(obj, key);
     
     return desc && desc.get ? true : false;
 }
@@ -133,11 +132,10 @@ function isComputed(obj: Object, key: string|number) {
  * Adds a computed key for beeing dirty checked.
  */
 function observeComputed(obj: Object, key: string|number) {
-    var map = computedKeys.get(obj);
+    let map = computedKeys.get(obj);
     
     if (!map) {
-        map = {};
-        computedKeys.set(obj, map);
+        computedKeys.set(obj, map = {});
     }
     
     map[key] = obj[key];
@@ -147,7 +145,7 @@ function observeComputed(obj: Object, key: string|number) {
  * Removes a computed key from beeing dirty checked.
  */
 function unobserveComputed(obj: Object, key: string|number) {
-    var map = computedKeys.get(obj);
+    let map = computedKeys.get(obj);
     
     if (!map) {
         return;
@@ -155,7 +153,7 @@ function unobserveComputed(obj: Object, key: string|number) {
     
     delete map[key];
     
-    if (!map.size) {
+    if (!Object.keys(map).length) {
         computedKeys.delete(obj);
     }
 }
@@ -167,17 +165,14 @@ function checkComputed() {
     scheduled = false;
     
     computedKeys.forEach((map, obj) => {
-        var oldObj = clone(obj),
-            keys = Object.keys(map),
-            i = keys.length,
-            newValue,
-            oldValue,
-            key;
+        let oldObj = clone(obj);
+        let keys = Object.keys(map);
+        let i = keys.length;
         
         while (i--) {
-            key = keys[i];
-            newValue = obj[key],
-            oldValue = map[key];
+            let key = keys[i];
+            let newValue = obj[key];
+            let oldValue = map[key];
             
             if (newValue !== oldValue) {
                 map[key] = newValue;
@@ -205,16 +200,14 @@ function checkComputed() {
 function wrapMethod(name: string, method: Function) {
     _defineProperty(arrayPrototype, name, {
         value() {
-            var result,
-                before;
-            
-            if (callbacksByKeys.has(this)) {
-                before = this.slice();
-                result = method.apply(this, arguments);
-                arrayChanges(this, before);
-            } else {
-                result = method.apply(this, arguments);
+            if (!callbacksByKeys.has(this)) {
+                return method.apply(this, arguments);
             }
+
+            let before = this.slice();
+            let result = method.apply(this, arguments);
+            
+            arrayChanges(this, before);
 
             return result;
         }
@@ -225,9 +218,9 @@ function wrapMethod(name: string, method: Function) {
  * A wrapper for Object's native defineProperty method.
  */
 function defineProperty(obj: Object, key: string|number, desc: PropertyDescriptor) {
-    var oldValue = obj[key],
-        oldObj = clone(obj),
-        result = _defineProperty(obj, key, desc);
+    let oldValue = obj[key];
+    let oldObj = clone(obj);
+    let result = _defineProperty(obj, key, desc);
     
     if (callbacksByKeys.has(obj)) {
         executeCallbacks(obj, key, oldValue);
@@ -241,19 +234,18 @@ function defineProperty(obj: Object, key: string|number, desc: PropertyDescripto
  * A wrapper for Object's native defineProperties method.
  */
 function defineProperties(obj: Object, map: PropertyDescriptorMap) {
-    var oldObj = clone(obj),
-        result = _defineProperties(obj, map);
+    let oldObj = clone(obj);
+    let result = _defineProperties(obj, map);
     
     if (!callbacksByKeys.has(obj)) {
         return result;
     }
     
-    var	keys = Object.keys(map),
-        i = keys.length,
-        key;
+    let	keys = Object.keys(map);
+    let i = keys.length;
     
     while (i--) {
-        key = keys[i];
+        let key = keys[i];
         
         if (obj[key] !== map[key].value) {
             executeCallbacks(obj, key, oldObj[key]);
@@ -269,10 +261,10 @@ function defineProperties(obj: Object, map: PropertyDescriptorMap) {
  * Executes callbacks for changes to arrays made
  * by the mutation methods of Array's prototype.
  */
-function arrayChanges(arr: Array<any>, oldArr: Array<any>) {
-    var val = arr[0],
-        i = 0,
-        len = oldArr.length;
+function arrayChanges(arr: any[], oldArr: any[]) {
+    let val = arr[0];
+    let len = oldArr.length;
+    let i = 0;
 
     while (val) {
         if (i >= len || val !== oldArr[i]) {

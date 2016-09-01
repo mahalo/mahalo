@@ -5,8 +5,10 @@
 
 /***/
 
-import {Scope, ComponentGenerator, ComponentController, Expression, assign, keyPath, watch, filters} from '../index';
+import {Scope, ComponentGenerator, ComponentController, Template, Expression, assign, keyPath, watch, filters} from '../index';
 import {injectDependencies, getDependency} from './injector';
+
+const expressions: WeakMap<Component, Expression[]> = new WeakMap();
 
 /**
  * All Mahalo applications are component based. For your application
@@ -66,7 +68,7 @@ import {injectDependencies, getDependency} from './injector';
  * 
  * @alias {Component} from mahalo
  */
-export default class Component implements IComponent {
+export default class Component {
     /**
      * This static property defines which properties of the component
      * should be available in its local scope which will be used by the
@@ -83,7 +85,7 @@ export default class Component implements IComponent {
      * }
      * ```
      */
-    static locals: Array<string>;
+    static locals: string[];
     
     /**
      * This static property defines dependencies that will be injected into
@@ -116,7 +118,7 @@ export default class Component implements IComponent {
      * }
      * ```
      */
-    static inject: Object;
+    static inject: {[property: string]: any};
     
     /**
      * A map containing keys of properties that will pull in their value from
@@ -154,7 +156,7 @@ export default class Component implements IComponent {
      * }
      * ```
      */
-    static attributes: Object;
+    static attributes: {[property: string]: any};
     
     /**
      * This static property lets you define listeners that will be executed when
@@ -184,7 +186,7 @@ export default class Component implements IComponent {
      * }
      * ```
      */
-    static bindings: Object;
+    static bindings: {[keyPath: string]: any};
     
     /**
      * When a string is given it must contain the html of the component's template.
@@ -194,7 +196,7 @@ export default class Component implements IComponent {
      * TypeScript file. This feature is only for advanced usage (for example having an empty
      * template by setting this to an empty string) or rapid prototyping. 
      */
-    static template: string|ITemplate;
+    static template: string|Template;
     
     /**
      * To initialize a component its dependecies have to be injected first,
@@ -205,16 +207,26 @@ export default class Component implements IComponent {
      * sure inherited features don't break.
      */
     constructor() {
-        var Constructor = this.constructor;
-        
+        let prototype = Object.getPrototypeOf(this);
+        let Constructor = prototype.constructor;
+
         while (Constructor !== Component) {
             injectDependencies(this, Constructor);
             createAttributeBindings(this, Constructor);
             createBindings(this, Constructor);
             
-            Constructor = Object.getPrototypeOf(Constructor);
+            prototype = Object.getPrototypeOf(prototype);
+            Constructor = prototype.constructor;
         }
     }
+
+    enter() {}
+
+    leave() {}
+
+    ready() {}
+
+    remove() {}
 }
 
 /**
@@ -234,26 +246,24 @@ export function removeAttributeBindings(component: Component) {
 //////////
 
 
-var expressions = new WeakMap();
-
 /**
  * Loops over the attached attributes and create a binding for each one.
  */
-function createAttributeBindings(component: Component, Constructor) {
+function createAttributeBindings(component: Component, Constructor: typeof Component) {
     if (!(Constructor.attributes instanceof Object)) {
         return;
     }
     
-    var scope = getDependency(Scope),
-        attributes = Constructor.attributes,
-        names =  Object.keys(attributes),
-        i = names.length,
-        name;
+    let scope = getDependency(Scope);
+    let attributes = Constructor.attributes;
+    let names =  Object.keys(attributes);
+    let i = names.length;
     
     expressions.set(component, []);
     
     while (i--) {
-        name = names[i];
+        let name = names[i];
+
         createAttributeBinding(component, scope, name, attributes[name])
     }
 }
@@ -263,18 +273,18 @@ function createAttributeBindings(component: Component, Constructor) {
  * It also creates the dsired bindings.
  */
 function createAttributeBinding(component: Component, scope: Component|Scope, name: string, attribute: string) {
-    var element = getDependency(Element),
-        first = attribute[0],
-        oneWay = first === '.',
-        twoWay = first === ':';
+    let element = getDependency(Element);
+    let first = attribute[0];
+    let oneWay = first === '.';
+    let twoWay = first === ':';
     
     if (!oneWay && !twoWay && first !== '?') {
         component[name] = element.getAttribute(attribute || filters.hyphen(name));
         return;
     }
     
-    var path = element.getAttribute(attribute.substr(1) || filters.hyphen(name)),
-        expression = new Expression(path, scope);
+    let path = element.getAttribute(attribute.substr(1) || filters.hyphen(name));
+    let expression = new Expression(path, scope);
     
     if (oneWay || twoWay) {
         expressions.get(component).push(expression);
@@ -293,19 +303,19 @@ function createAttributeBinding(component: Component, scope: Component|Scope, na
  * Creates bindings to paths inside the component that execute a given
  * instance method when the value at a path changes.
  */
-function createBindings(component: Component, Constructor) {
-    var bindings = Constructor.bindings;
+function createBindings(component: Component, Constructor: typeof Component) {
+    let bindings = Constructor.bindings;
     
     if (!(bindings instanceof Object)) {
         return;
     }
     
-    var keys = Object.keys(bindings),
-        i = keys.length,
-        key;
+    let keys = Object.keys(bindings);
+    let i = keys.length;
     
     while (i--) {
-        key = keys[i];
+        let key = keys[i];
+        
         watch(component, key, component[bindings[key]].bind(component));
     }
 }

@@ -1,12 +1,12 @@
 import {assign, watch, unwatch} from '../../index';
 
 describe('change detection: key-path:', function() {
-    var obj = {
-            child: {},
-            list: []
-        },
-        local = 10,
-        called = 0;
+    let obj = {
+        child: {},
+        list: []
+    };
+    let local = 10;
+    let called = 0;
     
     GrandChild.prototype.property = 1;
     
@@ -50,7 +50,7 @@ describe('change detection: key-path:', function() {
         });
         
         it('should react to changes', function() {
-            expect(called).toEqual(new GrandChild(30));
+            expect(called).toEqual(30);
         });
     });
     

@@ -9,24 +9,16 @@ module.exports = function (config) {
             'test/index.ts': ['webpack']
         },
         webpack: {
+            resolve: {
+                extensions: ['', '.js', '.ts']
+            },
             module: {
                 loaders: [
                     {
                         test: /\.ts$/,
-                        loader: 'babel',
-                        query: {
-                            presets: ['es2015'],
-                            plugins: [
-                                'transform-class-properties',
-                                'transform-flow-strip-types',
-                                'transform-runtime'
-                            ]
-                        }
+                        loader: 'mahalo'
                     }
                 ]
-            },
-            resolve: {
-                extensions: ['', '.js', '.ts']
             },
             devtool: 'source-map'
         }
